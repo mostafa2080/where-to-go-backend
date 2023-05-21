@@ -13,6 +13,7 @@
 3. Functionality Overview
 4. Endpoints
 5. Usage
+6. Project Work Flow
 
 ## 1. Introduction
 The "Where to Go" website is a Node.js project that suggests places to users based on their current interests and mood. The website caters to three types of users: admin, users, and vendors (place owners or providers). The places can include restaurants, hotels, kids areas, vacation rentals, and parks. This documentation provides an overview of the project structure, functionality, and available endpoints.
