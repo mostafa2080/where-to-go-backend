@@ -72,7 +72,7 @@ For a detailed understanding of each endpoint's input parameters, responses, and
 
 Note: This documentation provides a high-level overview of the project structure and functionality. For more detailed information and implementation specifics, it is recommended to review the project's source code and related documentation.
 
-## 6. Project Planning
+## 6. Project Work Flow
 
 | Vendors Dashboard | Admin Dashboard  | Home |
 | ------------- | ------------- | ------------- |
