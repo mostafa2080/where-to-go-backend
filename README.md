@@ -71,3 +71,12 @@ Similarly, vendors can access their dashboard and manage their places using the 
 For a detailed understanding of each endpoint's input parameters, responses, and possible actions, please refer to the project's codebase and API documentation.
 
 Note: This documentation provides a high-level overview of the project structure and functionality. For more detailed information and implementation specifics, it is recommended to review the project's source code and related documentation.
+
+## 6. Project Planning
+
+| Vendors Dashboard | Admin Dashboard  | Home |
+| ------------- | ------------- | ------------- |
+| ![alt text](./Docs//Images/1.png) | ![alt text](./Docs//Images/2.png) | ![alt text](./Docs//Images/3.png) 
+
+
+
