@@ -68,9 +68,7 @@ To use the "Where to Go" website, users can navigate to the relevant endpoints t
 
 Similarly, vendors can access their dashboard and manage their places using the "/vendors/dashboard" endpoint. Admin and employees can perform their administrative tasks through the corresponding endpoints.
 
-For a detailed understanding of each endpoint's input parameters, responses, and possible actions, please refer to the project's codebase and API documentation.
-
-Note: This documentation provides a high-level overview of the project structure and functionality. For more detailed information and implementation specifics, it is recommended to review the project's source code and related documentation.
+For a detailed understanding of each endpoint's input parameters, responses, and possible actions, please note that this documentation provides a high-level overview of the project structure and functionality. The project is a work in progress, and there may be additions or deletions in the future. It is recommended to review the project's source code and any updated documentation for the most up-to-date and detailed information on the implementation specifics.
 
 ## 6. Project Work Flow
 
