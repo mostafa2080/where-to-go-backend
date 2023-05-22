@@ -16,14 +16,14 @@
 6. Project Work Flow
 
 ## 1. Introduction
-The "Where to Go" website is a Node.js project that suggests places to users based on their current interests and mood. The website caters to three types of users: admin, users, and vendors (place owners or providers). The places can include restaurants, hotels, kids areas, vacation rentals, and parks. This documentation provides an overview of the project structure, functionality, and available endpoints.
+The "Where to Go" website is a Node.js project that suggests places to users based on their current interests and mood. The website caters to three types of users: admin, employees, users, and vendors (place owners or providers). The places can include restaurants, hotels, kids areas, vacation rentals, and parks. This documentation provides an overview of the project structure, functionality, and available endpoints.
 
 ## 2. Project Structure
 The project follows a client-server architecture, where the server is implemented using Node.js. Here is an overview of the main components and entities in the project:
 
 - **Admin**: The admin user has privileged access and can perform various administrative tasks, such as managing vendors and employees, accepting or rejecting vendors, and viewing website statistics.
-- **Users**: Users of the website can search for places based on their interests and mood. They can filter and sort the search results based on rating, recency, and location. Users can also write reviews and rate the places if they are logged in.
 - **Employees**: Employees have limited administrative capabilities and can perform CRUD operations on users and vendors. They can also accept or reject vendors and view statistics related to their role in the system.
+- **Users**: Users of the website can search for places based on their interests and mood. They can filter and sort the search results based on rating, recency, and location. Users can also write reviews and rate the places if they are logged in.
 - **Vendors**: Vendors are the place owners or providers. They can add their places to the website, including images, contact information, description, location, and place tags. Vendors can also view statistics about their places.
 
 ## 3. Functionality Overview
