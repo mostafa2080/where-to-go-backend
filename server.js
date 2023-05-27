@@ -2,7 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const dbconnection = require('./config/database');
-const ApiError = require('./utils/apiError');
+const ApiError = require('./utils/ApiError');
 const globalError = require('./middlewares/errorMiddleware');
 
 dotenv.config({ path: 'config.env' });
