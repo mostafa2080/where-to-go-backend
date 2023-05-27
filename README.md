@@ -75,7 +75,7 @@ For a detailed understanding of each endpoint's input parameters, responses, and
 
 | Vendors Dashboard | Admin Dashboard  | Home |
 | ------------- | ------------- | ------------- |
-| ![alt text](./Docs//Images/1.png) | ![alt text](./Docs//Images/2.png) | ![alt text](./Docs//Images/3.png) 
+| ![alt text](./docs//Images/1.png) | ![alt text](./docs//Images/2.png) | ![alt text](./docs//Images/3.png) 
 
 
 
