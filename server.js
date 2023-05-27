@@ -27,6 +27,7 @@ app.all('*', (req, res, next) => {
 
 //err mw
 app.use(globalError);
+
 //listening
 const {PORT} = process.env;
 const server = app.listen(PORT, () => {
