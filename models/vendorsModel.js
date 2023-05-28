@@ -40,6 +40,16 @@ const VendorsSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+VendorsSchema.pre("remove", function (next) {
+  this.deleted = true;
+  this.save();
+  next();
 });
 
 mongoose.model("vendors", VendorsSchema);
