@@ -1,7 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Role = require('../models/Role');
-const ApiError = require('../utils/ApiError');
-
+const ApiError = require('../utils/apiError');
 
 // @desc      Get all roles
 // @route     GET /roles
