@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const dbconnection = require('./config/database');
 const ApiError = require('./utils/apiError');
 const globalError = require('./middlewares/errorMiddleware');
+const rolesRoute = require('./routes/rolesRouter');
 
 dotenv.config({ path: 'config.env' });
 
@@ -20,7 +21,7 @@ if (process.env.NODE_ENV === 'development') {
   console.log(` Mode: ${process.env.NODE_ENV}`);
 }
 //routes
-
+app.use('/api/v1/roles', rolesRoute);
 app.all('*', (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
 });
@@ -29,7 +30,7 @@ app.all('*', (req, res, next) => {
 app.use(globalError);
 
 //listening
-const {PORT} = process.env;
+const { PORT } = process.env;
 const server = app.listen(PORT, () => {
   console.log(`app running on Port: ${PORT}`);
 });
