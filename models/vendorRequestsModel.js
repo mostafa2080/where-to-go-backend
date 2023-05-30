@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
-const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
 
-const VendorsSchema = new mongoose.Schema({
+const VendorRequestsSchema = new mongoose.Schema({
   firstName: {
     type: String,
     trim: true,
@@ -43,5 +42,4 @@ const VendorsSchema = new mongoose.Schema({
   },
 });
 
-VendorsSchema.plugin(softDeletePlugin);
-mongoose.model("vendors", VendorsSchema);
+mongoose.model("vendorRequests", VendorRequestsSchema);
