@@ -5,8 +5,15 @@ const UserSchema = require('./User');
 
 // Create customer schema
 const CustomerSchema = ExtendSchema(UserSchema, {
-    name: String,
-    dateOfBirth: Date,
+    first_name: {
+        type: String,
+        required: true
+    },
+    last_name: {
+        type: String,
+        required: true
+    },
+    date_of_birth: Date,
     gender: {
         type: String,
         enum: ['male', 'female']
@@ -20,7 +27,7 @@ const CustomerSchema = ExtendSchema(UserSchema, {
         default: null
     },
     image: String,
-    favouritePlaces: {
+    favourite_places: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'vendors'
     }

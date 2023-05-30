@@ -5,6 +5,9 @@ const dbconnection = require('./config/database');
 const ApiError = require('./utils/apiError');
 const globalError = require('./middlewares/errorMiddleware');
 
+// Routes
+const customersRouter = require('./routes/customers');
+
 dotenv.config({ path: 'config.env' });
 
 //express app
@@ -19,7 +22,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
   console.log(` Mode: ${process.env.NODE_ENV}`);
 }
+
 //routes
+app.use(customersRouter);
 
 app.all('*', (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
