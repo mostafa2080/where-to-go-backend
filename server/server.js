@@ -4,6 +4,12 @@ const morgan = require("morgan");
 const dbconnection = require("./config/database");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
+const rolesRoute = require('./routes/rolesRouter');
+const permissionsRoute = require('./routes/permissionsRoute');
+
+// Routes
+const customersRouter = require('./routes/customers');
+
 
 //Routes
 const vendorsRoute = require("./routes/vendorsRoute");
@@ -27,6 +33,14 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(` Mode: ${process.env.NODE_ENV}`);
 }
+<<<<<<< HEAD:server.js
+=======
+
+//routes
+app.use(customersRouter);
+app.use('/api/v1/roles', rolesRoute);
+app.use('/api/v1/permissions', permissionsRoute);
+>>>>>>> users:server/server.js
 
 //routes
 app.use("/api/v1/vendors", vendorsRoute);
