@@ -1,0 +1,38 @@
+[
+  {
+    "name": "admin_dashboard",
+    "description": "Access admin dashboard"
+  },
+  {
+    "name": "admin_employees",
+    "description": "Manage employees"
+  },
+  {
+    "name": "admin_vendors",
+    "description": "Manage vendors"
+  },
+  {
+    "name": "admin_users",
+    "description": "Manage users"
+  },
+  {
+    "name": "employee_dashboard",
+    "description": "Access employee dashboard"
+  },
+  {
+    "name": "employee_vendors",
+    "description": "Manage vendors (excluding delete)"
+  },
+  {
+    "name": "employee_users",
+    "description": "Manage users"
+  },
+  {
+    "name": "vendor_dashboard",
+    "description": "Access vendor dashboard"
+  },
+  {
+    "name": "user_profile",
+    "description": "Access user profile page"
+  }
+]
