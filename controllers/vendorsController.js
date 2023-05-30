@@ -70,8 +70,15 @@ exports.updateVendor = async (req, res, next) => {
   }
 };
 
-exports.deactivateVendor = (req, res, next) => {
+exports.deactivateVendor = async (req, res, next) => {
   try {
+    const deletedVendor = await Vendors.softDelete({
+      _id: req.body.id,
+    });
+    res.status(200).json({
+      status: "success",
+      data: deletedVendor,
+    });
   } catch (error) {
     next(error);
   }
