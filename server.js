@@ -33,18 +33,13 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(` Mode: ${process.env.NODE_ENV}`);
 }
-<<<<<<< HEAD:server.js
-=======
 
 //routes
 app.use(customersRouter);
 app.use('/api/v1/roles', rolesRoute);
 app.use('/api/v1/permissions', permissionsRoute);
->>>>>>> users:server/server.js
-
-//routes
 app.use("/api/v1/vendors", vendorsRoute);
-app.use("/api/v1/vendorrequests", vendorRequestsRoute);
+
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
