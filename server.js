@@ -4,6 +4,8 @@ const morgan = require('morgan');
 const dbconnection = require('./config/database');
 const ApiError = require('./utils/apiError');
 const globalError = require('./middlewares/errorMiddleware');
+const rolesRoute = require('./routes/rolesRouter');
+const permissionsRoute = require('./routes/permissionsRoute');
 
 // Routes
 const customersRouter = require('./routes/customers');
@@ -25,6 +27,8 @@ if (process.env.NODE_ENV === 'development') {
 
 //routes
 app.use(customersRouter);
+app.use('/api/v1/roles', rolesRoute);
+app.use('/api/v1/permissions', permissionsRoute);
 
 app.all('*', (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
@@ -34,7 +38,7 @@ app.all('*', (req, res, next) => {
 app.use(globalError);
 
 //listening
-const {PORT} = process.env;
+const { PORT } = process.env;
 const server = app.listen(PORT, () => {
   console.log(`app running on Port: ${PORT}`);
 });
