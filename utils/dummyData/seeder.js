@@ -11,25 +11,34 @@ dotenv.config({ path: '../../config.env' });
 // connect to DB
 dbConnection();
 
-// Read data
-const permissions = JSON.parse(fs.readFileSync('./permissions.json'));
-const roles = JSON.parse(fs.readFileSync('./roles.json'));
+// Read role and permission data
+const rolesData = JSON.parse(fs.readFileSync('./roles.json'));
+const permissionsData = JSON.parse(fs.readFileSync('./permissions.json'));
 
-// Insert data into DB
+// Insert data into the database
 const insertData = async () => {
   try {
-    // Insert permissions
-    await Permission.create(permissions);
+    // Seed permissions first
+    const permissions = await Permission.insertMany(permissionsData);
+    console.log(`${permissions.length} permissions inserted`);
 
-    // Insert roles
-    const rolesWithPermissions = roles.map((role) => {
-      const rolePermissions = permissions
-        .filter((permission) => permission.role === role.name)
-        .map((permission) => permission._id);
-      return { ...role, permissions: rolePermissions };
+    // Map permission names to their respective IDs
+    const permissionMap = {};
+    permissions.forEach((permission) => {
+      permissionMap[permission.name] = permission._id;
     });
 
-    await Role.create(rolesWithPermissions);
+    // Update role data with permission IDs
+    const roles = rolesData.map((role) => ({
+      ...role,
+      permissions: role.permissions.map(
+        (permissionName) => permissionMap[permissionName]
+      ),
+    }));
+
+    // Seed roles with updated permission IDs
+    await Role.insertMany(roles);
+    console.log(`${roles.length} roles inserted`);
 
     console.log('Data Inserted'.green.inverse);
     process.exit();
@@ -38,11 +47,11 @@ const insertData = async () => {
   }
 };
 
-// Delete data from DB
+// Delete data from the database
 const destroyData = async () => {
   try {
-    await Permission.deleteMany();
     await Role.deleteMany();
+    await Permission.deleteMany();
     console.log('Data Destroyed'.red.inverse);
     process.exit();
   } catch (error) {
