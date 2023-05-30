@@ -2,6 +2,7 @@ const { body, param } = require('express-validator');
 const mongoose = require('mongoose');
 const ApiError = require('../apiError');
 const validatorMiddleware = require('../../middlewares/validatorMiddleware');
+const Permission = require('../../models/Permission');
 
 // Validate role data before sending it to the DB
 
@@ -17,15 +18,19 @@ exports.validateCreateRole = [
   body('permissions')
     .isArray({ min: 1 })
     .withMessage('Permissions must be an array with at least one permission ID')
-    .custom((permissions) => {
-      const isValid = permissions.every((permission) =>
-        mongoose.Types.ObjectId.isValid(permission)
+    .custom(async (permissions) => {
+      const permissionIds = permissions.map((permissionId) =>
+        mongoose.Types.ObjectId.createFromHexString(permissionId)
       );
-      if (!isValid) {
+      const existingPermissions = await Permission.find({
+        _id: { $in: permissionIds },
+      });
+      if (existingPermissions.length !== permissionIds.length) {
         throw new ApiError('Invalid permission ID', 400);
       }
       return true;
     }),
+
   validatorMiddleware,
 ];
 
