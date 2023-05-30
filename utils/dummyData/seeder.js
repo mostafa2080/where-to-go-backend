@@ -30,6 +30,7 @@ const insertData = async () => {
 
     // Update role data with permission IDs
     const roles = rolesData.map((role) => ({
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
       ...role,
       permissions: role.permissions.map(
         (permissionName) => permissionMap[permissionName]

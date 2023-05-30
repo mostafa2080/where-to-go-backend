@@ -11,6 +11,16 @@ const roleSchema = new mongoose.Schema({
   ],
 });
 
+roleSchema.pre('find', function (next) {
+  this.populate('permissions', 'name');
+  next();
+});
+
+roleSchema.pre('findOne', function (next) {
+  this.populate('permissions', 'name');
+  next();
+});
+
 const Role = mongoose.model('Role', roleSchema);
 
 module.exports = Role;
