@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Admin",
+    "description": "Administrator role with full administrative privileges"
+  },
+  {
+    "name": "Vendor",
+    "description": "Role for vendors or place owners"
+  },
+  {
+    "name": "User",
+    "description": "Role for regular users"
+  },
+  {
+    "name": "Employee",
+    "description": "Role for employees with limited administrative capabilities"
+  }
+]
