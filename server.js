@@ -9,7 +9,7 @@ const permissionsRoute = require("./routes/permissionsRoute");
 
 // Routes
 const customersRouter = require("./routes/customers");
-const vendorsRoute = require("./routes/vendorsRoute");
+const vendorsRoute = require("./routes/vendors");
 
 dotenv.config({ path: "config.env" });
 
@@ -34,9 +34,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(customersRouter);
 app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
-
-//routes
-app.use("/api/v1/vendors", vendorsRoute);
+app.use("/api/v1", vendorsRoute);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));

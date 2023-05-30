@@ -4,12 +4,12 @@ const vendorsController = require("../controllers/vendorsController");
 const router = express.Router();
 
 router
-  .route("/")
+  .route("/vendors")
   .get(vendorsController.getAllVendors)
   .post(vendorsController.addVendor);
 
 router
-  .route("/:id")
+  .route("/vendors/:id")
   .get(vendorsController.getVendor)
   .patch(vendorsController.updateVendor)
   .delete(vendorsController.deactivateVendor)

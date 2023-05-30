@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-require("../models/vendorsModel");
+require("../models/Vendor");
 
 const Vendors = mongoose.model("vendors");
 
