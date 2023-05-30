@@ -1,3 +1,3 @@
-node_modules/
+server/node_modules/
 
-config.env
+server/config.env
