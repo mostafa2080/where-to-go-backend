@@ -9,10 +9,24 @@ router
   .post(vendorsController.addVendor);
 
 router
+  .route("/vendors/approved")
+  .get(vendorsController.getApprovedVendors)
+
+router
+  .route("/vendors/rejected")
+  .get(vendorsController.getRejectedVendors)
+
+router
+  .route("/vendors/:id/deactivate")
+  .patch(vendorsController.deactivateVendor)
+
+router
+  .route("/vendors/:id/restore")
+  .patch(vendorsController.deactivateVendor)
+
+router
   .route("/vendors/:id")
   .get(vendorsController.getVendor)
   .patch(vendorsController.updateVendor)
-  .delete(vendorsController.deactivateVendor)
-  .put(vendorsController.restoreVendor);
 
 module.exports = router;
