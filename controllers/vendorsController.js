@@ -4,46 +4,38 @@ require("../models/vendorsModel");
 const Vendors = mongoose.model("vendors");
 
 exports.getAllVendors = async (req, res, next) => {
-  try {
-    const vendors = await Vendors.find({});
-    res.status(200).json({
-      status: "success",
-      data: vendors,
-    });
-  } catch (error) {
-    next(error);
-  }
+  const vendors = await Vendors.find({});
+  res.status(200).json({
+    status: "success",
+    data: vendors,
+  });
 };
 
 exports.getVendor = async (req, res, next) => {
-  try {
-    const vendor = await Vendors.find({ _id: req.params.id });
-    res.status(200).json({
-      status: "success",
-      data: vendor,
-    });
-  } catch (error) {
-    next(error);
-  }
+  const vendor = await Vendors.find({ _id: req.params.id });
+  res.status(200).json({
+    status: "success",
+    data: vendor,
+  });
 };
 
 exports.addVendor = async (req, res, next) => {
-  try {
-    const vendor = new Vendors({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      placeName: req.body.placeName,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
-      description: req.body.description,
-      thumbnail: req.body.thumbnail,
-      gallery: req.body.gallery,
-    });
+  const vendor = new Vendors({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    placeName: req.body.placeName,
+    email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    description: req.body.description,
+    thumbnail: req.body.thumbnail,
+    gallery: req.body.gallery,
+  });
 
-    await vendor.save();
-  } catch (error) {
-    next(error);
-  }
+  await vendor.save();
+  res.status(200).json({
+    status: "success",
+    data: vendor,
+  });
 };
 
 exports.updateVendor = async (req, res, next) => {
@@ -65,14 +57,34 @@ exports.updateVendor = async (req, res, next) => {
         },
       }
     );
+    res.status(200).json({
+      status: "success",
+      data: vendor,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-exports.deactivateVendor = (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
+exports.deactivateVendor = async (req, res, next) => {
+  const deletedVendor = await Vendors.softDelete({
+    _id: req.params.id,
+  });
+
+  if (deletedVendor > 0) {
+    res.status(200).json({
+      status: "success",
+      data: deletedVendor,
+    });
+  } else {
+    next(new Error("No Vendor With This Id"));
   }
+};
+
+exports.restoreVendor = async (req, res, next) => {
+  const restoredVendor = await Vendors.restore({ _id: req.params.id });
+  res.status(200).json({
+    status: "success",
+    data: restoredVendor,
+  });
 };

@@ -1,0 +1,23 @@
+[
+    {
+      "name": "Admin",
+      "description": "Administrator role with full administrative privileges",
+      "permissions": ["admin_dashboard", "admin_employees", "admin_vendors", "admin_users"]
+    },
+    {
+      "name": "Vendor",
+      "description": "Role for vendors or place owners",
+      "permissions": ["vendor_dashboard"]
+    },
+    {
+      "name": "User",
+      "description": "Role for regular users",
+      "permissions": ["user_profile"]
+    },
+    {
+      "name": "Employee",
+      "description": "Role for employees with limited administrative capabilities",
+      "permissions": ["employee_dashboard", "employee_vendors", "employee_users"]
+    }
+  ]
+  
