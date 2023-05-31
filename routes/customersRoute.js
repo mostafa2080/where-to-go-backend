@@ -9,7 +9,7 @@ router
   .route("/api/v1/customers")
   .get(controller.getAllCustomers)
   .post(
-    uploadImg("customers").single("image"),
+    uploadImg().single("image"),
     validateCustomer.validatePostArray,
     controller.addCustomer
   )

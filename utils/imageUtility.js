@@ -1,5 +1,4 @@
 const multer = require("multer");
-const path = require("path");
 
 /**
  * Original uploadImg function
@@ -33,7 +32,7 @@ const path = require("path");
 //   }),
 // });
 
-exports.uploadImg = (Routepath) => multer({
+exports.uploadImg = () => multer({
   fileFilter: (req, file, callBack) => {
     if (
       file.mimetype === "image/png" ||

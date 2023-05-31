@@ -31,8 +31,8 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
   const role = await RoleSchema.findOne({ name: 'Customer' }, { _id: 1 });
 
   if (req.file) {
-    const filename = path.join('customers', Date.now() + path.extname(req.file.originalname));
-    req.imgPath = path.join(__dirname, '..', 'images', filename);
+    req.body.image = path.join('customers', Date.now() + path.extname(req.file.originalname));
+    req.imgPath = path.join(__dirname, '..', 'images', req.body.image);
   }
   else {
     req.body.image = 'default.jpg';
