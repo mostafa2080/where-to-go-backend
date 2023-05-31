@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const AddressSchema = mongoose.Schema({
   country: String,
@@ -14,12 +14,22 @@ module.exports = new mongoose.Schema({
     type: String,
     match: [
       /^\w+([.-]?\w+)@\w+([.-]?\w+)(\.\w{2,3})+$/,
-      "Please Enter Correct Email",
+      'Please Enter Correct Email',
     ],
-    unique: [true, "Email Has To Be Unique"],
-    required: [true, "Please Enter Contact Email"],
+    unique: [true, 'Email Has To Be Unique'],
+    required: [true, 'Please Enter Contact Email'],
   },
   password: String,
+  passwordResetToken: {
+    type: String,
+  },
+  passwordResetExpires: {
+    type: Date,
+  },
+  passwordResetVerified: {
+    type: Boolean,
+  },
+  name: String,
   phone_number: String,
   address: AddressSchema,
   deactivated_at: {
@@ -28,6 +38,6 @@ module.exports = new mongoose.Schema({
   },
   role: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "roles",
+    ref: 'roles',
   },
 });
