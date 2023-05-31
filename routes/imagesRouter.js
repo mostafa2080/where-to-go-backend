@@ -1,5 +1,5 @@
 const express = require("express");
-const imageController = require('../controllers/imagesController');
+const imageController = require('../controllers/imageController');
 
 const router = express.Router();
 
@@ -14,5 +14,9 @@ router
 router
     .route("/api/v1/images/employees/:filename")
     .get(imageController.getEmployeeImage);
+
+router
+    .route("/favicon.ico")
+    .get(imageController.getFavicon);
 
 module.exports = router;
