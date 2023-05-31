@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-const mongoose = require("mongoose");
-=======
 const mongoose = require('mongoose');
->>>>>>> bc8779f7bf2aee8cc4bd92c02368482442e93e02
 
 const AddressSchema = mongoose.Schema({
   country: String,
@@ -45,8 +41,5 @@ const UserSchema = new mongoose.Schema({
     ref: 'roles',
   },
 });
-<<<<<<< HEAD
-=======
 
 module.exports = UserSchema;
->>>>>>> bc8779f7bf2aee8cc4bd92c02368482442e93e02
