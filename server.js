@@ -9,7 +9,7 @@ const permissionsRoute = require('./routes/permissionsRoute');
 
 // Routes
 const customersRouter = require('./routes/customersRoute');
-const EmployeeRoutes = require('./routes/employee');
+// const EmployeeRoutes = require('./routes/employee');
 
 //Routes
 // const vendorsRoute = require("./routes/vendorsRoute");
@@ -40,7 +40,7 @@ app.use(customersRouter);
 app.use('/api/v1/roles', rolesRoute);
 app.use('/api/v1/permissions', permissionsRoute);
 // app.use("/api/v1/vendors", vendorsRoute);
-app.use(EmployeeRoutes);
+// app.use(EmployeeRoutes);
 
 
 app.all("*", (req, res, next) => {
