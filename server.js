@@ -12,8 +12,8 @@ const customersRouter = require('./routes/customers');
 
 
 //Routes
-const vendorsRoute = require("./routes/vendorsRoute");
-const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
+// const vendorsRoute = require("./routes/vendorsRoute");
+// const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
 
 dotenv.config({ path: "config.env" });
 
@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(customersRouter);
 app.use('/api/v1/roles', rolesRoute);
 app.use('/api/v1/permissions', permissionsRoute);
-app.use("/api/v1/vendors", vendorsRoute);
+// app.use("/api/v1/vendors", vendorsRoute);
 
 
 app.all("*", (req, res, next) => {

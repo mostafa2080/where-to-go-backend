@@ -26,3 +26,8 @@ exports.validatePostArray = [
   body("image").optional().notEmpty().isString().withMessage("Image path must be string"),
   validatorMiddleware,
 ];
+
+exports.validateIdParam = [
+  param("id").isMongoId().withMessage("Invalid id"),
+  validatorMiddleware
+]
