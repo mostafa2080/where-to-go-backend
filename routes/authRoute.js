@@ -14,7 +14,7 @@ const {
 
 
 router.route('/forgotPassword').post(forgotPasswordValidator, forgotPassword);
-// router.route('/verifyResetCode').post(verifyPassResetCode);
-// router.route('/resetPassword').put(resetPassword);
+router.route('/verifyResetCode').post(verifyPassResetCode);
+router.route('/resetPassword').put(resetPassword);
 
 module.exports = router;
