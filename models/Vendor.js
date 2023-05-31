@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
 const ExtendSchema = require("mongoose-extend-schema");
 const User = require("./User");
 
@@ -35,5 +36,7 @@ const VendorsSchema = ExtendSchema(User, {
     default: false,
   },
 });
+
+VendorsSchema.plugin(softDeletePlugin);
 
 mongoose.model("vendor", VendorsSchema);

@@ -8,16 +8,11 @@ const rolesRoute = require("./routes/rolesRouter");
 const permissionsRoute = require("./routes/permissionsRoute");
 
 // Routes
-
 const vendorsRoute = require("./routes/vendors");
 const imagesRouter = require("./routes/imagesRouter");
 const authRouter = require("./routes/authRoute");
 const customersRouter = require("./routes/customersRoute");
 // const EmployeeRoutes = require('./routes/employee');
-
-//Routes
-// const vendorsRoute = require("./routes/vendorsRoute");
-// const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
 
 dotenv.config({ path: "config.env" });
 
@@ -43,8 +38,7 @@ app.use(customersRouter);
 app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
 app.use("/api/v1/auth", authRouter);
-
-// app.use("/api/v1/vendors", vendorsRoute);
+app.use("/api/v1/", vendorsRoute);
 // app.use(EmployeeRoutes);
 
 app.use(imagesRouter);

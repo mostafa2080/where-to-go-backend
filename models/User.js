@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 const mongoose = require("mongoose");
-=======
-const mongoose = require('mongoose');
->>>>>>> bc8779f7bf2aee8cc4bd92c02368482442e93e02
 
 const AddressSchema = mongoose.Schema({
   country: String,
@@ -18,10 +14,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     match: [
       /^\w+([.-]?\w+)@\w+([.-]?\w+)(\.\w{2,3})+$/,
-      'Please Enter Correct Email',
+      "Please Enter Correct Email",
     ],
-    unique: [true, 'Email Has To Be Unique'],
-    required: [true, 'Please Enter Contact Email'],
+    unique: [true, "Email Has To Be Unique"],
+    required: [true, "Please Enter Contact Email"],
   },
   password: String,
   passwordResetToken: {
@@ -42,11 +38,8 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'roles',
+    ref: "roles",
   },
 });
-<<<<<<< HEAD
-=======
 
 module.exports = UserSchema;
->>>>>>> bc8779f7bf2aee8cc4bd92c02368482442e93e02
