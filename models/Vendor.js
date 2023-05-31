@@ -29,14 +29,11 @@ const VendorsSchema = ExtendSchema(User, {
     type: Array,
     default: [],
   },
-<<<<<<<< HEAD:server/models/vendorsModel.js
-========
   isApproved: {
     type: Boolean,
     required: [true, "Please Provide Approval State"],
     default: false,
   },
->>>>>>>> feature/vendor:server/models/Vendor.js
 });
 
 mongoose.model("vendors", VendorsSchema);
