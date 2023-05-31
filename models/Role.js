@@ -21,6 +21,6 @@ roleSchema.pre('findOne', function (next) {
   next();
 });
 
-const Role = mongoose.model('Role', roleSchema);
+const Role = mongoose.model('roles', roleSchema);
 
 module.exports = Role;

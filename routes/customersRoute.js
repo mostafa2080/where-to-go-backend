@@ -10,6 +10,7 @@ router
   .get(controller.getAllCustomers)
   .post(
     uploadImg("customers").single("image"),
+    validateCustomer.validatePostArray,
     controller.addCustomer
   )
 

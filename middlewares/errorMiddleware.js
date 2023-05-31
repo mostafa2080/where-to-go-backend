@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const sendErrForDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -16,16 +17,6 @@ const sendErrForProd = (err, res) => {
   });
 };
 
-const deleteUploadedFiles = (req, res, next) => {
-  if (req.body.image) {
-    fs.unlink(req.body.image, (err) => {
-      if (err) throw err;
-    })
-    console.log('image deleted successfully');
-  }
-  next();
-}
-
 const globalError = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -34,6 +25,5 @@ const globalError = (err, req, res, next) => {
   } else {
     sendErrForProd(err, res);
   }
-  deleteUploadedFiles(req, res, next);
 };
 module.exports = globalError;

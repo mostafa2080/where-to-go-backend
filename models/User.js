@@ -20,7 +20,7 @@ module.exports = new mongoose.Schema({
     required: [true, "Please Enter Contact Email"],
   },
   password: String,
-  phoneNumber: String,
+  phone_number: String,
   address: AddressSchema,
   deactivated_at: {
     type: Date,

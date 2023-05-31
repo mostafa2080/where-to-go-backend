@@ -26,10 +26,14 @@ const CustomerSchema = ExtendSchema(UserSchema, {
         type: Date,
         default: null
     },
-    image: String,
+    image: {
+        type: String,
+        default: null
+    },
     favourite_places: {
         type: [mongoose.Schema.Types.ObjectId],
-        ref: 'vendors'
+        ref: 'vendors',
+        default: []
     }
 });
 
