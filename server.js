@@ -43,6 +43,7 @@ app.use('/api/v1/roles', rolesRoute);
 app.use('/api/v1/permissions', permissionsRoute);
 app.use('/api/v1/auth', authRouter);
 
+
 // app.use("/api/v1/vendors", vendorsRoute);
 // app.use(EmployeeRoutes);
 
