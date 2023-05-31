@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 require("../models/Vendor");
 
-const Vendors = mongoose.model("vendors");
+const Vendors = mongoose.model("vendor");
 
 exports.getAllVendors = async (req, res, next) => {
   const vendors = await Vendors.find({});
@@ -11,21 +11,21 @@ exports.getAllVendors = async (req, res, next) => {
   });
 };
 
-exports.getApprovedVendors = async (req, res, next) =>{
-    const vendors = await Vendors.find({ isApproved: true});
-    res.status(200).json({
-      status: "success",
-      data: vendors,
-    });
-}
+exports.getApprovedVendors = async (req, res, next) => {
+  const vendors = await Vendors.find({ isApproved: true });
+  res.status(200).json({
+    status: "success",
+    data: vendors,
+  });
+};
 
-exports.getRejectedVendors = async (req, res, next) =>{
-    const vendors = await Vendors.find({ isApproved: false});
-    res.status(200).json({
-      status: "success",
-      data: vendors,
-    });
-}
+exports.getRejectedVendors = async (req, res, next) => {
+  const vendors = await Vendors.find({ isApproved: false });
+  res.status(200).json({
+    status: "success",
+    data: vendors,
+  });
+};
 
 exports.getVendor = async (req, res, next) => {
   const vendor = await Vendors.find({ _id: req.params.id });
@@ -55,28 +55,28 @@ exports.addVendor = async (req, res, next) => {
 };
 
 exports.updateVendor = async (req, res, next) => {
-    const vendor = await Vendors.updateOne(
-      {
-        _id: req.params.id,
+  const vendor = await Vendors.updateOne(
+    {
+      _id: req.params.id,
+    },
+    {
+      $set: {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        placeName: req.body.placeName,
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        description: req.body.description,
+        thumbnail: req.body.thumbnail,
+        gallery: req.body.gallery,
+        isApproved: req.body.isApproved,
       },
-      {
-        $set: {
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          placeName: req.body.placeName,
-          email: req.body.email,
-          phoneNumber: req.body.phoneNumber,
-          description: req.body.description,
-          thumbnail: req.body.thumbnail,
-          gallery: req.body.gallery,
-          isApproved: req.body.isApproved
-        },
-      }
-    );
-    res.status(200).json({
-      status: "success",
-      data: vendor,
-    });
+    }
+  );
+  res.status(200).json({
+    status: "success",
+    data: vendor,
+  });
 };
 
 exports.deactivateVendor = async (req, res, next) => {

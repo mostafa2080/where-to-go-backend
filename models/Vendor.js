@@ -36,4 +36,4 @@ const VendorsSchema = ExtendSchema(User, {
   },
 });
 
-mongoose.model("vendors", VendorsSchema);
+mongoose.model("vendor", VendorsSchema);
