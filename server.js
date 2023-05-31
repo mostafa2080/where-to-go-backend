@@ -12,8 +12,7 @@ const customersRouter = require('./routes/customers');
 
 
 //Routes
-const vendorsRoute = require("./routes/vendorsRoute");
-const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
+
 
 dotenv.config({ path: "config.env" });
 
