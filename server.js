@@ -7,6 +7,7 @@ const globalError = require("./middlewares/errorMiddleware");
 const rolesRoute = require('./routes/rolesRouter');
 const permissionsRoute = require('./routes/permissionsRoute');
 const imagesRouter = require('./routes/imagesRouter');
+const authRouter= require('./routes/authRoute');
 
 // Routes
 const customersRouter = require('./routes/customersRoute');
@@ -40,8 +41,11 @@ if (process.env.NODE_ENV === "development") {
 app.use(customersRouter);
 app.use('/api/v1/roles', rolesRoute);
 app.use('/api/v1/permissions', permissionsRoute);
+app.use('/api/v1/permissions', authRouter);
+
 // app.use("/api/v1/vendors", vendorsRoute);
 // app.use(EmployeeRoutes);
+
 app.use(imagesRouter);
 
 
