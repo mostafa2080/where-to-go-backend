@@ -18,7 +18,7 @@ const sendEmail = async (options) => {
     from: `Where To Go App${process.env.EMAIL_USER}`, // sender address
     to: options.email, // list of receivers
     subject: options.subject, // Subject line
-    text: options.message, // plain text body
+    html: options.message, // plain text body
   };
 
   await transporter.sendMail(mailOptions);
