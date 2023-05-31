@@ -9,13 +9,14 @@ const permissionsRoute = require('./routes/permissionsRoute');
 
 // Routes
 const customersRouter = require('./routes/customers');
-
+const EmployeeRoutes = require('./routes/employee');
 
 //Routes
 // const vendorsRoute = require("./routes/vendorsRoute");
 // const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
 
 dotenv.config({ path: "config.env" });
+
 
 //express app
 const app = express();
@@ -39,6 +40,7 @@ app.use(customersRouter);
 app.use('/api/v1/roles', rolesRoute);
 app.use('/api/v1/permissions', permissionsRoute);
 // app.use("/api/v1/vendors", vendorsRoute);
+app.use(EmployeeRoutes);
 
 
 app.all("*", (req, res, next) => {
