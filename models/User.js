@@ -9,7 +9,7 @@ const AddressSchema = mongoose.Schema({
 });
 
 // Create user schema
-module.exports = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     match: [
@@ -41,3 +41,5 @@ module.exports = new mongoose.Schema({
     ref: 'roles',
   },
 });
+const UserModel = mongoose.model('User', UserSchema);
+module.exports = UserModel;
