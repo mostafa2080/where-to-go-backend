@@ -94,3 +94,31 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
   
     res.status(200).json({ status: 'success' });
   });
+
+
+
+  exports.resetPassword = asyncHandler(async (req, res, next) => {
+    //1) get user based on their email
+    const user = await customerModel.findOne({ email: req.body.email });
+    if (!user) {
+      return next(
+        new ApiError(`User not found for this email ${req.body.email}`, 404)
+      );
+    }
+    //2) check if reset code is verified
+    if (!user.passwordResetVerified) {
+      return next(new ApiError('Password reset token not verified', 400));
+    }
+  
+    user.password = req.body.newPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    user.passwordResetVerified = undefined;
+    await user.save();
+  
+    //3) if everything okay, generate a new token
+    const token = createToken(user._id);
+    res.status(200).json({ token });
+  
+  });
+  
