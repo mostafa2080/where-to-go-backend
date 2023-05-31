@@ -21,4 +21,28 @@ router
     controller.getCustomerById
   )
 
+router.patch(
+  "/api/v1/customers/deactivate/:id",
+  validateCustomer.validateIdParam,
+  controller.deactivateCustomer,
+);
+
+router.patch(
+  "/api/v1/customers/activate/:id",
+  validateCustomer.validateIdParam,
+  controller.activateCustomer,
+);
+
+router.patch(
+  "/api/v1/customers/ban/:id",
+  validateCustomer.validateIdParam,
+  controller.banCustomer,
+);
+
+router.patch(
+  "/api/v1/customers/unban/:id",
+  validateCustomer.validateIdParam,
+  controller.unbanCustomer,
+);
+
 module.exports = router;
