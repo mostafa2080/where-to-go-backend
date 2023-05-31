@@ -3,8 +3,8 @@ const { body, param } = require("express-validator");
 const validatorMiddleware = require('../../middlewares/validatorMiddleware');
 
 exports.validatePostArray = [
-  body("first_name").notEmpty().isAlpha().withMessage("First name must be alphabetic"),
-  body("last_name").notEmpty().isAlpha().withMessage("Last name must be alphabetic"),
+  body("firstName").notEmpty().isAlpha().withMessage("First name must be alphabetic"),
+  body("lastName").notEmpty().isAlpha().withMessage("Last name must be alphabetic"),
   body("email").notEmpty().isEmail().withMessage("Email is not valid"),
   body("password").notEmpty().isStrongPassword().withMessage("Password must be strong"),
   body("street").optional().notEmpty().isString().withMessage("Street must be alphabetic"),
@@ -12,8 +12,8 @@ exports.validatePostArray = [
   body("state").optional().notEmpty().isAlpha().withMessage("State must be alphabetic"),
   body("city").optional().notEmpty().isAlpha().withMessage("City must be alphabetic"),
   body("zip").optional().notEmpty().isNumeric().withMessage("Zip must be numeric"),
-  body("phone_number").optional().notEmpty().isMobilePhone().withMessage("Phone number is not valid"),
-  body("date_of_birth")
+  body("phoneNumber").optional().notEmpty().isMobilePhone().withMessage("Phone number is not valid"),
+  body("dateOfBirth")
     .notEmpty()
     .optional()
     .isDate()

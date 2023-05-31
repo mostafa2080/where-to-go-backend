@@ -30,3 +30,7 @@ exports.getVendorImage = (req, res) => {
 exports.getEmployeeImage = (req, res) => {
     getImage(req, res, 'employees');
 }
+
+exports.getFavicon = (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, '..', 'favicon.ico'));
+}
