@@ -41,7 +41,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(customersRouter);
 app.use('/api/v1/roles', rolesRoute);
 app.use('/api/v1/permissions', permissionsRoute);
-app.use('/api/v1/permissions', authRouter);
+app.use('/api/v1/auth', authRouter);
 
 // app.use("/api/v1/vendors", vendorsRoute);
 // app.use(EmployeeRoutes);
