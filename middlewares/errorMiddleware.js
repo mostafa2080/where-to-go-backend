@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const sendErrForDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -6,13 +9,13 @@ const sendErrForDev = (err, res) => {
     message: err.message,
   });
 };
+
 const sendErrForProd = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
   });
 };
-
 
 const globalError = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;

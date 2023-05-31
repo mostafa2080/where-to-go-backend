@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const mongoose = require("mongoose");
+=======
+const mongoose = require('mongoose');
+>>>>>>> bc8779f7bf2aee8cc4bd92c02368482442e93e02
 
 const AddressSchema = mongoose.Schema({
   country: String,
@@ -9,24 +13,28 @@ const AddressSchema = mongoose.Schema({
 });
 
 // Create user schema
-module.exports = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     match: [
-      /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/,
-      "Please Enter Correct Email",
+      /^\w+([.-]?\w+)@\w+([.-]?\w+)(\.\w{2,3})+$/,
+      'Please Enter Correct Email',
     ],
-    unique: [true, "Email Has To Be Unique"],
-    required: [true, "Please Enter Contact Email"],
+    unique: [true, 'Email Has To Be Unique'],
+    required: [true, 'Please Enter Contact Email'],
   },
-  password: {
+  password: String,
+  passwordResetToken: {
     type: String,
-    required: true,
   },
-  phoneNumber: {
-    type: String,
-    required: [true, "Please Enter Contact Phone Number"],
+  passwordResetExpires: {
+    type: Date,
   },
+  passwordResetVerified: {
+    type: Boolean,
+  },
+  name: String,
+  phone_number: String,
   address: AddressSchema,
   deactivated_at: {
     type: Date,
@@ -34,6 +42,11 @@ module.exports = new mongoose.Schema({
   },
   role: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "roles",
+    ref: 'roles',
   },
 });
+<<<<<<< HEAD
+=======
+
+module.exports = UserSchema;
+>>>>>>> bc8779f7bf2aee8cc4bd92c02368482442e93e02
