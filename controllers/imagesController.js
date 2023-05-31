@@ -22,3 +22,11 @@ const getImage = (req, res, folder) => {
 exports.getCustomerImage = (req, res) => {
     getImage(req, res, 'customers');
 }
+
+exports.getVendorImage = (req, res) => {
+    getImage(req, res, 'vendors');
+}
+
+exports.getEmployeeImage = (req, res) => {
+    getImage(req, res, 'employees');
+}

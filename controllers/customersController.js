@@ -15,7 +15,7 @@ const saltRounds = 10;
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   const allCustomers = await CustomerSchema.find({});
   if (!allCustomers) return new ApiError('No customers found!', 404);
-  res.status(200).json({ data: allCustomers, path: path.join(__dirname, '..', 'images') });
+  res.status(200).json({ data: allCustomers });
 });
 
 exports.getCustomerById = AsyncHandler(async (req, res, next) => {
