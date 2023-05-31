@@ -8,7 +8,7 @@ const rolesRoute = require('./routes/rolesRouter');
 const permissionsRoute = require('./routes/permissionsRoute');
 
 // Routes
-const customersRouter = require('./routes/customers');
+const customersRouter = require('./routes/customersRoute');
 
 
 //Routes
