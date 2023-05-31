@@ -4,15 +4,13 @@ const morgan = require("morgan");
 const dbconnection = require("./config/database");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
-const rolesRoute = require('./routes/rolesRouter');
-const permissionsRoute = require('./routes/permissionsRoute');
+const rolesRoute = require("./routes/rolesRouter");
+const permissionsRoute = require("./routes/permissionsRoute");
 
 // Routes
-const customersRouter = require('./routes/customers');
+const customersRouter = require("./routes/customers");
 
-
-//Routes
-
+const vendorsRoute = require("./routes/vendors");
 
 dotenv.config({ path: "config.env" });
 
@@ -35,10 +33,9 @@ if (process.env.NODE_ENV === "development") {
 
 //routes
 app.use(customersRouter);
-app.use('/api/v1/roles', rolesRoute);
-app.use('/api/v1/permissions', permissionsRoute);
-app.use("/api/v1/vendors", vendorsRoute);
-
+app.use("/api/v1/roles", rolesRoute);
+app.use("/api/v1/permissions", permissionsRoute);
+app.use("/api/v1/", vendorsRoute);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
