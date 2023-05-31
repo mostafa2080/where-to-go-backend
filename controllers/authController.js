@@ -18,7 +18,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   //1) get user by email
   const user = await customerModel.findOne({ email: req.body.email });
   console.log(req.body.email);
-//   console.log(user)
+  //   console.log(user)
   if (!user) {
     return next(
       new ApiError(`User not found for this email ${req.body.email}`, 404)
@@ -40,13 +40,13 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   user.passwordResetVerified = false;
   await user.save();
 
-  const message = `Hi ${user.name}\n we have received a request to reset your password on E-Shop Account \n ${resetCode} \n Enter this code to complete the reset request. \n Thanks for helping us keep your account secure \n The E-Shop Team`;
+  const message = `Hi ${user.first_name}\n we have received a request to reset your password on E-Shop Account \n ${resetCode} \n Enter this code to complete the reset request. \n Thanks for helping us keep your account secure \n The E-Shop Team`;
 
   //3) send the reset code via email
   try {
     await sendMail({
       email: user.email,
-      subject: 'Your Password resset code (Valid for 10 min )',
+      subject: 'Your Password reset code (Valid for 10 min )',
       message,
     });
   } catch (e) {
