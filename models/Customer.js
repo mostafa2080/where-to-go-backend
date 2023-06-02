@@ -5,24 +5,24 @@ const UserSchema = require('./User');
 
 // Create customer schema
 const CustomerSchema = ExtendSchema(UserSchema, {
-  first_name: {
+  firstName: {
     type: String,
     required: true,
   },
-  last_name: {
+  lastName: {
     type: String,
     required: true,
   },
-  date_of_birth: Date,
+  dateOfBirth: Date,
   gender: {
     type: String,
     enum: ['male', 'female'],
   },
-  verified_at: {
+  verifiedAt: {
     type: Date,
     default: null,
   },
-  banned_at: {
+  bannedAt: {
     type: Date,
     default: null,
   },
@@ -30,7 +30,7 @@ const CustomerSchema = ExtendSchema(UserSchema, {
     type: String,
     default: null,
   },
-  favourite_places: {
+  favouritePlaces: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'vendors',
     default: [],

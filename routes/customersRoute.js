@@ -1,5 +1,5 @@
 const express = require("express");
-const controller = require("../controllers/customersController");
+const controller = require("../controllers/customerController");
 const validateCustomer = require("../utils/validators/customerValidator");
 const { uploadImg } = require("../utils/imageUtility");
 
@@ -21,28 +21,32 @@ router
     controller.getCustomerById
   )
 
-router.patch(
-  "/api/v1/customers/deactivate/:id",
-  validateCustomer.validateIdParam,
-  controller.deactivateCustomer,
-);
+router
+  .route("/api/v1/customers/deactivate/:id")
+  .patch(
+    validateCustomer.validateIdParam,
+    controller.deactivateCustomer,
+  );
 
-router.patch(
-  "/api/v1/customers/activate/:id",
-  validateCustomer.validateIdParam,
-  controller.activateCustomer,
-);
+router
+  .route("/api/v1/customers/activate/:id")
+  .patch(
+    validateCustomer.validateIdParam,
+    controller.activateCustomer,
+  );
 
-router.patch(
-  "/api/v1/customers/ban/:id",
-  validateCustomer.validateIdParam,
-  controller.banCustomer,
-);
+router
+  .route("/api/v1/customers/ban/:id")
+  .patch(
+    validateCustomer.validateIdParam,
+    controller.banCustomer,
+  );
 
-router.patch(
-  "/api/v1/customers/unban/:id",
-  validateCustomer.validateIdParam,
-  controller.unbanCustomer,
-);
+router
+  .route("/api/v1/customers/unban/:id")
+  .patch(
+    validateCustomer.validateIdParam,
+    controller.unbanCustomer,
+  );
 
 module.exports = router;
