@@ -3,10 +3,12 @@ const AsyncHandler = require('express-async-handler');
 const ApiError = require('../utils/apiError');
 const { dirname } = require('path');
 const fs = require('fs');
+const bcrypt = require("bcrypt");
 require('../models/Employee');
 
 const Employees = mongoose.model('employees');
-
+const saltRunds = 10;
+const salt = bcrypt.genSaltSync(saltRunds);
 
 
 
@@ -36,7 +38,7 @@ exports.createEmployee = AsyncHandler( async (req, res, next) => {
     const obj = {
         name: req.body.name,
         email: req.body.email,
-        password: req.body.password,
+        password: bcrypt.hashSync(request.body.password,salt),
         dateOfBirth: req.body.dateOfBirth,
         phoneNumber: req.body.phoneNumber,
         address: req.body.address,
@@ -126,7 +128,7 @@ exports.deleteEmployee = AsyncHandler( async (req, res, next) => {
 exports.resetPassword = AsyncHandler( async (req, res, next) => {
     const employee = await Employees.findOneAndUpdate({_id: req.params.id},{
         $set: {
-            password: req.body.password,
+            password: bcrypt.hashSync(request.body.password,salt),
         }
     });
 

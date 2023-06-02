@@ -8,12 +8,14 @@ const rolesRoute = require("./routes/rolesRouter");
 const permissionsRoute = require("./routes/permissionsRoute");
 
 // Routes
+const authRouter = require("./routes/authRoute");
 const customersRouter = require("./routes/customersRoute");
-
 const vendorsRoute = require("./routes/vendors");
 const imagesRouter = require("./routes/imagesRouter");
-const authRouter = require("./routes/authRoute");
 // const EmployeeRoutes = require('./routes/employee');
+
+// Middlewares...
+const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
 
 //Routes
 // const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
@@ -38,10 +40,13 @@ if (process.env.NODE_ENV === "development") {
 }
 
 //routes
+app.use("/api/v1/auth", authRouter);
+
+app.use(authenticationMiddleware);
+
 app.use(customersRouter);
 app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
-app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/", vendorsRoute);
 // app.use(EmployeeRoutes);
 
