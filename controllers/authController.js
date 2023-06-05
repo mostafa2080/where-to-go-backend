@@ -1,9 +1,21 @@
+const mongoose = require("mongoose");
+const ApiError = require("../utils/apiError");
+const sendMail = require("../utils/sendEmail");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
+const bcrypt = require("bcrypt");
+
+require("./../models/Customer");
+require("./../models/Vendor");
+require("./../models/Employee");
+
 const customerModel = require("../models/Customer");
-const ApiError = require("../utils/apiError");
-const sendMail = require("../utils/sendEmail");
+const VendorModel = mongoose.model("vendor");
+const EmployeeModel = mongoose.model("employees");
+
+const saltRunds = 10;
+const salt = bcrypt.genSaltSync(saltRunds);
 
 const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
@@ -164,3 +176,89 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   const token = createToken(user._id);
   res.status(200).json({ token });
 });
+
+//=======================================================================================//
+//====================== Starting Login For All System Users & Admins ===================//
+//=======================================================================================//
+
+// Admins(super admin & employees) Login ...
+exports.adminLogin = asyncHandler(async (req, res, next) => {
+  const employee = await EmployeeModel.findOne({ email: req.body.email});
+  if(!employee) {
+    return next(new ApiError("No such account exists, Try to reqister first...!", 404))
+  }else{
+    if(bcrypt.compareSync(req.body.password, employee.password)){
+      if(req.body.email === 'admin@app.com'){
+        let token = jwt.sign(
+          {id: employee._id, role: 'Admin'},
+          process.env.JWT_SECRET,
+          {expiresIn: process.env.JWT_EXPIRES_IN}
+        )
+
+        res.status(200).json({
+          Message: 'Authenticated', 
+          token 
+        });
+      }else{
+        let token = jwt.sign(
+          {id: employee._id, role: 'Employee'},
+          process.env.JWT_SECRET,
+          {expiresIn: process.env.JWT_EXPIRES_IN}
+        )
+
+        res.status(200).json({
+          Message: 'Authenticated', 
+          token 
+        });
+      }
+    }else{
+      return next(new ApiError("Invalid credentials, try to login again...!", 401))
+    }
+  }
+})
+
+// Vendor Login ...
+exports.vendorLogin = asyncHandler(async (req, res, next) => {
+  const vendor = await VendorModel.findOne({ email: req.body.email});
+  if(!vendor) {
+    return next(new ApiError("No such account exists, Try to reqister first...!", 404))
+  }else{
+    if(bcrypt.compareSync(req.body.password, vendor.password)){
+      let token = jwt.sign(
+        {id: vendor._id, role: 'Vendor'},
+        process.env.JWT_SECRET,
+        {expiresIn: process.env.JWT_EXPIRES_IN}
+      )
+
+      res.status(200).json({
+        Message: 'Authenticated', 
+        token 
+      });
+    }else{
+      return next(new ApiError("Invalid credentials, try to login again...!", 401))
+    }
+  }
+})
+
+// Customer Login ...
+exports.customerLogin = asyncHandler(async (req, res, next) => {
+  const customer = await customerModel.findOne({ email: req.body.email});
+  if(!customer) {
+    return next(new ApiError("No such account exists, Try to reqister first...!", 404))
+  }else{
+    if(bcrypt.compareSync(req.body.password, customer.password)){
+      let token = jwt.sign(
+        {id: customer._id, role: 'Customer'},
+        process.env.JWT_SECRET,
+        {expiresIn: process.env.JWT_EXPIRES_IN}
+      )
+
+      res.status(200).json({
+        Message: 'Authenticated', 
+        token 
+      });
+    }else{
+      return next(new ApiError("Invalid credentials, try to login again...!", 401))
+    }
+  }
+})
