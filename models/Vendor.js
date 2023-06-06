@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
+const ExtendSchema = require("mongoose-extend-schema");
+const User = require("./User");
 
-const VendorsSchema = new mongoose.Schema({
+const VendorsSchema = ExtendSchema(User, {
   firstName: {
     type: String,
     trim: true,
@@ -17,19 +19,6 @@ const VendorsSchema = new mongoose.Schema({
     trim: true,
     required: [true, "Please Enter Place Name"],
   },
-  email: {
-    type: String,
-    match: [
-      /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/,
-      "Please Enter Correct Email",
-    ],
-    unique: [true, "Email Has To Be Unique"],
-    required: [true, "Please Enter Contact Email"],
-  },
-  phoneNumber: {
-    type: String,
-    required: [true, "Please Enter Contact Phone Number"],
-  },
   description: {
     type: String,
   },
@@ -41,7 +30,13 @@ const VendorsSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
+  isApproved: {
+    type: Boolean,
+    required: [true, "Please Provide Approval State"],
+    default: false,
+  },
 });
 
 VendorsSchema.plugin(softDeletePlugin);
-mongoose.model("vendors", VendorsSchema);
+
+mongoose.model("vendor", VendorsSchema);

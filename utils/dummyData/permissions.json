@@ -1,0 +1,48 @@
+[
+    {
+      "name": "admin_dashboard",
+      "description": "Access admin dashboard",
+      "role": "Admin"
+    },
+    {
+      "name": "admin_employees",
+      "description": "Manage employees",
+      "role": "Admin"
+    },
+    {
+      "name": "admin_vendors",
+      "description": "Manage vendors",
+      "role": "Admin"
+    },
+    {
+      "name": "admin_users",
+      "description": "Manage users",
+      "role": "Admin"
+    },
+    {
+      "name": "employee_dashboard",
+      "description": "Access employee dashboard",
+      "role": "Employee"
+    },
+    {
+      "name": "employee_vendors",
+      "description": "Manage vendors (excluding delete)",
+      "role": "Employee"
+    },
+    {
+      "name": "employee_users",
+      "description": "Manage users",
+      "role": "Employee"
+    },
+    {
+      "name": "vendor_dashboard",
+      "description": "Access vendor dashboard",
+      "role": "Vendor"
+    },
+    {
+      "name": "user_profile",
+      "description": "Access user profile page",
+      "role": "User"
+    }
+  ]
+  
