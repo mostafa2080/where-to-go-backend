@@ -1,31 +1,16 @@
 const mongoose = require('mongoose');
+const ExtendSchema = require('mongoose-extend-schema');
+const User = require('./User');
 
-const EmployeesSchema = new mongoose.Schema({
+const EmployeesSchema = ExtendSchema(User, {
     name: {
         type: String,
         trim: true,
         required: [true, "Please Enter Employee Name"],
     },
-    email: {
-        type: String,
-        unique: [true, "Email Has To Be Unique"],
-        required: [true, "Please Enter Contact Email"],
-    },
-    password: {
-        type: String,
-        required: [true, "Please Enter Password"],
-    },
     dateOfBirth: {
         type: Date,
         required: [true, "Please Enter Date Of Birth"],
-    },
-    phoneNumber: {
-        type: String,
-        required: [true, "Please Enter Contact Phone Number"],
-    },
-    address: {
-        type: Object,
-        required: [true, "Please Enter Address"],
     },
     gender: {
         type: String,
@@ -50,11 +35,6 @@ const EmployeesSchema = new mongoose.Schema({
     salary: {
         type: Number,
         required: [true, "Please Enter Salary"],
-    },
-    role: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'roles',
-        required: [true, "Please Enter Role"],
     }
 }, { timestamps: true });
 
