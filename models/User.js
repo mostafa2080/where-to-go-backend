@@ -9,7 +9,7 @@ const AddressSchema = mongoose.Schema({
 });
 
 // Create user schema
-module.exports = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     match: [
@@ -20,9 +20,19 @@ module.exports = new mongoose.Schema({
     required: [true, "Please Enter Contact Email"],
   },
   password: String,
+  passwordResetToken: {
+    type: String,
+  },
+  passwordResetExpires: {
+    type: Date,
+  },
+  passwordResetVerified: {
+    type: Boolean,
+  },
+  name: String,
   phoneNumber: String,
   address: AddressSchema,
-  deactivated_at: {
+  deactivatedAt: {
     type: Date,
     default: null,
   },
@@ -31,3 +41,5 @@ module.exports = new mongoose.Schema({
     ref: "roles",
   },
 });
+
+module.exports = UserSchema;
