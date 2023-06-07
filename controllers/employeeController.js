@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const AsyncHandler = require('express-async-handler');
-const ApiError = require('../utils/apiError');
 const { dirname } = require('path');
 const fs = require('fs');
 const bcrypt = require("bcrypt");
+const ApiError = require('../utils/apiError');
 require('../models/Employee');
 
 const Employees = mongoose.model('employees');
@@ -16,7 +16,7 @@ exports.getAllEmployees = AsyncHandler( async (req, res, next) => {
     const allEmployees = await Employees.find({});
 
     if(!allEmployees){
-        return new ApiError('no Employee found', 404);
+        throw new ApiError('no Employee found', 404);
     }
 
     res.status(200).json({data: allEmployees});
@@ -27,7 +27,7 @@ exports.getEmployeeById = AsyncHandler( async (req, res, next) => {
     const employee = await Employees.findById(req.params.id);
 
     if(!employee){
-        return new ApiError('no Employee found', 404);
+        throw new ApiError('no Employee found', 404);
     }
 
     res.status(200).json({data: employee});
@@ -52,7 +52,7 @@ exports.createEmployee = AsyncHandler( async (req, res, next) => {
     const employee = await Employees.create(obj);
 
     if(!employee){
-        return new ApiError('Error happened while Creating Employee', 404);
+        throw new ApiError('Error happened while Creating Employee', 404);
     }
 
     res.status(200).json({data: employee});
@@ -61,9 +61,8 @@ exports.createEmployee = AsyncHandler( async (req, res, next) => {
 
 // Update Employee
 exports.updateEmployee = AsyncHandler( async (req, res, next) => {
-    if(req.file !== undefined){
-        req.body.image = req.file.filename;
-    }
+    if (req.file !== undefined) req.body.image = req.file.filename;
+
     const employee = await Employees.findOneAndUpdate({_id: req.params.id},{
         $set: {
             name: req.body.name,
@@ -80,16 +79,18 @@ exports.updateEmployee = AsyncHandler( async (req, res, next) => {
     });
 
     if(!employee){
-        const root = dirname(require.main.filename);
-        const path = root + "/images/Employee/" + req.body.image;
-        fs.unlink(path, (err) => {
-            if (err) {
-                console.log(err);
-            }
-        });
-        return new ApiError('Error happened while Updating Employee', 404);
+        if (req.file !== undefined){
+            const root = dirname(require.main.filename);
+            const path = root + "/images/Employee/" + req.body.image;
+            fs.unlink(path, (err) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+        }
+        console.log(employee);
+        throw new ApiError('Error happened while Updating Employee', 404);
     }
-
     if(req.file !== undefined){
         const root = dirname(require.main.filename);
         const path = root + "/images/Employee/" + employee.image;
@@ -101,6 +102,7 @@ exports.updateEmployee = AsyncHandler( async (req, res, next) => {
     }
 
     res.status(200).json({mssg:'Updated',oldData: employee});
+
 });
 
 
@@ -109,7 +111,7 @@ exports.deleteEmployee = AsyncHandler( async (req, res, next) => {
     const employee = await Employees.findOneAndDelete({_id: req.params.id});
 
     if(!employee){
-        return new ApiError('Error happened while Deleting Employee', 404);
+        throw new ApiError('Error happened while Deleting Employee', 404);
     }
 
     const root = dirname(require.main.filename);
@@ -133,7 +135,7 @@ exports.resetPassword = AsyncHandler( async (req, res, next) => {
     });
 
     if(!employee){
-        return new ApiError('Error happened while Resetting Password', 404);
+        throw new ApiError('Error happened while Resetting Password', 404);
     }
 
     res.status(200).json({mssg:'Password Reseted',oldData: employee});
@@ -150,7 +152,7 @@ exports.banEmployee = AsyncHandler( async (req, res, next) => {
     });
 
     if(!employee){
-        return new ApiError('Error happened while Banning Employee', 404);
+        throw new ApiError('Error happened while Banning Employee', 404);
     }
 
     res.status(200).json({mssg:'Employee Banned'});
@@ -165,7 +167,7 @@ exports.unbanEmployee = AsyncHandler( async (req, res, next) => {
     });
 
     if(!employee){
-        return new ApiError('Error happened while Unbanning Employee', 404);
+        throw new ApiError('Error happened while Unbanning Employee', 404);
     }
 
     res.status(200).json({mssg:'Employee Unbanned'});
@@ -180,7 +182,7 @@ exports.deactivateEmployee = AsyncHandler( async (req, res, next) => {
     });
 
     if(!employee){
-        return new ApiError('Error happened while Deactivating Employee', 404);
+        throw new ApiError('Error happened while Deactivating Employee', 404);
     }
 
     res.status(200).json({mssg:'Employee Deactivated'});
@@ -195,8 +197,21 @@ exports.activateEmployee = AsyncHandler( async (req, res, next) => {
     });
 
     if(!employee){
-        return new ApiError('Error happened while Activating Employee', 404);
+        throw new ApiError('Error happened while Activating Employee', 404);
     }
 
     res.status(200).json({mssg:'Employee Activated'});
+});
+
+// filter Employee
+exports.filterEmployee = AsyncHandler( async (req, res, next) => {
+    const queryStr = JSON.stringify(req.query);
+
+    const employees = await Employees.find(JSON.parse(queryStr));
+
+    if(!employees){
+        throw new ApiError('Error happened while Filtering Employee', 404);
+    }
+
+    res.status(200).json({data: employees});
 });
