@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const morgan = require('morgan');
 const dbconnection = require('./config/database');
 const ApiError = require('./utils/apiError');
@@ -14,7 +15,7 @@ const vendorsRoute = require('./routes/vendors');
 const imagesRouter = require('./routes/imagesRouter');
 const categoriesRouter = require('./routes/categoriesRouter');
 const tagsRouter = require('./routes/tagsRouter');
-// const EmployeeRoutes = require('./routes/employee');
+const EmployeeRoutes = require('./routes/employee');
 
 // Middlewares...
 const authenticationMiddleware = require('./middlewares/authenticationMiddleware');
@@ -22,7 +23,7 @@ const authenticationMiddleware = require('./middlewares/authenticationMiddleware
 //Routes
 // const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
 
-dotenv.config({ path: 'config.env' });
+dotenv.config({ path: '.env' });
 
 //express app
 const app = express();
@@ -34,8 +35,14 @@ app.use(express.urlencoded({ extended: false }));
 //connect with DB
 dbconnection();
 
+// cors middleware
+app.use(cors())
+
 //Middleware
 app.use(express.json());
+app.use(express.urlencoded({
+    extended: true
+}))
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
     console.log(` Mode: ${process.env.NODE_ENV}`);
@@ -45,6 +52,8 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/categories', categoriesRouter);
 app.use('/api/v1/tags', tagsRouter);
+app.use(EmployeeRoutes);
+app.use(imagesRouter);
 
 app.use(authenticationMiddleware);
 
@@ -52,9 +61,8 @@ app.use("/api/v1/customers", customersRouter);
 app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
 app.use("/api/v1/", vendorsRoute);
-// app.use(EmployeeRoutes);
 
-app.use("/api/v1/images", imagesRouter);
+app.use(imagesRouter);
 
 app.all('*', (req, res, next) => {
     next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
