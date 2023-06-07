@@ -44,13 +44,13 @@ app.use("/api/v1/auth", authRouter);
 
 app.use(authenticationMiddleware);
 
-app.use(customersRouter);
+app.use("/api/v1/customers", customersRouter);
 app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
 app.use("/api/v1/", vendorsRoute);
 // app.use(EmployeeRoutes);
 
-app.use(imagesRouter);
+app.use("/api/v1/images", imagesRouter);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));

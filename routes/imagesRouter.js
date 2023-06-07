@@ -4,19 +4,19 @@ const imageController = require('../controllers/imageController');
 const router = express.Router();
 
 router
-    .route("/api/v1/images/customers/:filename")
+    .route("/customers/:filename")
     .get(imageController.getCustomerImage);
     
 router
-    .route("/api/v1/images/vendors/:filename")
+    .route("/vendors/:filename")
     .get(imageController.getVendorImage);
     
 router
-    .route("/api/v1/images/employees/:filename")
+    .route("/employees/:filename")
     .get(imageController.getEmployeeImage);
 
-router
-    .route("/favicon.ico")
-    .get(imageController.getFavicon);
+// router
+//     .route("/favicon.ico")
+//     .get(imageController.getFavicon);
 
 module.exports = router;
