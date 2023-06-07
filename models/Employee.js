@@ -20,10 +20,6 @@ const EmployeesSchema = ExtendSchema(User, {
         type: Date,
         required: [true, "Please Enter Hire Date"],
     },
-    deactivationDate: {
-        type: Date,
-        default: null
-    },
     bannedAtt: {
         type: Date,
         default: null
