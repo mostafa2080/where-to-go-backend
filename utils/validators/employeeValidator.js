@@ -12,23 +12,23 @@ exports.createEmployeeValidator = [
     body('password').notEmpty().withMessage('Please Enter Password'),
     body('dateOfBirth').notEmpty().withMessage('Please Enter Date Of Birth'),
     body('phoneNumber').notEmpty().withMessage('Please Enter Contact Phone Number'),
-    body('address').isObject().withMessage('Please Enter Address'),
-    body('address.city').notEmpty().withMessage('Please Enter City'),
-    body('address.street').notEmpty().withMessage('Please Enter Street'),
+    body('country').notEmpty().withMessage('Please Enter country Name'),
+    body('city').notEmpty().withMessage('Please Enter City'),
+    body('street').notEmpty().withMessage('Please Enter Street'),
     body('gender').isIn(['Male','Female']).withMessage('Enter a Valid Gender'),
     body('hireDate').notEmpty().withMessage('Please Enter Hire Date'),
     body('salary').isNumeric().withMessage('Please Enter Salary'),
-    body('role').isMongoId().withMessage('Please Enter Valid Role Id'),
+    body('role').isIn(['Admin','Employee']).withMessage('Please Enter Valid Role Admin / Employee'),
 ];
 
 exports.updateEmployeeValidator = [
     param('id').isMongoId().withMessage('Please Enter Valid Id'),
     body('email').optional().isEmail().withMessage('Please Enter Valid Email'),
-    body('address').optional().isObject().withMessage('Please Enter Address'),
-    body('address.city').optional().notEmpty().withMessage('Please Enter City'),
-    body('address.street').optional().notEmpty().withMessage('Please Enter Street'),
+    body('country').optional().notEmpty().withMessage('Please Enter country Name'),
+    body('city').optional().notEmpty().withMessage('Please Enter City'),
+    body('street').optional().notEmpty().withMessage('Please Enter Street'),
     body('salary').optional().isNumeric().withMessage('Please Enter Salary'),
-    body('role').optional().isMongoId().withMessage('Please Enter Valid Role Id'),
+    body('role').optional().isIn(['Admin','Employee']).withMessage('Please Enter Valid Role Admin / Employee'),
 ];
 
 exports.deleteEmployeeValidator = [
