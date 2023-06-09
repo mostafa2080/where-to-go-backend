@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
-const ApiError = require("../utils/apiError");
-const sendMail = require("../utils/sendEmail");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
-const bcrypt = require("bcrypt");
+const ApiError = require("../utils/apiError");
+const sendMail = require("../utils/sendEmail");
 
 require("./../models/Customer");
 require("./../models/Vendor");
 require("./../models/Employee");
 
 const customerModel = require("../models/Customer");
+
 const VendorModel = mongoose.model("vendor");
 const EmployeeModel = mongoose.model("employees");
 
