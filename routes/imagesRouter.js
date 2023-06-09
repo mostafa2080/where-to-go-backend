@@ -15,8 +15,4 @@ router
     .route("/employees/:filename")
     .get(imageController.getEmployeeImage);
 
-// router
-//     .route("/favicon.ico")
-//     .get(imageController.getFavicon);
-
 module.exports = router;

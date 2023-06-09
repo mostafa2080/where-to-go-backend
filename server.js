@@ -53,7 +53,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/categories', categoriesRouter);
 app.use('/api/v1/tags', tagsRouter);
 app.use(EmployeeRoutes);
-app.use(imagesRouter);
+app.use('/api/v1/images', imagesRouter);
 
 app.use(authenticationMiddleware);
 
