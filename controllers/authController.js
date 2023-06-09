@@ -40,7 +40,54 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   user.passwordResetVerified = false;
   await user.save();
 
-  const message = `Hi ${user.first_name}\n we have received a request to reset your password on E-Shop Account \n ${resetCode} \n Enter this code to complete the reset request. \n Thanks for helping us keep your account secure \n The E-Shop Team`;
+  const message = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          line-height: 1.5;
+          color: #333333;
+        }
+        .container {
+          max-width: 500px;
+          margin: 0 auto;
+          padding: 20px;
+          border: 1px solid #cccccc;
+        }
+        h1 {
+          font-size: 20px;
+          margin-bottom: 20px;
+        }
+        p {
+          margin-bottom: 10px;
+        }
+        .code {
+          font-size: 24px;
+          font-weight: bold;
+          color: #3366cc;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #999999;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Hi ${user.first_name},</h1>
+        <p>We have received a request to reset your password on Where To Go Account.</p>
+        <p class="code">${resetCode}</p>
+        <p>Enter this code to complete the reset request.</p>
+        <p>Thanks for helping us keep your account secure.</p>
+        <p class="footer">The Where To Go Team</p>
+      </div>
+    </body>
+  </html>
+`;
 
   //3) send the reset code via email
   try {

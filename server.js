@@ -9,11 +9,15 @@ const rolesRoute = require("./routes/rolesRouter");
 const permissionsRoute = require("./routes/permissionsRoute");
 
 // Routes
+const customersRouter = require("./routes/customersRoute");
+
 const vendorsRoute = require("./routes/vendors");
 const imagesRouter = require("./routes/imagesRouter");
 const authRouter = require("./routes/authRoute");
-const customersRouter = require("./routes/customersRoute");
 // const EmployeeRoutes = require('./routes/employee');
+
+//Routes
+// const vendorRequestsRoute = require("./routes/vendorRequestsRoute");
 
 dotenv.config({ path: "config.env" });
 
