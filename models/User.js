@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
   },
   name: String,
-  phone_number: String,
+  phoneNumber: String,
   address: AddressSchema,
   deactivatedAt: {
     type: Date,

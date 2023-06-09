@@ -2,6 +2,7 @@ const express = require("express");
 const vendorsController = require("../controllers/vendorsController");
 const vendorValidator = require("../utils/validators/vendorValidator");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
+const { uploadImg, setImage } = require("../utils/imageUtility");
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ router
   .route("/vendors")
   .get(vendorsController.getAllVendors)
   .post(
+    uploadImg().single("image"),
     vendorValidator.addValidationArray,
     validatorMiddleware,
     vendorsController.addVendor
@@ -54,6 +56,7 @@ router
     vendorsController.getVendor
   )
   .patch(
+    uploadImg().single("image"),
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor

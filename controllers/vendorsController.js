@@ -36,7 +36,12 @@ exports.getVendor = async (req, res, next) => {
 };
 
 exports.addVendor = async (req, res, next) => {
-  const vendor = new Vendors({
+  console.log("before body");
+  console.log(req.body);
+
+  console.log("after body");
+  // return res.json(req.body);
+  const vendor = await new Vendors({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     placeName: req.body.placeName,
@@ -48,7 +53,7 @@ exports.addVendor = async (req, res, next) => {
   });
 
   await vendor.save();
-  res.status(200).json({
+  return res.status(200).json({
     status: "success",
     data: vendor,
   });
@@ -73,7 +78,7 @@ exports.updateVendor = async (req, res, next) => {
       },
     }
   );
-  res.status(200).json({
+  return res.status(200).json({
     status: "success",
     data: vendor,
   });

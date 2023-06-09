@@ -9,12 +9,15 @@ const router = express.Router();
 
 router.route('/api/v1/employees')
     .get(Controller.getAllEmployees)
-    .post(uploadImg().single('image'), setImage, Validator.createEmployeeValidator, validatorMiddleware, Controller.createEmployee);
+    .post(uploadImg().single('image'), Validator.createEmployeeValidator, validatorMiddleware, Controller.createEmployee);
+
+router.route('/api/v1/employees/filter')
+    .get(Controller.filterEmployee);
 
 
 router.route('/api/v1/employees/:id')
     .get(Validator.getEmployeeValidator, validatorMiddleware, Controller.getEmployeeById)
-    .put(uploadImg().single('image'),setImage,Validator.updateEmployeeValidator , validatorMiddleware, Controller.updateEmployee)
+    .put(uploadImg().single('image'),Validator.updateEmployeeValidator , validatorMiddleware, Controller.updateEmployee)
     .delete(Validator.deleteEmployeeValidator, validatorMiddleware, Controller.deleteEmployee);
 
 router.route('/api/v1/employees/resetPassword/:id')
@@ -31,6 +34,8 @@ router.route('/api/v1/employees/deactivate/:id')
 
 router.route('/api/v1/employees/activate/:id')
     .put(Validator.bannEmployeeValidator, validatorMiddleware, Controller.activateEmployee);
+
+
 
 
 module.exports = router;
