@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema({
   name: String,
   phone_number: String,
   address: AddressSchema,
-  deactivated_at: {
+  deactivatedAt: {
     type: Date,
     default: null,
   },

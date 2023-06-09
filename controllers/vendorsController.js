@@ -80,11 +80,18 @@ exports.updateVendor = async (req, res, next) => {
 };
 
 exports.deactivateVendor = async (req, res, next) => {
-  const deletedVendor = await Vendors.softDelete({
-    _id: req.params.id,
-  });
+  const deletedVendor = await Vendors.updateOne(
+    {
+      _id: req.params.id,
+    },
+    {
+      $set: {
+        deactivatedAt: Date.now(),
+      },
+    }
+  );
 
-  if (deletedVendor > 0) {
+  if (deletedVendor.modifiedCount > 0) {
     res.status(200).json({
       status: "success",
       data: deletedVendor,
@@ -95,9 +102,22 @@ exports.deactivateVendor = async (req, res, next) => {
 };
 
 exports.restoreVendor = async (req, res, next) => {
-  const restoredVendor = await Vendors.restore({ _id: req.params.id });
-  res.status(200).json({
-    status: "success",
-    data: restoredVendor,
-  });
+  const restoredVendor = await Vendors.updateOne(
+    {
+      _id: req.params.id,
+    },
+    {
+      $set: {
+        deactivatedAt: null,
+      },
+    }
+  );
+  if (restoredVendor.modifiedCount > 0) {
+    res.status(200).json({
+      status: "success",
+      data: restoredVendor,
+    });
+  } else {
+    next(new Error("No Vendor With This Id"));
+  }
 };

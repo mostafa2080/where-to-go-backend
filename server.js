@@ -20,11 +20,11 @@ dotenv.config({ path: "config.env" });
 //express app
 const app = express();
 
+app.use(cors());
+
 // Parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-app.use(cors());
 
 //connect with DB
 dbconnection();
