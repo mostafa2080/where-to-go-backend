@@ -3,11 +3,16 @@ const controller = require("../controllers/customerController");
 const validateCustomer = require("../utils/validators/customerValidator");
 const { uploadImg } = require("../utils/imageUtility");
 
+const { EmployeeOrAbove } = require("../middlewares/authorizationMiddleware")
+
 const router = express.Router();
 
 router
-  .route("/api/v1/customers")
-  .get(controller.getAllCustomers)
+  .route("/")
+  .all(EmployeeOrAbove)
+  .get(
+    controller.getAllCustomers
+  )
   .post(
     uploadImg().single("image"),
     validateCustomer.validatePostArray,
@@ -15,36 +20,41 @@ router
   )
 
 router
-  .route("/api/v1/customers/:id")
+  .route("/:id")
   .get(
+    EmployeeOrAbove,
     validateCustomer.validateIdParam,
     controller.getCustomerById
   )
 
 router
-  .route("/api/v1/customers/deactivate/:id")
+  .route("/deactivate/:id")
   .patch(
+    EmployeeOrAbove,
     validateCustomer.validateIdParam,
     controller.deactivateCustomer,
   );
 
 router
-  .route("/api/v1/customers/activate/:id")
+  .route("/activate/:id")
   .patch(
+    EmployeeOrAbove,
     validateCustomer.validateIdParam,
     controller.activateCustomer,
   );
 
 router
-  .route("/api/v1/customers/ban/:id")
+  .route("/ban/:id")
   .patch(
+    EmployeeOrAbove,
     validateCustomer.validateIdParam,
     controller.banCustomer,
   );
 
 router
-  .route("/api/v1/customers/unban/:id")
+  .route("/unban/:id")
   .patch(
+    EmployeeOrAbove,
     validateCustomer.validateIdParam,
     controller.unbanCustomer,
   );
