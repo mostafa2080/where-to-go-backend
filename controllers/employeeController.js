@@ -83,9 +83,11 @@ exports.createEmployee = AsyncHandler( async (req, res, next) => {
 
 // Update Employee
 exports.updateEmployee = AsyncHandler( async (req, res, next) => {
+    let oldEmpImage;
     if (req.file){
         req.body.image = Date.now() + path.extname(req.file.originalname);
         req.imgPath = path.join(__dirname, '..', 'images/employees', req.body.image);
+        oldEmpImage = await Employees.findById(req.params.id, {image: 1});
     }
 
     if (req.body.role){
@@ -116,13 +118,15 @@ exports.updateEmployee = AsyncHandler( async (req, res, next) => {
     if(!employee){
         throw new ApiError('Error happened while Updating Employee', 404);
     }
-    if(req.file !== undefined){
+
+    if(req.file){
+        console.log(req.imgPath);
         await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
             if (err) throw err
         })
 
         const root = dirname(require.main.filename);
-        const path = root + "/images/employees/" + employee.image;
+        const path = root + "/images/employees/" + oldEmpImage.image;
         fs.unlink(path, (err) => {
             if (err) {
                 console.log(err);
