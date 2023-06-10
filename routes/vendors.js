@@ -7,17 +7,20 @@ const { uploadImg, setImage } = require("../utils/imageUtility");
 const router = express.Router();
 
 router
-  .route("/vendors")
+  .route("/")
   .get(vendorsController.getAllVendors)
   .post(
-    uploadImg().single("image"),
+    uploadImg().fields([
+      { name: "thumbnail", maxCount: 1 },
+      { name: "gallery", maxCount: 10 },
+    ]),
     vendorValidator.addValidationArray,
     validatorMiddleware,
     vendorsController.addVendor
   );
 
 router
-  .route("/vendors/approved")
+  .route("/approved")
   .get(
     vendorValidator.getValidationArray,
     validatorMiddleware,
@@ -25,7 +28,7 @@ router
   );
 
 router
-  .route("/vendors/rejected")
+  .route("/rejected")
   .get(
     vendorValidator.getValidationArray,
     validatorMiddleware,
@@ -33,7 +36,7 @@ router
   );
 
 router
-  .route("/vendors/:id/deactivate")
+  .route("/:id/deactivate")
   .patch(
     vendorValidator.updateValidationArray,
     validatorMiddleware,
@@ -41,7 +44,7 @@ router
   );
 
 router
-  .route("/vendors/:id/restore")
+  .route("/:id/restore")
   .patch(
     vendorValidator.updateValidationArray,
     validatorMiddleware,
@@ -49,14 +52,17 @@ router
   );
 
 router
-  .route("/vendors/:id")
+  .route("/:id")
   .get(
     vendorValidator.getValidationArray,
     validatorMiddleware,
     vendorsController.getVendor
   )
   .patch(
-    uploadImg().single("image"),
+    uploadImg().fields([
+      { name: "thumbnail", maxCount: 1 },
+      { name: "gallery", maxCount: 10 },
+    ]),
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor
