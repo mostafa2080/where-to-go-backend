@@ -50,7 +50,7 @@ app.use("/api/v1/tags", tagsRouter);
 app.use(EmployeeRoutes);
 app.use("/api/v1/images", imagesRouter);
 
-// app.use(authenticationMiddleware);
+app.use(authenticationMiddleware);
 
 app.use("/api/v1/customers", customersRouter);
 app.use("/api/v1/roles", rolesRoute);

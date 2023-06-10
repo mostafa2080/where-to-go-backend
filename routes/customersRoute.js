@@ -9,7 +9,7 @@ const router = express.Router();
 
 router
   .route("/")
-  // .all(EmployeeOrAbove)
+  .all(EmployeeOrAbove)
   .get(controller.getAllCustomers)
   .post(
     uploadImg().single("image"),
@@ -19,10 +19,30 @@ router
 
 router
   .route("/:id")
+  .all(EmployeeOrAbove)
   .get(
-    EmployeeOrAbove,
     validateCustomer.validateIdParam,
     controller.getCustomerById
+  )
+  .delete(
+    validateCustomer.validateIdParam,
+    controller.deleteCustomer
+  );
+
+router
+  .route("/softDelete/:id")
+  .patch(
+    EmployeeOrAbove,
+    validateCustomer.validateIdParam,
+    controller.softDeleteCustomer
+  );
+
+router
+  .route("/restore/:id")
+  .patch(
+    EmployeeOrAbove,
+    validateCustomer.validateIdParam,
+    controller.restoreCustomer
   );
 
 router
