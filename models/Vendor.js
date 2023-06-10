@@ -29,6 +29,10 @@ const VendorsSchema = ExtendSchema(User, {
     type: Array,
     default: [],
   },
+  category: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "category",
+  },
   isApproved: {
     type: Boolean,
     required: [true, "Please Provide Approval State"],
