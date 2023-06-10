@@ -3,21 +3,19 @@ const controller = require("../controllers/customerController");
 const validateCustomer = require("../utils/validators/customerValidator");
 const { uploadImg } = require("../utils/imageUtility");
 
-const { EmployeeOrAbove } = require("../middlewares/authorizationMiddleware")
+const { EmployeeOrAbove } = require("../middlewares/authorizationMiddleware");
 
 const router = express.Router();
 
 router
   .route("/")
-  .all(EmployeeOrAbove)
-  .get(
-    controller.getAllCustomers
-  )
+  // .all(EmployeeOrAbove)
+  .get(controller.getAllCustomers)
   .post(
     uploadImg().single("image"),
     validateCustomer.validatePostArray,
     controller.addCustomer
-  )
+  );
 
 router
   .route("/:id")
@@ -25,14 +23,14 @@ router
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
     controller.getCustomerById
-  )
+  );
 
 router
   .route("/deactivate/:id")
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
-    controller.deactivateCustomer,
+    controller.deactivateCustomer
   );
 
 router
@@ -40,7 +38,7 @@ router
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
-    controller.activateCustomer,
+    controller.activateCustomer
   );
 
 router
@@ -48,7 +46,7 @@ router
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
-    controller.banCustomer,
+    controller.banCustomer
   );
 
 router
@@ -56,7 +54,7 @@ router
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
-    controller.unbanCustomer,
+    controller.unbanCustomer
   );
 
 module.exports = router;

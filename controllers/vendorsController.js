@@ -5,7 +5,7 @@ const Vendors = mongoose.model("vendor");
 
 exports.getAllVendors = async (req, res, next) => {
   const vendors = await Vendors.find({});
-  res.status(200).json({
+  return res.status(200).json({
     status: "success",
     data: vendors,
   });
@@ -36,7 +36,12 @@ exports.getVendor = async (req, res, next) => {
 };
 
 exports.addVendor = async (req, res, next) => {
-  const vendor = new Vendors({
+  console.log("before body");
+  console.log(req.body);
+
+  console.log("after body");
+  // return res.json(req.body);
+  const vendor = await new Vendors({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     placeName: req.body.placeName,
@@ -48,7 +53,7 @@ exports.addVendor = async (req, res, next) => {
   });
 
   await vendor.save();
-  res.status(200).json({
+  return res.status(200).json({
     status: "success",
     data: vendor,
   });
@@ -73,18 +78,25 @@ exports.updateVendor = async (req, res, next) => {
       },
     }
   );
-  res.status(200).json({
+  return res.status(200).json({
     status: "success",
     data: vendor,
   });
 };
 
 exports.deactivateVendor = async (req, res, next) => {
-  const deletedVendor = await Vendors.softDelete({
-    _id: req.params.id,
-  });
+  const deletedVendor = await Vendors.updateOne(
+    {
+      _id: req.params.id,
+    },
+    {
+      $set: {
+        deactivatedAt: Date.now(),
+      },
+    }
+  );
 
-  if (deletedVendor > 0) {
+  if (deletedVendor.modifiedCount > 0) {
     res.status(200).json({
       status: "success",
       data: deletedVendor,
@@ -95,9 +107,22 @@ exports.deactivateVendor = async (req, res, next) => {
 };
 
 exports.restoreVendor = async (req, res, next) => {
-  const restoredVendor = await Vendors.restore({ _id: req.params.id });
-  res.status(200).json({
-    status: "success",
-    data: restoredVendor,
-  });
+  const restoredVendor = await Vendors.updateOne(
+    {
+      _id: req.params.id,
+    },
+    {
+      $set: {
+        deactivatedAt: null,
+      },
+    }
+  );
+  if (restoredVendor.modifiedCount > 0) {
+    res.status(200).json({
+      status: "success",
+      data: restoredVendor,
+    });
+  } else {
+    next(new Error("No Vendor With This Id"));
+  }
 };
