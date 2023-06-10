@@ -30,9 +30,16 @@ exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getCustomerById = AsyncHandler(async (req, res, next) => {
-  const customer = await CustomerSchema.find({ _id: req.params.id });
+  const customer = await CustomerSchema.findById(req.params.id).populate('role', 'name').select('-__v');
   if (!customer) return new ApiError('Customer not found!', 404);
-  res.status(200).json({ data: customer });
+  
+  const result = {
+    // eslint-disable-next-line node/no-unsupported-features/es-syntax
+    ...customer._doc,
+    role: customer.role.name
+  };
+
+  res.status(200).json({ data: result });
 })
 
 exports.addCustomer = AsyncHandler(async (req, res, next) => {
