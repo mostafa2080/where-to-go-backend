@@ -46,6 +46,7 @@ if (process.env.NODE_ENV === "development") {
 
 //routes
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/images", imagesRouter);
 
 app.use(authenticationMiddleware);
 
@@ -62,7 +63,6 @@ app.use("/api/v1/permissions", permissionsRoute);
 app.use("/api/v1/vendors", vendorsRoute);
 app.use("/api/v1/reports", reportsRoute);
 
-app.use(imagesRouter);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
