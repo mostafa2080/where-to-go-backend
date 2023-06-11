@@ -9,10 +9,12 @@ const bcrypt = require("bcrypt");
 require("./../models/Customer");
 require("./../models/Vendor");
 require("./../models/Employee");
+require("./../models/Role");
 
 const customerModel = require("../models/Customer");
 const VendorModel = mongoose.model("vendor");
 const EmployeeModel = mongoose.model("employees");
+const RoleModel = mongoose.model("roles");
 
 const saltRunds = 10;
 const salt = bcrypt.genSaltSync(saltRunds);
@@ -188,29 +190,25 @@ exports.adminLogin = asyncHandler(async (req, res, next) => {
     return next(new ApiError("No such account exists, Try to reqister first...!", 404))
   }else{
     if(bcrypt.compareSync(req.body.password, employee.password)){
-      if(req.body.email === 'admin@app.com'){
-        let token = jwt.sign(
-          {id: employee._id, role: 'Admin'},
-          process.env.JWT_SECRET,
-          {expiresIn: process.env.JWT_EXPIRES_IN}
-        )
+      let roleName = ''
 
-        res.status(200).json({
-          Message: 'Authenticated', 
-          token 
-        });
-      }else{
-        let token = jwt.sign(
-          {id: employee._id, role: 'Employee'},
-          process.env.JWT_SECRET,
-          {expiresIn: process.env.JWT_EXPIRES_IN}
-        )
-
-        res.status(200).json({
-          Message: 'Authenticated', 
-          token 
-        });
+      const role = await RoleModel.findOne({ _id: employee.role });
+      if (role) {
+        roleName = role.name
       }
+
+      let token = jwt.sign(
+        {id: employee._id, role: roleName},
+        process.env.JWT_SECRET,
+        {expiresIn: process.env.JWT_EXPIRES_IN}
+      )
+
+      res.status(200).json({
+        Message: 'Authenticated', 
+        token,
+        role: roleName
+      });
+      
     }else{
       return next(new ApiError("Invalid credentials, try to login again...!", 401))
     }
@@ -224,15 +222,23 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
     return next(new ApiError("No such account exists, Try to reqister first...!", 404))
   }else{
     if(bcrypt.compareSync(req.body.password, vendor.password)){
+      let roleName = ''
+
+      const role = await RoleModel.findOne({ _id: vendor.role });
+      if (role) {
+        roleName = role.name
+      }
+
       let token = jwt.sign(
-        {id: vendor._id, role: 'Vendor'},
+        {id: vendor._id, role: roleName},
         process.env.JWT_SECRET,
         {expiresIn: process.env.JWT_EXPIRES_IN}
       )
 
       res.status(200).json({
         Message: 'Authenticated', 
-        token 
+        token,
+        role: roleName
       });
     }else{
       return next(new ApiError("Invalid credentials, try to login again...!", 401))
@@ -247,15 +253,23 @@ exports.customerLogin = asyncHandler(async (req, res, next) => {
     return next(new ApiError("No such account exists, Try to reqister first...!", 404))
   }else{
     if(bcrypt.compareSync(req.body.password, customer.password)){
+      let roleName = ''
+
+      const role = await RoleModel.findOne({ _id: customer.role });
+      if (role) {
+        roleName = role.name
+      }
+
       let token = jwt.sign(
-        {id: customer._id, role: 'Customer'},
+        {id: customer._id, role: roleName},
         process.env.JWT_SECRET,
         {expiresIn: process.env.JWT_EXPIRES_IN}
       )
 
       res.status(200).json({
         Message: 'Authenticated', 
-        token 
+        token,
+        role: roleName
       });
     }else{
       return next(new ApiError("Invalid credentials, try to login again...!", 401))
