@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
-const crypto = require("crypto");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const asyncHandler = require("express-async-handler");
-const ApiError = require("../utils/apiError");
-const sendMail = require("../utils/sendEmail");
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
+const ApiError = require('../utils/apiError');
+const sendMail = require('../utils/sendEmail');
 
-require("./../models/Customer");
-require("./../models/Vendor");
-require("./../models/Employee");
+require("../models/Customer");
+require("../models/Vendor");
+require("../models/Employee");
 
-const customerModel = require("../models/Customer");
+const customerModel = require('../models/Customer');
 
-const VendorModel = mongoose.model("vendor");
-const EmployeeModel = mongoose.model("employees");
+const VendorModel = mongoose.model('vendor');
+const EmployeeModel = mongoose.model('employees');
 
 const saltRunds = 10;
 const salt = bcrypt.genSaltSync(saltRunds);
@@ -40,9 +40,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   //2) if email is exist , generate hash reset random 6 digits and save it in DB
   const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
   const hashedResetCode = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(resetCode)
-    .digest("hex");
+    .digest('hex');
   console.log(resetCode);
   console.log(hashedResetCode);
 
@@ -106,7 +106,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   try {
     await sendMail({
       email: user.email,
-      subject: "Your Password reset code (Valid for 10 min )",
+      subject: 'Your Password reset code (Valid for 10 min )',
       message,
     });
   } catch (e) {
@@ -116,14 +116,14 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     await user.save();
     return next(
       new ApiError(
-        "Something went wrong when sending email, please try again later",
+        'Something went wrong when sending email, please try again later',
         500
       )
     );
   }
   res
     .status(200)
-    .json({ status: "success", message: "Your reset code sent successfully" });
+    .json({ status: 'success', message: 'Your reset code sent successfully' });
 });
 
 //@desc verify reset code
@@ -132,9 +132,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
   // 1) get user based on reset code
   const hashedCode = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(req.body.resetCode)
-    .digest("hex");
+    .digest('hex');
 
   const user = await customerModel.findOne({
     passwordResetToken: hashedCode,
@@ -143,7 +143,7 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new ApiError("Password reset token is invalid or has expired", 400)
+      new ApiError('Password reset token is invalid or has expired', 400)
     );
   }
 
@@ -151,7 +151,7 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
   user.passwordResetVerified = true;
   await user.save();
 
-  res.status(200).json({ status: "success" });
+  res.status(200).json({ status: 'success' });
 });
 
 exports.resetPassword = asyncHandler(async (req, res, next) => {
@@ -164,7 +164,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   }
   //2) check if reset code is verified
   if (!user.passwordResetVerified) {
-    return next(new ApiError("Password reset token not verified", 400));
+    return next(new ApiError('Password reset token not verified', 400));
   }
 
   user.password = req.body.newPassword;
@@ -184,82 +184,94 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
 // Admins(super admin & employees) Login ...
 exports.adminLogin = asyncHandler(async (req, res, next) => {
-  const employee = await EmployeeModel.findOne({ email: req.body.email});
-  if(!employee) {
-    return next(new ApiError("No such account exists, Try to reqister first...!", 404))
-  }else{
-    if(bcrypt.compareSync(req.body.password, employee.password)){
-      if(req.body.email === 'admin@app.com'){
-        let token = jwt.sign(
-          {id: employee._id, role: 'Admin'},
+  const employee = await EmployeeModel.findOne({ email: req.body.email });
+  if (!employee) {
+    return next(
+      new ApiError('No such account exists, Try to reqister first...!', 404)
+    );
+  } 
+    if (bcrypt.compareSync(req.body.password, employee.password)) {
+      if (req.body.email === 'admin@app.com') {
+        const token = jwt.sign(
+          { id: employee._id, role: 'Admin' },
           process.env.JWT_SECRET,
-          {expiresIn: process.env.JWT_EXPIRES_IN}
-        )
+          { expiresIn: process.env.JWT_EXPIRES_IN }
+        );
 
         res.status(200).json({
-          Message: 'Authenticated', 
-          token 
+          Message: 'Authenticated',
+          token,
         });
-      }else{
-        let token = jwt.sign(
-          {id: employee._id, role: 'Employee'},
+      } else {
+        const token = jwt.sign(
+          { id: employee._id, role: 'Employee' },
           process.env.JWT_SECRET,
-          {expiresIn: process.env.JWT_EXPIRES_IN}
-        )
+          { expiresIn: process.env.JWT_EXPIRES_IN }
+        );
 
         res.status(200).json({
-          Message: 'Authenticated', 
-          token 
+          Message: 'Authenticated',
+          token,
         });
       }
-    }else{
-      return next(new ApiError("Invalid credentials, try to login again...!", 401))
+    } else {
+      return next(
+        new ApiError('Invalid credentials, try to login again...!', 401)
+      );
     }
-  }
-})
+  
+});
 
 // Vendor Login ...
 exports.vendorLogin = asyncHandler(async (req, res, next) => {
-  const vendor = await VendorModel.findOne({ email: req.body.email});
-  if(!vendor) {
-    return next(new ApiError("No such account exists, Try to reqister first...!", 404))
-  }else{
-    if(bcrypt.compareSync(req.body.password, vendor.password)){
-      let token = jwt.sign(
-        {id: vendor._id, role: 'Vendor'},
+  const vendor = await VendorModel.findOne({ email: req.body.email });
+  if (!vendor) {
+    return next(
+      new ApiError('No such account exists, Try to reqister first...!', 404)
+    );
+  } 
+    if (bcrypt.compareSync(req.body.password, vendor.password)) {
+      const token = jwt.sign(
+        { id: vendor._id, role: 'Vendor' },
         process.env.JWT_SECRET,
-        {expiresIn: process.env.JWT_EXPIRES_IN}
-      )
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+      );
 
       res.status(200).json({
-        Message: 'Authenticated', 
-        token 
+        Message: 'Authenticated',
+        token,
       });
-    }else{
-      return next(new ApiError("Invalid credentials, try to login again...!", 401))
+    } else {
+      return next(
+        new ApiError('Invalid credentials, try to login again...!', 401)
+      );
     }
-  }
-})
+  
+});
 
 // Customer Login ...
 exports.customerLogin = asyncHandler(async (req, res, next) => {
-  const customer = await customerModel.findOne({ email: req.body.email});
-  if(!customer) {
-    return next(new ApiError("No such account exists, Try to reqister first...!", 404))
-  }else{
-    if(bcrypt.compareSync(req.body.password, customer.password)){
-      let token = jwt.sign(
-        {id: customer._id, role: 'Customer'},
+  const customer = await customerModel.findOne({ email: req.body.email });
+  if (!customer) {
+    return next(
+      new ApiError('No such account exists, Try to reqister first...!', 404)
+    );
+  } 
+    if (bcrypt.compareSync(req.body.password, customer.password)) {
+      const token = jwt.sign(
+        { id: customer._id, role: 'Customer' },
         process.env.JWT_SECRET,
-        {expiresIn: process.env.JWT_EXPIRES_IN}
-      )
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+      );
 
       res.status(200).json({
-        Message: 'Authenticated', 
-        token 
+        Message: 'Authenticated',
+        token,
       });
-    }else{
-      return next(new ApiError("Invalid credentials, try to login again...!", 401))
+    } else {
+      return next(
+        new ApiError('Invalid credentials, try to login again...!', 401)
+      );
     }
-  }
-})
+  
+});
