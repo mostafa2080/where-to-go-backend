@@ -6,8 +6,6 @@ require('../../models/Vendor');
 
 const Place = mongoose.model('vendor');
 
-// Validate review data before saving it to the DB
-
 // Validation for createReview
 exports.validateCreateReview = [
   body('placeId').custom(async (value) => {
@@ -42,7 +40,7 @@ exports.validateCreateReview = [
 
 // Validation for updateReview
 exports.validateUpdateReview = [
-  param('reviewId')
+  param('id')
     .custom((value) => mongoose.Types.ObjectId.isValid(value))
     .withMessage('Invalid review ID'),
 
@@ -70,12 +68,3 @@ exports.validateDeleteReview = [
 
   validatorMiddleware,
 ];
-
-// // Validation for getReviewById
-// exports.validateGetReviewById = [
-//   param('reviewId')
-//     .custom((value) => mongoose.Types.ObjectId.isValid(value))
-//     .withMessage('Invalid review ID'),
-
-//   validatorMiddleware,
-// ];

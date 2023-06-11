@@ -21,7 +21,7 @@ router.route('/').post(validateCreateReview, createReview);
 router
   .route('/:id')
   .get(getPlaceReviews)
-  .put(updateReview)
+  .put(validateUpdateReview, updateReview)
   .delete(validateDeleteReview, deleteReview);
 
 module.exports = router;
