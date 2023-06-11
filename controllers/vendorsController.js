@@ -38,7 +38,6 @@ exports.getVendor = async (req, res, next) => {
 };
 
 exports.addVendor = async (req, res, next) => {
-  console.log(req.body);
   if (req.files) {
     if (req.files.thumbnail) {
       req.body.thumbnail =
@@ -69,6 +68,7 @@ exports.addVendor = async (req, res, next) => {
     req.body.thumbnail = "default.jpg";
   }
 
+  req.body.tags = req.body.tags.split(",");
   const vendor = await new Vendors({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -77,6 +77,7 @@ exports.addVendor = async (req, res, next) => {
     phoneNumber: req.body.phoneNumber,
     description: req.body.description,
     category: req.body.category,
+    tags: req.body.tags,
     thumbnail: req.body.thumbnail,
     gallery: req.body.gallery,
   });
@@ -109,7 +110,37 @@ exports.addVendor = async (req, res, next) => {
 };
 
 exports.updateVendor = async (req, res, next) => {
-  const vendor = await Vendors.updateOne(
+  if (req.files) {
+    if (req.files.thumbnail) {
+      req.body.thumbnail =
+        Date.now() + path.extname(req.files.thumbnail[0].originalname);
+      req.thumbnailPath = path.join(
+        __dirname,
+        "..",
+        "images",
+        "vendors",
+        req.body.thumbnail
+      );
+    }
+    if (req.files.gallery) {
+      req.body.gallery = [];
+
+      req.files.gallery.forEach((img) => {
+        req.body.gallery.push(Date.now() + path.extname(img.originalname));
+      });
+
+      req.gallery = [];
+      req.body.gallery.forEach((image) => {
+        req.gallery.push(
+          path.join(__dirname, "..", "images", "vendors", image)
+        );
+      });
+    }
+  } else {
+    req.body.thumbnail = "default.jpg";
+  }
+
+  const vendor = await Vendors.findOneAndUpdate(
     {
       _id: req.params.id,
     },
@@ -128,6 +159,35 @@ exports.updateVendor = async (req, res, next) => {
       },
     }
   );
+
+  if (vendor.thumbnail != null) {
+    fs.unlink(__dirname, "..", "images", "vendors", vendor.thumbnail);
+  }
+
+  if (vendor.gallery != null) {
+    vendor.gallery.forEach((img) =>
+      fs.unlink(__dirname, "..", "images", "vendors", img)
+    );
+  }
+
+  if (req.files.thumbnail) {
+    await fs.writeFile(
+      req.thumbnailPath,
+      req.files.thumbnail[0].buffer,
+      (err) => {
+        if (err) throw err;
+      }
+    );
+  }
+
+  if (req.files.gallery) {
+    req.files.gallery.forEach(async (img, index) => {
+      await fs.writeFile(req.gallery[index], img.buffer, (err) => {
+        if (err) throw err;
+      });
+      console.log(index);
+    });
+  }
   return res.status(200).json({
     status: "success",
     data: vendor,

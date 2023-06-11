@@ -19,21 +19,9 @@ router
     vendorsController.addVendor
   );
 
-router
-  .route("/approved")
-  .get(
-    vendorValidator.getValidationArray,
-    validatorMiddleware,
-    vendorsController.getApprovedVendors
-  );
+router.route("/approved").get(vendorsController.getApprovedVendors);
 
-router
-  .route("/rejected")
-  .get(
-    vendorValidator.getValidationArray,
-    validatorMiddleware,
-    vendorsController.getRejectedVendors
-  );
+router.route("/rejected").get(vendorsController.getRejectedVendors);
 
 router
   .route("/:id/deactivate")
