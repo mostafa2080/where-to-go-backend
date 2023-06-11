@@ -46,9 +46,8 @@ if (process.env.NODE_ENV === "development") {
 
 //routes
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/images", imagesRouter);
-
 app.use(authenticationMiddleware);
+app.use("/api/v1/images", imagesRouter);
 
 app.use("/api/v1/vendors", vendorsRoute);
 app.use("/api/v1/categories", categoriesRouter);
@@ -56,8 +55,6 @@ app.use("/api/v1/tags", tagsRouter);
 app.use(EmployeeRoutes);
 app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/reviews", reviewRoute);
-
-app.use(authenticationMiddleware);
 
 app.use("/api/v1/customers", customersRouter);
 app.use("/api/v1/roles", rolesRoute);
