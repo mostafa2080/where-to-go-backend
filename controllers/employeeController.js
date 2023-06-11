@@ -71,7 +71,7 @@ exports.createEmployee = AsyncHandler(async (req, res, next) => {
 
   const employee = await Employees.create(obj);
 
-  if (!employee) {
+  if (!employee) {path
     throw new ApiError("Error happened while Creating Employee", 404);
   }
 
@@ -131,7 +131,7 @@ exports.updateEmployee = AsyncHandler(async (req, res, next) => {
     });
 
     const root = dirname(require.main.filename);
-    const path = root + "/images/employees/" + employee.image;
+    const path = `${root  }/images/employees/${  employee.image}`;
     fs.unlink(path, (err) => {
       if (err) {
         console.log(err);
@@ -151,7 +151,7 @@ exports.deleteEmployee = AsyncHandler(async (req, res, next) => {
   }
 
   const root = dirname(require.main.filename);
-  const path = root + "/images/employees/" + employee.image;
+  const path = `${root  }/images/employees/${  employee.image}`;
   fs.unlink(path, (err) => {
     if (err) {
       console.log(err);
@@ -167,7 +167,7 @@ exports.resetPassword = AsyncHandler(async (req, res, next) => {
     { _id: req.params.id },
     {
       $set: {
-        password: bcrypt.hashSync(request.body.password, salt),
+        password: bcrypt.hashSync(req.body.password, salt),
       },
     }
   );

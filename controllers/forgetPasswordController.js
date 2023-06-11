@@ -118,7 +118,7 @@ exports.forgotPassword = (model) =>
   });
 
 //@desc verify reset code
-//@route POST /api/v1/auth/verifyResetCode
+//@route POST /api/v1/auth/model/verifyResetCode
 //@access public
 exports.verifyPassResetCode = (model) =>
   asyncHandler(async (req, res, next) => {
@@ -145,7 +145,9 @@ exports.verifyPassResetCode = (model) =>
 
     res.status(200).json({ status: 'success' });
   });
-
+//@desc  reset pw
+//@route POST /api/v1/auth/model/resetPassword
+//@access public
 exports.resetPassword = (model) =>
   asyncHandler(async (req, res, next) => {
     //1) get user based on their email

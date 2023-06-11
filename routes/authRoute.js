@@ -1,10 +1,5 @@
 const express = require('express');
 const validatorMiddleware = require('../middlewares/validatorMiddleware');
-const {
-  EmployeeOrAbove,
-  VendorOrAbove,
-  CustomerOrAbove,
-} = require('../middlewares/authorizationMiddleware');
 
 const router = express.Router();
 const {
