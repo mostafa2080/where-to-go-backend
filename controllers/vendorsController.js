@@ -9,10 +9,21 @@ exports.getAllVendors = async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
+  const sortField = req.query.sortField || null;
+  const sortOrder = req.query.sortOrder || 'asc';
+
+  const sortQuery = {};
+  if (sortField) {
+    sortQuery[sortField] = sortOrder === 'desc' ? -1 : 1;
+  }
 
   try {
     const [vendors, total] = await Promise.all([
-      Vendors.find({}).skip(skip).limit(limit).populate('category'),
+      Vendors.find({})
+        .skip(skip)
+        .limit(limit)
+        .sort(sortQuery)
+        .populate('category'),
       Vendors.countDocuments(),
     ]);
 
