@@ -3,9 +3,9 @@ const AsyncHandler = require("express-async-handler");
 const { dirname } = require("path");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
+const path = require("path");
 const ApiError = require("../utils/apiError");
 require("../models/Employee");
-const path = require("path");
 
 const Employees = mongoose.model("employees");
 const Roles = mongoose.model("roles");
