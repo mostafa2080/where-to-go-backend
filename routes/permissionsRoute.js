@@ -1,4 +1,5 @@
 const express = require('express');
+const { EmployeeOrAbove } = require('../middlewares/authorizationMiddleware');
 
 const router = express.Router();
 const {
@@ -18,14 +19,14 @@ const {
 // Routes for '/api/v1/permissions'
 router
   .route('/')
-  .get(getPermissions)
-  .post(validateCreatePermission, createPermission);
+  .get(EmployeeOrAbove, getPermissions)
+  .post(EmployeeOrAbove, validateCreatePermission, createPermission);
 
 // Routes for '/api/v1/permissions/:id'
 router
   .route('/:id')
-  .get(validateGetPermissionById, getPermissionById)
-  .put(validateUpdatePermission, updatePermission)
-  .delete(validateDeletePermission, deletePermission);
+  .get(EmployeeOrAbove, validateGetPermissionById, getPermissionById)
+  .put(EmployeeOrAbove, validateUpdatePermission, updatePermission)
+  .delete(EmployeeOrAbove, validateDeletePermission, deletePermission);
 
 module.exports = router;

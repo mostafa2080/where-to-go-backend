@@ -1,4 +1,5 @@
 const express = require('express');
+const { EmployeeOrAbove } = require('../middlewares/authorizationMiddleware');
 
 const router = express.Router();
 const {
@@ -16,13 +17,16 @@ const {
 } = require('../utils/validators/rolesValidator');
 
 // Routes for '/api/v1/roles'
-router.route('/').get(getRoles).post(validateCreateRole, createRole);
+router
+  .route('/')
+  .get(EmployeeOrAbove, getRoles)
+  .post(EmployeeOrAbove, validateCreateRole, createRole);
 
 // Routes for '/api/v1/roles/:id'
 router
   .route('/:id')
-  .get(validateGetRoleById, getRoleById)
-  .put(validateUpdateRole, updateRole)
-  .delete(validateDeleteRole, deleteRole);
+  .get(EmployeeOrAbove, validateGetRoleById, getRoleById)
+  .put(EmployeeOrAbove, validateUpdateRole, updateRole)
+  .delete(EmployeeOrAbove, validateDeleteRole, deleteRole);
 
 module.exports = router;
