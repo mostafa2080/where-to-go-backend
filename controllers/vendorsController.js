@@ -11,6 +11,7 @@ exports.getAllVendors = async (req, res, next) => {
   const sortField = req.query.sortField || null;
   const sortOrder = req.query.sortOrder || 'asc';
   const filters = req.query.filters || {};
+  const searchQuery = req.query.search || '';
 
   const filterQuery = {};
 
@@ -20,6 +21,15 @@ exports.getAllVendors = async (req, res, next) => {
   }
   if (filters.isApproved !== undefined) {
     filterQuery.isApproved = filters.isApproved;
+  }
+
+  // Apply search query to the filterQuery object
+  if (searchQuery) {
+    filterQuery.$or = [
+      { firstName: { $regex: searchQuery, $options: 'i' } },
+      { lastName: { $regex: searchQuery, $options: 'i' } },
+      { placeName: { $regex: searchQuery, $options: 'i' } },
+    ];
   }
 
   const sortQuery = {};
