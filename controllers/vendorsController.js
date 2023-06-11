@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 require("../models/Vendor");
 const path = require("path");
 const fs = require("fs");
+const forgotPasswordController = require('./forgetPasswordController');
 
 const Vendors = mongoose.model("vendor");
 exports.getAllVendors = async (req, res, next) => {
@@ -306,3 +307,12 @@ exports.restoreVendor = async (req, res, next) => {
     next(new Error("No Vendor With This Id"));
   }
 };
+
+exports.vendorForgotPassword =
+  forgotPasswordController.forgotPassword(Vendors);
+
+exports.vendorVerifyPassResetCode =
+  forgotPasswordController.verifyPassResetCode(Vendors);
+
+exports.vendorResetPassword =
+  forgotPasswordController.resetPassword(Vendors);
