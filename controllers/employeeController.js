@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const path = require("path");
 const ApiError = require("../utils/apiError");
 require("../models/Employee");
+const forgotPasswordController = require('./forgetPasswordController')
 
 const Employees = mongoose.model("employees");
 const Roles = mongoose.model("roles");
@@ -266,3 +267,12 @@ exports.filterEmployee = AsyncHandler(async (req, res, next) => {
 
   res.status(200).json({ data: employees });
 });
+
+exports.employeeForgotPassword =
+  forgotPasswordController.forgotPassword(Employees);
+
+exports.employeeVerifyPassResetCode =
+  forgotPasswordController.verifyPassResetCode(Employees);
+
+exports.employeeResetPassword =
+  forgotPasswordController.resetPassword(Employees);
