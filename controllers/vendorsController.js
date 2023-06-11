@@ -4,13 +4,23 @@ const path = require('path');
 const fs = require('fs');
 
 const Vendors = mongoose.model('vendor');
-
 exports.getAllVendors = async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
   const sortOrder = req.query.sortOrder || 'asc';
+  const filters = req.query.filters || {};
+
+  const filterQuery = {};
+
+  // Apply filters to the filterQuery object
+  if (filters.category) {
+    filterQuery.category = filters.category;
+  }
+  if (filters.isApproved !== undefined) {
+    filterQuery.isApproved = filters.isApproved;
+  }
 
   const sortQuery = {};
   if (sortField) {
@@ -19,12 +29,12 @@ exports.getAllVendors = async (req, res, next) => {
 
   try {
     const [vendors, total] = await Promise.all([
-      Vendors.find({})
+      Vendors.find(filterQuery)
         .skip(skip)
         .limit(limit)
         .sort(sortQuery)
         .populate('category'),
-      Vendors.countDocuments(),
+      Vendors.countDocuments(filterQuery),
     ]);
 
     const totalPages = Math.ceil(total / limit);
