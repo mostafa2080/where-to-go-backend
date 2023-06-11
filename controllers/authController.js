@@ -6,9 +6,9 @@ const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/apiError');
 const sendMail = require('../utils/sendEmail');
 
-require("../models/Customer");
-require("../models/Vendor");
-require("../models/Employee");
+require('../models/Customer');
+require('../models/Vendor');
+require('../models/Employee');
 
 const customerModel = require('../models/Customer');
 
@@ -189,37 +189,36 @@ exports.adminLogin = asyncHandler(async (req, res, next) => {
     return next(
       new ApiError('No such account exists, Try to reqister first...!', 404)
     );
-  } 
-    if (bcrypt.compareSync(req.body.password, employee.password)) {
-      if (req.body.email === 'admin@app.com') {
-        const token = jwt.sign(
-          { id: employee._id, role: 'Admin' },
-          process.env.JWT_SECRET,
-          { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
-
-        res.status(200).json({
-          Message: 'Authenticated',
-          token,
-        });
-      } else {
-        const token = jwt.sign(
-          { id: employee._id, role: 'Employee' },
-          process.env.JWT_SECRET,
-          { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
-
-        res.status(200).json({
-          Message: 'Authenticated',
-          token,
-        });
-      }
-    } else {
-      return next(
-        new ApiError('Invalid credentials, try to login again...!', 401)
+  }
+  if (bcrypt.compareSync(req.body.password, employee.password)) {
+    if (req.body.email === 'admin@app.com') {
+      const token = jwt.sign(
+        { id: employee._id, role: 'Admin' },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
       );
+
+      res.status(200).json({
+        Message: 'Authenticated',
+        token,
+      });
+    } else {
+      const token = jwt.sign(
+        { id: employee._id, role: 'Employee' },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+      );
+
+      res.status(200).json({
+        Message: 'Authenticated',
+        token,
+      });
     }
-  
+  } else {
+    return next(
+      new ApiError('Invalid credentials, try to login again...!', 401)
+    );
+  }
 });
 
 // Vendor Login ...
@@ -229,24 +228,23 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
     return next(
       new ApiError('No such account exists, Try to reqister first...!', 404)
     );
-  } 
-    if (bcrypt.compareSync(req.body.password, vendor.password)) {
-      const token = jwt.sign(
-        { id: vendor._id, role: 'Vendor' },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
-      );
+  }
+  if (bcrypt.compareSync(req.body.password, vendor.password)) {
+    const token = jwt.sign(
+      { id: vendor._id, role: 'Vendor' },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
 
-      res.status(200).json({
-        Message: 'Authenticated',
-        token,
-      });
-    } else {
-      return next(
-        new ApiError('Invalid credentials, try to login again...!', 401)
-      );
-    }
-  
+    res.status(200).json({
+      Message: 'Authenticated',
+      token,
+    });
+  } else {
+    return next(
+      new ApiError('Invalid credentials, try to login again...!', 401)
+    );
+  }
 });
 
 // Customer Login ...
@@ -256,22 +254,21 @@ exports.customerLogin = asyncHandler(async (req, res, next) => {
     return next(
       new ApiError('No such account exists, Try to reqister first...!', 404)
     );
-  } 
-    if (bcrypt.compareSync(req.body.password, customer.password)) {
-      const token = jwt.sign(
-        { id: customer._id, role: 'Customer' },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
-      );
+  }
+  if (bcrypt.compareSync(req.body.password, customer.password)) {
+    const token = jwt.sign(
+      { id: customer._id, role: 'Customer' },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
 
-      res.status(200).json({
-        Message: 'Authenticated',
-        token,
-      });
-    } else {
-      return next(
-        new ApiError('Invalid credentials, try to login again...!', 401)
-      );
-    }
-  
+    res.status(200).json({
+      Message: 'Authenticated',
+      token,
+    });
+  } else {
+    return next(
+      new ApiError('Invalid credentials, try to login again...!', 401)
+    );
+  }
 });
