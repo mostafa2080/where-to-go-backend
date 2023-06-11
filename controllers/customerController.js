@@ -13,6 +13,7 @@ const RoleSchema = mongoose.model('roles');
 const saltRounds = 10;
 
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
+  // console.log(req.decodedToken);
   const allCustomers = await CustomerSchema.find({}, {
     id: '$_id',
     firstName: 1,
