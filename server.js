@@ -16,6 +16,7 @@ const imagesRouter = require("./routes/imagesRouter");
 const categoriesRouter = require("./routes/categoriesRouter");
 const tagsRouter = require("./routes/tagsRouter");
 const EmployeeRoutes = require("./routes/employee");
+const reportsRoute = require("./routes/reportsRoute");
 
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
@@ -56,6 +57,7 @@ app.use("/api/v1/customers", customersRouter);
 app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
 app.use("/api/v1/vendors", vendorsRoute);
+app.use("/api/v1/reports", reportsRoute);
 
 app.use(imagesRouter);
 

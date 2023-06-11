@@ -1,22 +1,76 @@
-const mongoose = require("mongoose");
-require("../models/Vendor");
-const path = require("path");
-const fs = require("fs");
+const mongoose = require('mongoose');
+require('../models/Vendor');
+const path = require('path');
+const fs = require('fs');
 
-const Vendors = mongoose.model("vendor");
-
+const Vendors = mongoose.model('vendor');
 exports.getAllVendors = async (req, res, next) => {
-  const vendors = await Vendors.find({}).populate("category");
-  return res.status(200).json({
-    status: "success",
-    data: vendors,
-  });
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
+  const sortField = req.query.sortField || null;
+  const sortOrder = req.query.sortOrder || 'asc';
+  const filters = req.query.filters || {};
+  const searchQuery = req.query.search || '';
+
+  const filterQuery = {};
+
+  // Apply filters to the filterQuery object
+  if (filters.category) {
+    filterQuery.category = filters.category;
+  }
+  if (filters.isApproved !== undefined) {
+    filterQuery.isApproved = filters.isApproved;
+  }
+
+  // Apply search query to the filterQuery object
+  if (searchQuery) {
+    filterQuery.$or = [
+      { firstName: { $regex: searchQuery, $options: 'i' } },
+      { lastName: { $regex: searchQuery, $options: 'i' } },
+      { placeName: { $regex: searchQuery, $options: 'i' } },
+    ];
+  }
+
+  const sortQuery = {};
+  if (sortField) {
+    sortQuery[sortField] = sortOrder === 'desc' ? -1 : 1;
+  }
+
+  try {
+    const [vendors, total] = await Promise.all([
+      Vendors.find(filterQuery)
+        .skip(skip)
+        .limit(limit)
+        .sort(sortQuery)
+        .populate('category'),
+      Vendors.countDocuments(filterQuery),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json({
+      status: 'success',
+      pagination: {
+        total,
+        totalPages,
+        currentPage: page,
+        perPage: limit,
+      },
+      data: vendors,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  }
 };
 
 exports.getApprovedVendors = async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: true });
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: vendors,
   });
 };
@@ -24,7 +78,7 @@ exports.getApprovedVendors = async (req, res, next) => {
 exports.getRejectedVendors = async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: false });
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: vendors,
   });
 };
@@ -32,7 +86,7 @@ exports.getRejectedVendors = async (req, res, next) => {
 exports.getVendor = async (req, res, next) => {
   const vendor = await Vendors.find({ _id: req.params.id });
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: vendor,
   });
 };
@@ -45,9 +99,9 @@ exports.addVendor = async (req, res, next) => {
         Date.now() + path.extname(req.files.thumbnail[0].originalname);
       req.thumbnailPath = path.join(
         __dirname,
-        "..",
-        "images",
-        "vendors",
+        '..',
+        'images',
+        'vendors',
         req.body.thumbnail
       );
     }
@@ -61,12 +115,12 @@ exports.addVendor = async (req, res, next) => {
       req.gallery = [];
       req.body.gallery.forEach((image) => {
         req.gallery.push(
-          path.join(__dirname, "..", "images", "vendors", image)
+          path.join(__dirname, '..', 'images', 'vendors', image)
         );
       });
     }
   } else {
-    req.body.thumbnail = "default.jpg";
+    req.body.thumbnail = 'default.jpg';
   }
 
   const vendor = await new Vendors({
@@ -103,7 +157,7 @@ exports.addVendor = async (req, res, next) => {
   }
 
   return res.status(200).json({
-    status: "success",
+    status: 'success',
     data: vendor,
   });
 };
@@ -129,7 +183,7 @@ exports.updateVendor = async (req, res, next) => {
     }
   );
   return res.status(200).json({
-    status: "success",
+    status: 'success',
     data: vendor,
   });
 };
@@ -148,11 +202,11 @@ exports.deactivateVendor = async (req, res, next) => {
 
   if (deletedVendor.modifiedCount > 0) {
     res.status(200).json({
-      status: "success",
+      status: 'success',
       data: deletedVendor,
     });
   } else {
-    next(new Error("No Vendor With This Id"));
+    next(new Error('No Vendor With This Id'));
   }
 };
 
@@ -169,10 +223,10 @@ exports.restoreVendor = async (req, res, next) => {
   );
   if (restoredVendor.modifiedCount > 0) {
     res.status(200).json({
-      status: "success",
+      status: 'success',
       data: restoredVendor,
     });
   } else {
-    next(new Error("No Vendor With This Id"));
+    next(new Error('No Vendor With This Id'));
   }
 };
