@@ -83,7 +83,17 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     })
   }
 
-  res.status(201).json({ data: customer });
+  res.status(201).json({ data: {
+    id: customer._id,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    email: customer.email,
+    phoneNumber: customer.phoneNumber,
+    image: customer.image,
+    bannedAt: customer.bannedAt,
+    deactivatedAt: customer.deactivatedAt,
+    deletedAt: customer.deletedAt,
+  } });
 })
 
 exports.updateCustomer = AsyncHandler(async (req, res, next) => {
