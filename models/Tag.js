@@ -7,8 +7,9 @@ const tagSchema = new mongoose.Schema(
             trim: true,
             required: [true, 'Enter tag name'],
         },
-        categoryId: {
+        category: {
             type: mongoose.Schema.Types.ObjectId,
+            ref: 'category',
             required: [true, 'Enter category id'],
         },
         deletedAt: {

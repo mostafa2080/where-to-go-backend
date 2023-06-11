@@ -21,6 +21,8 @@ exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
     email: 1,
     image: 1,
     bannedAt: 1,
+    deactivatedAt: 1,
+    deletedAt: 1,
     _id: 0
   });
   if (!allCustomers) return new ApiError('No customers found!', 404);
@@ -28,9 +30,16 @@ exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getCustomerById = AsyncHandler(async (req, res, next) => {
-  const customer = await CustomerSchema.find({ _id: req.params.id });
+  const customer = await CustomerSchema.findById(req.params.id).populate('role', 'name').select('-__v');
   if (!customer) return new ApiError('Customer not found!', 404);
-  res.status(200).json({ data: customer });
+  
+  const result = {
+    // eslint-disable-next-line node/no-unsupported-features/es-syntax
+    ...customer._doc,
+    role: customer.role.name
+  };
+
+  res.status(200).json({ data: result });
 })
 
 exports.addCustomer = AsyncHandler(async (req, res, next) => {
@@ -39,6 +48,7 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
   }
   const role = await RoleSchema.findOne({ name: 'Customer' }, { _id: 1 });
 
+  console.log(role);
   if (req.file) {
     req.body.image = Date.now() + path.extname(req.file.originalname);
     req.imgPath = path.join(__dirname, '..', 'images', 'customers', req.body.image);
@@ -73,7 +83,17 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     })
   }
 
-  res.status(201).json({ data: customer });
+  res.status(201).json({ data: {
+    id: customer._id,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    email: customer.email,
+    phoneNumber: customer.phoneNumber,
+    image: customer.image,
+    bannedAt: customer.bannedAt,
+    deactivatedAt: customer.deactivatedAt,
+    deletedAt: customer.deletedAt,
+  } });
 })
 
 exports.updateCustomer = AsyncHandler(async (req, res, next) => {
@@ -119,25 +139,52 @@ exports.updateCustomer = AsyncHandler(async (req, res, next) => {
 })
 
 exports.deactivateCustomer = AsyncHandler(async (req, res, next) => {
-  const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { deactivatedAt: Date.now() });
+  const deactivatedAt = Date.now()
+  const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { deactivatedAt });
   if (!customer) return new ApiError('Customer not found!', 404);
-  res.status(200).json({ meesage: 'Customer is deactivated successfully' });
+  res.status(200).json({ meesage: 'Customer is deactivated successfully', id: customer._id, deactivatedAt });
 })
 
 exports.activateCustomer = AsyncHandler(async (req, res, next) => {
   const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { deactivatedAt: null });
   if (!customer) return new ApiError('Customer not found!', 404);
-  res.status(200).json({ meesage: 'Customer is activated successfully' });
+  res.status(200).json({ meesage: 'Customer is activated successfully', id: customer._id });
 })
 
 exports.banCustomer = AsyncHandler(async (req, res, next) => {
-  const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { bannedAt: Date.now() });
+  const bannedAt = Date.now()
+  const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { bannedAt });
   if (!customer) return new ApiError('Customer not found!', 404);
-  res.status(200).json({ meesage: 'Customer is banned successfully' });
+  res.status(200).json({ meesage: 'Customer is banned successfully', id: customer._id, bannedAt });
 })
 
 exports.unbanCustomer = AsyncHandler(async (req, res, next) => {
   const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { bannedAt: null });
   if (!customer) return new ApiError('Customer not found!', 404);
-  res.status(200).json({ meesage: 'Customer is unbanned successfully' });
+  res.status(200).json({ meesage: 'Customer is unbanned successfully', id: customer._id });
+})
+
+exports.softDeleteCustomer = AsyncHandler(async (req, res, next) => {
+  const deletedAt = Date.now();
+  const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { deletedAt });
+  if (!customer) return new ApiError('Customer not found!', 404);
+  res.status(200).json({ meesage: 'Customer is soft deleted successfully', id: customer._id, deletedAt });
+})
+
+exports.restoreCustomer = AsyncHandler(async (req, res, next) => {
+  const customer = await CustomerSchema.findOneAndUpdate({ _id: req.params.id }, { deletedAt: null });
+  if (!customer) return new ApiError('Customer not found!', 404);
+  res.status(200).json({ meesage: 'Customer is restored successfully', id: customer._id });
+})
+
+exports.deleteCustomer = AsyncHandler(async (req, res, next) => {
+  const customer = await CustomerSchema.findOne({ _id: req.params.id });
+  if (!customer) return new ApiError('Customer not found!', 404);
+  if (customer.image !== 'default.jpg') {
+    await fs.unlink(path.join(__dirname, '..', 'images', 'customers', customer.image), (err) => {
+      if (err) throw err
+    })
+  }
+  await CustomerSchema.deleteOne({ _id: req.params.id });
+  res.status(200).json({ message: 'Customer deleted forever successfully', id: req.params.id });
 })

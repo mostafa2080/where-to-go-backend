@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
-const ApiError = require("../utils/apiError");
-const sendMail = require("../utils/sendEmail");
-const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
-const asyncHandler = require("express-async-handler");
-const bcrypt = require("bcrypt");
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
+const ApiError = require('../utils/apiError');
+const sendMail = require('../utils/sendEmail');
 
 require("./../models/Customer");
 require("./../models/Vendor");
@@ -41,9 +41,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   //2) if email is exist , generate hash reset random 6 digits and save it in DB
   const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
   const hashedResetCode = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(resetCode)
-    .digest("hex");
+    .digest('hex');
   console.log(resetCode);
   console.log(hashedResetCode);
 
@@ -107,7 +107,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   try {
     await sendMail({
       email: user.email,
-      subject: "Your Password reset code (Valid for 10 min )",
+      subject: 'Your Password reset code (Valid for 10 min )',
       message,
     });
   } catch (e) {
@@ -117,14 +117,14 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     await user.save();
     return next(
       new ApiError(
-        "Something went wrong when sending email, please try again later",
+        'Something went wrong when sending email, please try again later',
         500
       )
     );
   }
   res
     .status(200)
-    .json({ status: "success", message: "Your reset code sent successfully" });
+    .json({ status: 'success', message: 'Your reset code sent successfully' });
 });
 
 //@desc verify reset code
@@ -133,9 +133,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
   // 1) get user based on reset code
   const hashedCode = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(req.body.resetCode)
-    .digest("hex");
+    .digest('hex');
 
   const user = await customerModel.findOne({
     passwordResetToken: hashedCode,
@@ -144,7 +144,7 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new ApiError("Password reset token is invalid or has expired", 400)
+      new ApiError('Password reset token is invalid or has expired', 400)
     );
   }
 
@@ -152,7 +152,7 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
   user.passwordResetVerified = true;
   await user.save();
 
-  res.status(200).json({ status: "success" });
+  res.status(200).json({ status: 'success' });
 });
 
 exports.resetPassword = asyncHandler(async (req, res, next) => {
@@ -165,7 +165,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   }
   //2) check if reset code is verified
   if (!user.passwordResetVerified) {
-    return next(new ApiError("Password reset token not verified", 400));
+    return next(new ApiError('Password reset token not verified', 400));
   }
 
   user.password = req.body.newPassword;
@@ -213,7 +213,7 @@ exports.adminLogin = asyncHandler(async (req, res, next) => {
       return next(new ApiError("Invalid credentials, try to login again...!", 401))
     }
   }
-})
+});
 
 // Vendor Login ...
 exports.vendorLogin = asyncHandler(async (req, res, next) => {
@@ -244,7 +244,7 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
       return next(new ApiError("Invalid credentials, try to login again...!", 401))
     }
   }
-})
+});
 
 // Customer Login ...
 exports.customerLogin = asyncHandler(async (req, res, next) => {
@@ -275,4 +275,4 @@ exports.customerLogin = asyncHandler(async (req, res, next) => {
       return next(new ApiError("Invalid credentials, try to login again...!", 401))
     }
   }
-})
+});
