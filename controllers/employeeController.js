@@ -15,7 +15,11 @@ const saltRunds = 10;
 const salt = bcrypt.genSaltSync(saltRunds);
 
 exports.getAllEmployees = AsyncHandler(async (req, res, next) => {
-  const allEmployees = await Employees.find({}).populate("role", { name: 1 });
+  const allEmployees = await Employees.find({},{
+    password: 0,
+    passwordResetVerified: 0,
+
+  }).populate("role",  "name").select("-__v");
 
   if (!allEmployees) {
     throw new ApiError("no Employee found", 404);
