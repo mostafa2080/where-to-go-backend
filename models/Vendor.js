@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
 const ExtendSchema = require("mongoose-extend-schema");
 const User = require("./User");
 
@@ -30,13 +29,20 @@ const VendorsSchema = ExtendSchema(User, {
     type: Array,
     default: [],
   },
+  category: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "category",
+  },
+  tags: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "tag",
+    default: [],
+  },
   isApproved: {
     type: Boolean,
     required: [true, "Please Provide Approval State"],
     default: false,
   },
 });
-
-VendorsSchema.plugin(softDeletePlugin);
 
 mongoose.model("vendor", VendorsSchema);

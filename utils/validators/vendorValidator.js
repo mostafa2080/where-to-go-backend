@@ -12,8 +12,9 @@ exports.addValidationArray = [
     .withMessage("Email must be a valid Email & Not duplicated"),
   body("phoneNumber").isString().withMessage("Enter A Valid Phone Number"),
   body("description").isString().withMessage("Description Is Needed"),
-  body("thumbnail").isString().withMessage("Image must be a String"),
-  body("gallery").isArray().withMessage("Please Upload Gallery Images"),
+  // body("thumbnail").isString().withMessage("Image must be a String"),
+  // body("gallery").isString().withMessage("Please Upload Gallery Images"),
+  body("category").isMongoId().withMessage("Category is mongoID"),
 ];
 
 exports.updateValidationArray = [

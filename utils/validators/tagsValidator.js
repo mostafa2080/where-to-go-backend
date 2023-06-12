@@ -41,7 +41,7 @@ exports.validateUpdateTag = [
         .isLength({ max: 50 })
         .withMessage('Name must not exceed 50 characters'),
 
-    body('categoryId').notEmpty().withMessage('Category Id is required'),
+    body('category').notEmpty().withMessage('Category Id is required'),
 
     validatorMiddleware,
 ];
