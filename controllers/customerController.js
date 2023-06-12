@@ -52,8 +52,6 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     req.body.password = await bcrypt.hash(req.body.password, saltRounds);
   }
   const role = await RoleSchema.findOne({ name: 'Customer' }, { _id: 1 });
-
-  console.log(role);
   if (req.file) {
     req.body.image = Date.now() + path.extname(req.file.originalname);
     req.imgPath = path.join(
