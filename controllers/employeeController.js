@@ -83,61 +83,57 @@ exports.createEmployee = AsyncHandler(async (req, res, next) => {
 });
 
 // Update Employee
-exports.updateEmployee = AsyncHandler(async (req, res, next) => {
-  if (req.file) {
-    req.body.image = Date.now() + path.extname(req.file.originalname);
-    req.imgPath = path.join(
-      __dirname,
-      "..",
-      "images/employees",
-      req.body.image
-    );
-  }
+exports.updateEmployee = AsyncHandler( async (req, res, next) => {
+    let oldEmpImage;
+    if (req.file){
+        req.body.image = Date.now() + path.extname(req.file.originalname);
+        req.imgPath = path.join(__dirname, '..', 'images/employees', req.body.image);
+        oldEmpImage = await Employees.findById(req.params.id, {image: 1});
+    }
 
-  if (req.body.role) {
-    const role = await Roles.findOne({ name: req.body.role }, { _id: 1 });
-    req.body.role = role._id;
-  }
+    if (req.body.role){
+        const role = await Roles.findOne({name: req.body.role}, {_id: 1});
+        req.body.role = role._id;
+    }
 
-  const employee = await Employees.findOneAndUpdate(
-    { _id: req.params.id },
-    {
-      $set: {
-        name: req.body.name,
-        email: req.body.email,
-        dateOfBirth: req.body.dateOfBirth,
-        phoneNumber: req.body.phoneNumber,
-        address: {
-          country: req.body.country,
-          street: req.body.street,
-          city: req.body.city,
-        },
-        gender: req.body.gender,
-        hireDate: req.body.hireDate,
-        salary: req.body.salary,
-        role: req.body.role,
-        image: req.body.image,
-      },
-    },
-    { new: true }
-  );
 
-  if (!employee) {
-    throw new ApiError("Error happened while Updating Employee", 404);
-  }
-  if (req.file !== undefined) {
-    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-      if (err) throw err;
-    });
+    const employee = await Employees.findOneAndUpdate({_id: req.params.id},{
+        $set: {
+            name: req.body.name,
+            email: req.body.email,
+            dateOfBirth: req.body.dateOfBirth,
+            phoneNumber: req.body.phoneNumber,
+            address: {
+                country: req.body.country,
+                street: req.body.street,
+                city: req.body.city,
+            },
+            gender: req.body.gender,
+            hireDate: req.body.hireDate,
+            salary: req.body.salary,
+            role: req.body.role,
+            image: req.body.image,
+        }
+    },{new: true});
 
-    const root = dirname(require.main.filename);
-    const path = `${root  }/images/employees/${  employee.image}`;
-    fs.unlink(path, (err) => {
-      if (err) {
-        console.log(err);
-      }
-    });
-  }
+    if(!employee){
+        throw new ApiError('Error happened while Updating Employee', 404);
+    }
+
+    if(req.file){
+        console.log(req.imgPath);
+        await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
+            if (err) throw err
+        })
+
+        const root = dirname(require.main.filename);
+        const path = root + "/images/employees/" + oldEmpImage.image;
+        fs.unlink(path, (err) => {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
 
   res.status(200).json({ mssg: "Updated", Data: employee });
 });
