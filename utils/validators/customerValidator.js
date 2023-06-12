@@ -15,13 +15,20 @@ exports.validatePostArray = [
   body("phoneNumber").optional().isString().withMessage("Phone number is not valid"),
   body("dateOfBirth")
     .optional()
-    .isDate()
+    .custom((value, { req }) => {
+      if (value === '') {
+        return true;
+      }
+      if (!value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        throw new Error('Date of birth must be a valid date');
+      }
+      return true;
+    })
     .withMessage("Date of birth must be a valid date"),
   body("gender")
     .optional()
     .isIn(["male", "female"])
     .withMessage("Gender must be either male or female"),
-  body("image").optional().isString().withMessage("Image path must be string"),
   validatorMiddleware,
 ];
 

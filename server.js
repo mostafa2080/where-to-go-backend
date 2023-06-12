@@ -18,6 +18,7 @@ const tagsRouter = require("./routes/tagsRouter");
 const EmployeeRoutes = require("./routes/employee");
 const reportsRoute = require("./routes/reportsRoute");
 const reviewRoute = require("./routes/reviewRoute");
+const contactUsRoute = require("./routes/contactUsRoute");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
 
@@ -46,6 +47,9 @@ if (process.env.NODE_ENV === "development") {
 
 //routes
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/images", imagesRouter);
+app.use("/api/v1/contact", contactUsRoute);
+
 app.use(authenticationMiddleware);
 app.use("/api/v1/images", imagesRouter);
 
