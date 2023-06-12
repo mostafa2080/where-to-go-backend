@@ -152,7 +152,7 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
     thumbnail: req.body.thumbnail,
     gallery: req.body.gallery,
   });
-
+  console.log(vendor);
   await vendor.save();
 
   if (req.files.thumbnail) {
@@ -171,6 +171,7 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
         if (err) throw err;
       });
       console.log(index);
+      console.log(img.buffer);
     });
   }
 
@@ -264,8 +265,10 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
         if (err) throw err;
       });
       console.log(index);
+      console.log(img.buffer);
     });
   }
+
   return res.status(200).json({
     status: "success",
     data: vendor,
