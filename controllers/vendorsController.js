@@ -185,6 +185,7 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
 });
 
 exports.updateVendor = AsyncHandler(async (req, res, next) => {
+  console.log(req.body);
   if (req.files) {
     if (req.files.thumbnail) {
       req.body.thumbnail =
@@ -243,6 +244,7 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
   );
 
   console.log(vendor);
+  console.log(req.files);
 
   // if (vendor.thumbnail != null) {
   //   fs.unlink(__dirname, "..", "images", "vendors", vendor.thumbnail);
@@ -254,22 +256,23 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
   //   );
   // }
 
-  if (req.files.thumbnail) {
-    await fs.writeFile(
-      req.thumbnailPath,
-      req.files.thumbnail[0].buffer,
-      (err) => {
-        if (err) throw err;
-      }
-    );
-  }
+  // if (req.files.thumbnail) {
+  //   await fs.writeFile(
+  //     req.thumbnailPath,
+  //     req.files.thumbnail[0].buffer,
+  //     (err) => {
+  //       if (err) throw err;
+  //     }
+  //   );
+  // }
 
-  if (req.files.gallery) {
-    req.files.gallery.map(async (img, index) => {
-      await fs.writeFile(req.gallery[index], img.buffer);
-      console.log(index);
-    });
-  }
+  // if (req.files.gallery) {
+  //   req.files.gallery.map(async (img, index) => {
+  //     await fs.writeFile(req.gallery[index], img.buffer);
+  //     console.log(index);
+  //   });
+  // }
+  console.log("inside thumb");
   return res.status(200).json({
     status: "success",
     data: vendor,
