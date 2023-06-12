@@ -104,42 +104,74 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
   } });
 });
 
-exports.updateCustomer = AsyncHandler(async (req, res, next) => {
-  // if (req.body.password) {
-  //   req.body.password = await bcrypt.hash(req.body.password, saltRounds);
-  // }
-  // if (req.file) {
-  //   req.body.image = path.join('customers', Date.now() + path.extname(req.file.originalname));
-  //   req.imgPath = path.join(__dirname, '..', 'images', req.body.image);
-  // }
-  // else {
-  //   req.body.image = 'default.jpg';
-  // }
-  // const customer = await new CustomerSchema({
-  //   first_name: req.body.first_name,
-  //   last_name: req.body.last_name,
-  //   email: req.body.email,
-  //   password: req.body.password,
-  //   phone_number: req.body.phone_number,
-  //   address: {
-  //     country: req.body.country,
-  //     state: req.body.state,
-  //     city: req.body.city,
-  //     street: req.body.street,
-  //     zip: req.body.zip,
-  //   },
-  //   date_of_birth: req.body.date_of_birth,
-  //   gender: req.body.gender,
-  //   image: req.body.image,
-  //   role: role._id,
-  // });
-  // await customer.save();
-  // if (req.file) {
-  //   await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-  //     if (err) throw err
-  //   })
-  // }
-  // res.status(201).json({ data: customer });
+exports.editCustomer = AsyncHandler(async (req, res, next) => {
+  const oldCustomer = await CustomerSchema.findById(req.params.id);
+
+  if (!oldCustomer) return new ApiError('Customer not found!', 404);
+
+  if (req.body.password) {
+    req.body.password = await bcrypt.hash(req.body.password, saltRounds);
+  }
+  if (req.file) {
+    req.body.image = Date.now() + path.extname(req.file.originalname);
+    req.imgPath = path.join(
+      __dirname,
+      '..',
+      'images',
+      'customers',
+      req.body.image
+    );
+  } else {
+    req.body.image = 'default.jpg';
+  }
+
+  const updatedCustomer = await CustomerSchema.findByIdAndUpdate(
+    req.params.id,
+    {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      phoneNumber: req.body.phoneNumber,
+      address: {
+        country: req.body.country,
+        state: req.body.state,
+        city: req.body.city,
+        street: req.body.street,
+        zip: req.body.zip,
+      },
+      dateOfBirth: req.body.dateOfBirth,
+      gender: req.body.gender,
+      image: req.body.image,
+    },
+    { new: true } // Set the `new` option to return the updated document
+  );
+
+
+  if (req.file) {
+    if (oldCustomer.image && oldCustomer.image !== 'default.jpg') {
+      await fs.unlink(
+        path.join(__dirname, '..', 'images', 'customers', oldCustomer.image),
+        (err) => {
+          if (err) throw err;
+        }
+      );
+    }
+    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
+      if (err) throw err;
+    });
+  }
+  
+  res.status(200).json({ data: {
+    id: updatedCustomer._id,
+    firstName: updatedCustomer.firstName,
+    lastName: updatedCustomer.lastName,
+    email: updatedCustomer.email,
+    phoneNumber: updatedCustomer.phoneNumber,
+    image: req.body.image,
+    bannedAt: updatedCustomer.bannedAt,
+    deactivatedAt: updatedCustomer.deactivatedAt,
+    deletedAt: updatedCustomer.deletedAt,
+  } });
 });
 
 exports.deactivateCustomer = AsyncHandler(async (req, res, next) => {
