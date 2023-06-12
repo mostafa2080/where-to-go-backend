@@ -1,11 +1,16 @@
 const mongoose = require("mongoose");
 require("../models/Vendor");
+require("../models/Tag");
 const path = require("path");
 const fs = require("fs");
-const forgotPasswordController = require('./forgetPasswordController');
+const AsyncHandler = require("express-async-handler");
+
+const forgotPasswordController = require("./forgetPasswordController");
 
 const Vendors = mongoose.model("vendor");
-exports.getAllVendors = async (req, res, next) => {
+const Tags = mongoose.model("tag");
+
+exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
@@ -66,35 +71,39 @@ exports.getAllVendors = async (req, res, next) => {
       message: "Internal server error",
     });
   }
-};
+});
 
-exports.getApprovedVendors = async (req, res, next) => {
+exports.getApprovedVendors = AsyncHandler(async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: true });
   res.status(200).json({
     status: "success",
     data: vendors,
   });
-};
+});
 
-exports.getRejectedVendors = async (req, res, next) => {
+exports.getRejectedVendors = AsyncHandler(async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: false });
   res.status(200).json({
     status: "success",
     data: vendors,
   });
-};
+});
 
-exports.getVendor = async (req, res, next) => {
-  const vendor = await Vendors.find({ _id: req.params.id }).populate(
-    "category"
-  );
+exports.getVendor = AsyncHandler(async (req, res, next) => {
+  const vendor = await Vendors.findById(req.params.id)
+    .populate("category")
+    .exec();
+
+  const tags = await Tags.find({ _id: vendor.category._id });
+  vendor.tags = tags;
+
   res.status(200).json({
     status: "success",
     data: vendor,
   });
-};
+});
 
-exports.addVendor = async (req, res, next) => {
+exports.addVendor = AsyncHandler(async (req, res, next) => {
   if (req.files) {
     if (req.files.thumbnail) {
       req.body.thumbnail =
@@ -125,7 +134,6 @@ exports.addVendor = async (req, res, next) => {
     req.body.thumbnail = "default.jpg";
   }
 
-  req.body.tags = req.body.tags.split(",");
   const vendor = await new Vendors({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -141,7 +149,6 @@ exports.addVendor = async (req, res, next) => {
     phoneNumber: req.body.phoneNumber,
     description: req.body.description,
     category: req.body.category,
-    tags: req.body.tags,
     thumbnail: req.body.thumbnail,
     gallery: req.body.gallery,
   });
@@ -171,9 +178,9 @@ exports.addVendor = async (req, res, next) => {
     status: "success",
     data: vendor,
   });
-};
+});
 
-exports.updateVendor = async (req, res, next) => {
+exports.updateVendor = AsyncHandler(async (req, res, next) => {
   if (req.files) {
     if (req.files.thumbnail) {
       req.body.thumbnail =
@@ -263,9 +270,9 @@ exports.updateVendor = async (req, res, next) => {
     status: "success",
     data: vendor,
   });
-};
+});
 
-exports.deactivateVendor = async (req, res, next) => {
+exports.deactivateVendor = AsyncHandler(async (req, res, next) => {
   const deletedVendor = await Vendors.updateOne(
     {
       _id: req.params.id,
@@ -285,9 +292,9 @@ exports.deactivateVendor = async (req, res, next) => {
   } else {
     next(new Error("No Vendor With This Id"));
   }
-};
+});
 
-exports.restoreVendor = async (req, res, next) => {
+exports.restoreVendor = AsyncHandler(async (req, res, next) => {
   const restoredVendor = await Vendors.updateOne(
     {
       _id: req.params.id,
@@ -306,13 +313,11 @@ exports.restoreVendor = async (req, res, next) => {
   } else {
     next(new Error("No Vendor With This Id"));
   }
-};
+});
 
-exports.vendorForgotPassword =
-  forgotPasswordController.forgotPassword(Vendors);
+exports.vendorForgotPassword = forgotPasswordController.forgotPassword(Vendors);
 
 exports.vendorVerifyPassResetCode =
   forgotPasswordController.verifyPassResetCode(Vendors);
 
-exports.vendorResetPassword =
-  forgotPasswordController.resetPassword(Vendors);
+exports.vendorResetPassword = forgotPasswordController.resetPassword(Vendors);
