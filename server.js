@@ -18,6 +18,7 @@ const tagsRouter = require("./routes/tagsRouter");
 const EmployeeRoutes = require("./routes/employee");
 const reportsRoute = require("./routes/reportsRoute");
 const reviewRoute = require("./routes/reviewRoute");
+const contactUsRoute = require("./routes/contactUsRoute");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
 
@@ -47,8 +48,10 @@ if (process.env.NODE_ENV === "development") {
 //routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/images", imagesRouter);
+app.use("/api/v1/contact", contactUsRoute);
 
 app.use(authenticationMiddleware);
+app.use("/api/v1/images", imagesRouter);
 
 app.use("/api/v1/vendors", vendorsRoute);
 app.use("/api/v1/categories", categoriesRouter);
@@ -62,7 +65,6 @@ app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
 app.use("/api/v1/vendors", vendorsRoute);
 app.use("/api/v1/reports", reportsRoute);
-
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can not find this Route ${req.originalUrl}`, 400));
