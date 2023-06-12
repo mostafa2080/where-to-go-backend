@@ -152,7 +152,7 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
     thumbnail: req.body.thumbnail,
     gallery: req.body.gallery,
   });
-  console.log(vendor);
+
   await vendor.save();
 
   if (req.files.thumbnail) {
@@ -168,10 +168,13 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
   if (req.files.gallery) {
     req.files.gallery.forEach(async (img, index) => {
       await fs.writeFile(req.gallery[index], img.buffer, (err) => {
-        if (err) throw err;
+        if (err) {
+          console.error(`Error saving file ${index + 1}:`, err);
+        } else {
+          console.log(`File ${index + 1} saved successfully.`);
+        }
       });
       console.log(index);
-      console.log(img.buffer);
     });
   }
 
@@ -231,7 +234,7 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
         email: req.body.email,
         phoneNumber: req.body.phoneNumber,
         description: req.body.description,
-        category: req.body.description,
+        category: req.body.category,
         thumbnail: req.body.thumbnail,
         gallery: req.body.gallery,
         isApproved: req.body.isApproved,
@@ -239,15 +242,17 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
     }
   );
 
-  if (vendor.thumbnail != null) {
-    fs.unlink(__dirname, "..", "images", "vendors", vendor.thumbnail);
-  }
+  console.log(vendor);
 
-  if (vendor.gallery != null) {
-    vendor.gallery.forEach((img) =>
-      fs.unlink(__dirname, "..", "images", "vendors", img)
-    );
-  }
+  // if (vendor.thumbnail != null) {
+  //   fs.unlink(__dirname, "..", "images", "vendors", vendor.thumbnail);
+  // }
+
+  // if (vendor.gallery != null) {
+  //   vendor.gallery.forEach((img) =>
+  //     fs.unlink(__dirname, "..", "images", "vendors", img)
+  //   );
+  // }
 
   if (req.files.thumbnail) {
     await fs.writeFile(
@@ -260,15 +265,11 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
   }
 
   if (req.files.gallery) {
-    req.files.gallery.forEach(async (img, index) => {
-      await fs.writeFile(req.gallery[index], img.buffer, (err) => {
-        if (err) throw err;
-      });
+    req.files.gallery.map(async (img, index) => {
+      await fs.writeFile(req.gallery[index], img.buffer);
       console.log(index);
-      console.log(img.buffer);
     });
   }
-
   return res.status(200).json({
     status: "success",
     data: vendor,
