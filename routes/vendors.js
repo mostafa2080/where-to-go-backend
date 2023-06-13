@@ -1,23 +1,23 @@
-const express = require('express');
-const vendorsController = require('../controllers/vendorsController');
-const vendorValidator = require('../utils/validators/vendorValidator');
-const validatorMiddleware = require('../middlewares/validatorMiddleware');
-const { uploadImg, setImage } = require('../utils/imageUtility');
+const express = require("express");
+const vendorsController = require("../controllers/vendorsController");
+const vendorValidator = require("../utils/validators/vendorValidator");
+const validatorMiddleware = require("../middlewares/validatorMiddleware");
+const { uploadImg, setImage } = require("../utils/imageUtility");
 
 const router = express.Router();
 
 router
-  .route('/')
+  .route("/")
   .get(vendorsController.getAllVendors)
   .post(
     vendorsController.uploadVendorImages,
     (req, res, next) => {
-      console.log('upload', req.body);
+      console.log("upload", req.body);
       next();
     },
     vendorsController.processingImage,
     (req, res, next) => {
-      console.log('processing', req.body);
+      console.log("processing", req.body);
       next();
     },
     vendorValidator.addValidationArray,
@@ -25,12 +25,12 @@ router
     vendorsController.addVendor
   );
 
-router.route('/approved').get(vendorsController.getApprovedVendors);
+router.route("/approved").get(vendorsController.getApprovedVendors);
 
-router.route('/rejected').get(vendorsController.getRejectedVendors);
+router.route("/rejected").get(vendorsController.getRejectedVendors);
 
 router
-  .route('/:id/deactivate')
+  .route("/:id/deactivate")
   .patch(
     vendorValidator.updateValidationArray,
     validatorMiddleware,
@@ -38,7 +38,7 @@ router
   );
 
 router
-  .route('/:id/restore')
+  .route("/:id/restore")
   .patch(
     vendorValidator.updateValidationArray,
     validatorMiddleware,
@@ -46,21 +46,21 @@ router
   );
 
 router
-  .route('/:id')
+  .route("/:id")
   .get(
     vendorValidator.getValidationArray,
     validatorMiddleware,
     vendorsController.getVendor
   )
-  .put(
+  .patch(
     vendorsController.uploadVendorImages,
     (req, res, next) => {
-      console.log('upload', req.body);
+      console.log("upload", req.body);
       next();
     },
     vendorsController.processingImage,
     (req, res, next) => {
-      console.log('processing', req.body);
+      console.log("processing", req.body);
       next();
     },
     vendorValidator.updateValidationArray,

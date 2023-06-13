@@ -38,6 +38,9 @@ const VendorsSchema = ExtendSchema(User, {
     required: [true, "Please Provide Approval State"],
     default: false,
   },
+  role: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
 });
 
 mongoose.model("vendor", VendorsSchema);
