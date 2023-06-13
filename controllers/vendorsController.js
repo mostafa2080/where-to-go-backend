@@ -23,7 +23,7 @@ const greetingMessage = asyncHandler(async (data) => {
       </head>
       <body>
         <div class="container">
-          <h1>Wellcome ${data.firstName + " " + data.lastName} On Board </h1>
+          <h4>Wellcome ${data.firstName + " " + data.lastName} On Board </h4>
           <p>Congratlation for signing Up with ${data.email}  </p>
           <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
           <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
@@ -147,87 +147,6 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.addVendor = AsyncHandler(async (req, res, next) => {
-//   // if (req.files) {
-//   //   if (req.files.thumbnail) {
-//   //     req.body.thumbnail =
-//   //       Date.now() + path.extname(req.files.thumbnail[0].originalname);
-//   //     req.thumbnailPath = path.join(
-//   //       __dirname,
-//   //       '..',
-//   //       'images',
-//   //       'vendors',
-//   //       req.body.thumbnail
-//   //     );
-//   //   }
-//   //   if (req.files.gallery) {
-//   //     req.body.gallery = [];
-
-//   //     req.files.gallery.forEach((img) => {
-//   //       req.body.gallery.push(Date.now() + path.extname(img.originalname));
-//   //     });
-
-//   //     req.gallery = [];
-//   //     req.body.gallery.forEach((image) => {
-//   //       req.gallery.push(
-//   //         path.join(__dirname, '..', 'images', 'vendors', image)
-//   //       );
-//   //     });
-//   //   }
-//   // } else {
-//   //   req.body.thumbnail = 'default.jpg';
-//   // }
-
-//   const vendor = await new Vendors({
-//     firstName: req.body.firstName,
-//     lastName: req.body.lastName,
-//     placeName: req.body.placeName,
-//     address: {
-//       country: req.body.country,
-//       state: req.body.state,
-//       city: req.body.city,
-//       street: req.body.street,
-//       zip: req.body.zip,
-//     },
-//     email: req.body.email,
-//     phoneNumber: req.body.phoneNumber,
-//     description: req.body.description,
-//     category: req.body.category,
-//     thumbnail: req.body.thumbnail,
-//     gallery: req.body.gallery,
-//   });
-
-//   await vendor.save();
-
-//   // if (req.files.thumbnail) {
-//   //   await fs.writeFile(
-//   //     req.thumbnailPath,
-//   //     req.files.thumbnail[0].buffer,
-//   //     (err) => {
-//   //       if (err) throw err;
-//   //     }
-//   //   );
-//   // }
-
-//   // if (req.files.gallery) {
-//   //   req.files.gallery.forEach(async (img, index) => {
-//   //     await fs.writeFile(req.gallery[index], img.buffer, (err) => {
-//   //       if (err) {
-//   //         console.error(`Error saving file ${index + 1}:`, err);
-//   //       } else {
-//   //         console.log(`File ${index + 1} saved successfully.`);
-//   //       }
-//   //     });
-//   //     console.log(index);
-//   //   });
-//   // }
-
-//   return res.status(200).json({
-//     status: 'success',
-//     data: vendor,
-//   });
-// });
-
 exports.addVendor = asyncHandler(async (req, res, next) => {
   const vendorRole = await Roles.find({ name: "Vendor" });
   req.body.role = vendorRole._id;
@@ -235,101 +154,6 @@ exports.addVendor = asyncHandler(async (req, res, next) => {
   greetingMessage(document);
   res.status(201).json({ data: document });
 });
-
-// exports.updateVendor = AsyncHandler(async (req, res, next) => {
-//   console.log(req.body);
-//   if (req.files) {
-//     if (req.files.thumbnail) {
-//       req.body.thumbnail =
-//         Date.now() + path.extname(req.files.thumbnail[0].originalname);
-//       req.thumbnailPath = path.join(
-//         __dirname,
-//         '..',
-//         'images',
-//         'vendors',
-//         req.body.thumbnail
-//       );
-//     }
-//     if (req.files.gallery) {
-//       req.body.gallery = [];
-
-//       req.files.gallery.forEach((img) => {
-//         req.body.gallery.push(Date.now() + path.extname(img.originalname));
-//       });
-
-//       req.gallery = [];
-//       req.body.gallery.forEach((image) => {
-//         req.gallery.push(
-//           path.join(__dirname, '..', 'images', 'vendors', image)
-//         );
-//       });
-//     }
-//   } else {
-//     req.body.thumbnail = 'default.jpg';
-//   }
-
-//   const vendor = await Vendors.findOneAndUpdate(
-//     {
-//       _id: req.params.id,
-//     },
-//     {
-//       $set: {
-//         firstName: req.body.firstName,
-//         lastName: req.body.lastName,
-//         placeName: req.body.placeName,
-//         address: {
-//           country: req.body.country,
-//           state: req.body.state,
-//           city: req.body.city,
-//           street: req.body.street,
-//           zip: req.body.zip,
-//         },
-//         email: req.body.email,
-//         phoneNumber: req.body.phoneNumber,
-//         description: req.body.description,
-//         category: req.body.category,
-//         thumbnail: req.body.thumbnail,
-//         gallery: req.body.gallery,
-//         isApproved: req.body.isApproved,
-//       },
-//     }
-//   );
-
-//   console.log(vendor);
-//   console.log(req.files);
-
-//   // if (vendor.thumbnail != null) {
-//   //   fs.unlink(__dirname, "..", "images", "vendors", vendor.thumbnail);
-//   // }
-
-//   // if (vendor.gallery != null) {
-//   //   vendor.gallery.forEach((img) =>
-//   //     fs.unlink(__dirname, "..", "images", "vendors", img)
-//   //   );
-//   // }
-
-//   // if (req.files.thumbnail) {
-//   //   await fs.writeFile(
-//   //     req.thumbnailPath,
-//   //     req.files.thumbnail[0].buffer,
-//   //     (err) => {
-//   //       if (err) throw err;
-//   //     }
-//   //   );
-//   // }
-
-//   // if (req.files.gallery) {
-//   //   req.files.gallery.map(async (img, index) => {
-//   //     await fs.writeFile(req.gallery[index], img.buffer);
-//   //     console.log(index);
-//   //   });
-//   // }
-//   console.log('inside thumb');
-//   return res.status(200).json({
-//     status: 'success',
-//     data: vendor,
-//   });
-// });
 
 exports.updateVendor = asyncHandler(async (req, res, next) => {
   console.log("updating");
