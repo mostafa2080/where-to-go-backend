@@ -166,3 +166,9 @@ exports.updateLoggedUserValidator = [
 
   validatorMiddleware,
 ];
+
+exports.validateFavouriteIDs = [
+  body('customerId').isMongoId().withMessage('Invalid customer id'),
+  body('vendorId').isMongoId().withMessage('Invalid vendor id'),
+  validatorMiddleware,
+]

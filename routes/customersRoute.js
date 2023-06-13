@@ -3,8 +3,8 @@ const controller = require('../controllers/customerController');
 const validateCustomer = require('../utils/validators/customerValidator');
 const { uploadImg } = require('../utils/imageUtility');
 
-const { EmployeeOrAbove } = require('../middlewares/authorizationMiddleware');
-
+const { EmployeeOrAbove, CustomerOrAbove } = require('../middlewares/authorizationMiddleware');
+const favourtiePlacesController = require('./../controllers/favouritePlacesController');
 const router = express.Router();
 
 router.get(
@@ -32,7 +32,7 @@ router
 
 router
   .route('/:id')
-  .all(EmployeeOrAbove, validateCustomer.validateIdParam)
+  .all(CustomerOrAbove, validateCustomer.validateIdParam)
   .get(controller.getCustomerById)
   .patch(
     uploadImg().single('image'),
