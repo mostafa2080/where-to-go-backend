@@ -9,10 +9,38 @@ const AsyncHandler = require("express-async-handler");
 const forgotPasswordController = require("./forgetPasswordController");
 const { uploadMixOfImages } = require("./imageController");
 const ApiError = require("../utils/apiError");
+const sendMail = require("../utils/sendEmail");
 
 const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
 const Tags = mongoose.model("tag");
+
+const greetingMessage = asyncHandler(async (data) => {
+  const emailContent = `
+    <html>
+      <head>
+        <style>/* Styles for the email content */</style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Wellcome ${data.firstName + " " + data.lastName} On Board </h1>
+          <p>Congratlation for signing Up with ${data.email}  </p>
+          <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
+          <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
+        </div>
+      </body>
+    </html>`;
+  const userEmail = data.email;
+  try {
+    await sendMail({
+      email: userEmail,
+      subject: "Greeting From Where To Go",
+      message: emailContent,
+    });
+  } catch (error) {
+    throw ApiError(error);
+  }
+});
 
 exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
@@ -187,10 +215,12 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
 //     data: vendor,
 //   });
 // });
+
 exports.addVendor = asyncHandler(async (req, res, next) => {
   const vendorRole = await Roles.find({ name: "Vendor" });
   req.body.role = vendorRole._id;
   const document = await Vendors.create(req.body);
+  greetingMessage(document);
   res.status(201).json({ data: document });
 });
 
@@ -298,6 +328,19 @@ exports.updateVendor = asyncHandler(async (req, res, next) => {
     return next(new ApiError("Document not found", 404));
   }
   res.status(200).json({ data: document });
+});
+
+exports.activate = AsyncHandler(async (req, res, next) => {
+  const document = await Vendors.updateOne(
+    {
+      _id: req.params.id,
+    },
+    {
+      $set: {
+        isApproved: true,
+      },
+    }
+  );
 });
 
 exports.deactivateVendor = AsyncHandler(async (req, res, next) => {
