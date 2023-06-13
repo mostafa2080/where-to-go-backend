@@ -50,6 +50,7 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const sortOrder = req.query.sortOrder || "asc";
   const filters = req.query.filters || {};
   const searchQuery = req.query.search || "";
+  const tagIds = filters.tags ? filters.tags.split(",") : []; // Split the tagIds string into an array
 
   const filterQuery = {};
 
@@ -76,6 +77,17 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   }
 
   try {
+    // Find the tags that match the given tag IDs
+    const tags = await Tags.find({ _id: { $in: tagIds } });
+
+    // Extract the category IDs from the found tags
+    const categoryIds = tags.map((tag) => tag.category);
+
+    // Add the category IDs to the filter query
+    if (categoryIds.length > 0) {
+      filterQuery.category = { $in: categoryIds };
+    }
+
     const [vendors, total] = await Promise.all([
       Vendors.find(filterQuery)
         .skip(skip)
