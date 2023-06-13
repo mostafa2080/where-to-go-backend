@@ -36,7 +36,7 @@ exports.validatePatchArray = [
   body("firstName").optional().isAlpha().withMessage("First name must be alphabetic"),
   body("lastName").optional().isAlpha().withMessage("Last name must be alphabetic"),
   body("email").optional().isEmail().withMessage("Email is not valid"),
-  body("password").optional().isStrongPassword().withMessage("Password must be strong"),
+  body("password").optional().matches(/^(?:(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,})?$/).withMessage("Password must be strong"),
   body("street").optional().isString().withMessage("Street must be alphabetic"),
   body("country").optional().isString().withMessage("Country must be alphabetic"),
   body("state").optional().isString().withMessage("State must be alphabetic"),
