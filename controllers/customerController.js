@@ -71,6 +71,7 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     phoneNumber: req.body.phoneNumber,
+    phoneCode: req.body.phoneCode,
     address: {
       country: req.body.country,
       state: req.body.state,
@@ -122,27 +123,34 @@ exports.editCustomer = AsyncHandler(async (req, res, next) => {
       req.body.image
     );
   } else {
-    req.body.image = 'default.jpg';
+    req.body.image = oldCustomer.image;
+  }
+
+  const updatedData = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    phoneCode: req.body.phoneCode,
+    address: {
+      country: req.body.country,
+      state: req.body.state,
+      city: req.body.city,
+      street: req.body.street,
+      zip: req.body.zip,
+    },
+    dateOfBirth: req.body.dateOfBirth,
+    gender: req.body.gender,
+    image: req.body.image,
+  }
+
+  if (req.body.password) {
+    updatedData.password = req.body.password;
   }
 
   const updatedCustomer = await CustomerSchema.findByIdAndUpdate(
     req.params.id,
-    {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
-      address: {
-        country: req.body.country,
-        state: req.body.state,
-        city: req.body.city,
-        street: req.body.street,
-        zip: req.body.zip,
-      },
-      dateOfBirth: req.body.dateOfBirth,
-      gender: req.body.gender,
-      image: req.body.image,
-    },
+    updatedData,
     { new: true } // Set the `new` option to return the updated document
   );
 
