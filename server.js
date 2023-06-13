@@ -19,7 +19,7 @@ const EmployeeRoutes = require("./routes/employee");
 const reportsRoute = require("./routes/reportsRoute");
 const reviewRoute = require("./routes/reviewRoute");
 const contactUsRoute = require("./routes/contactUsRoute");
-const favouritesRouter = require("./routes/favouritesRouter");
+const favoritesRouter = require("./routes/favoritesRouter");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
 
@@ -61,7 +61,7 @@ app.use(EmployeeRoutes);
 app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/reviews", reviewRoute);
 
-app.use("/api/v1/customers/favourites", favouritesRouter);
+app.use("/api/v1/customers/favorites", favoritesRouter);
 app.use("/api/v1/customers", customersRouter);
 app.use("/api/v1/roles", rolesRoute);
 app.use("/api/v1/permissions", permissionsRoute);
