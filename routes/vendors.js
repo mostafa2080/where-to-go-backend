@@ -3,6 +3,7 @@ const vendorsController = require("../controllers/vendorsController");
 const vendorValidator = require("../utils/validators/vendorValidator");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
 const { uploadImg, setImage } = require("../utils/imageUtility");
+const { vendorForgotPassword } = require("../controllers/vendorsController");
 
 const router = express.Router();
 
@@ -11,15 +12,7 @@ router
   .get(vendorsController.getAllVendors)
   .post(
     vendorsController.uploadVendorImages,
-    (req, res, next) => {
-      console.log("upload", req.body);
-      next();
-    },
     vendorsController.processingImage,
-    (req, res, next) => {
-      console.log("processing", req.body);
-      next();
-    },
     vendorValidator.addValidationArray,
     validatorMiddleware,
     vendorsController.addVendor
@@ -43,6 +36,15 @@ router
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.restoreVendor
+  );
+
+router
+  .route("/:id/activate")
+  .patch(
+    vendorValidator.updateValidationArray,
+    validatorMiddleware,
+    vendorsController.approveVendor,
+    vendorForgotPassword
   );
 
 router

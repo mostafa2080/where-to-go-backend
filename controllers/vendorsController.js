@@ -10,6 +10,7 @@ const forgotPasswordController = require("./forgetPasswordController");
 const { uploadMixOfImages } = require("./imageController");
 const ApiError = require("../utils/apiError");
 const sendMail = require("../utils/sendEmail");
+const { resetPassword } = require("./forgetPasswordController");
 
 const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
@@ -166,8 +167,8 @@ exports.updateVendor = asyncHandler(async (req, res, next) => {
   res.status(200).json({ data: document });
 });
 
-exports.activate = AsyncHandler(async (req, res, next) => {
-  const document = await Vendors.updateOne(
+exports.approveVendor = AsyncHandler(async (req, res, next) => {
+  const document = await Vendors.findOneAndUpdate(
     {
       _id: req.params.id,
     },
@@ -177,6 +178,9 @@ exports.activate = AsyncHandler(async (req, res, next) => {
       },
     }
   );
+  req.body.email = document.email;
+  req.body.modelType = "vendor";
+  next();
 });
 
 exports.deactivateVendor = AsyncHandler(async (req, res, next) => {
