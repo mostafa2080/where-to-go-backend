@@ -5,7 +5,7 @@ const AddressSchema = mongoose.Schema({
   state: String,
   city: String,
   street: String,
-  zip: Number,
+  zip: String,
 });
 
 // Create user schema
@@ -31,6 +31,7 @@ const UserSchema = new mongoose.Schema({
   },
   name: String,
   phoneNumber: String,
+  phoneCode: String,
   address: AddressSchema,
   deactivatedAt: {
     type: Date,

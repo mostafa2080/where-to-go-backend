@@ -71,6 +71,7 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     phoneNumber: req.body.phoneNumber,
+    phoneCode: req.body.phoneCode,
     address: {
       country: req.body.country,
       state: req.body.state,

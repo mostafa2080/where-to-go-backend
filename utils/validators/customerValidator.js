@@ -41,7 +41,7 @@ exports.validatePatchArray = [
   body("country").optional().isString().withMessage("Country must be alphabetic"),
   body("state").optional().isString().withMessage("State must be alphabetic"),
   body("city").optional().isString().withMessage("City must be alphabetic"),
-  body("zip").optional().matches(/^(\d{5}(?:[-\s]\d{4})?)?$/).withMessage("Zip must be numeric"),
+  body("zip").optional().matches(/^(?:\d{5}(?:-\d{4})?|)$/).withMessage("Zip is not valid"),
   body("phoneNumber").optional().isString().withMessage("Phone number is not valid"),
   body("dateOfBirth")
     .optional()
