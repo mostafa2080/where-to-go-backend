@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const AsyncHandler = require('express-async-handler');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
@@ -12,6 +13,11 @@ const ApiError = require('../utils/apiError');
 const CustomerSchema = mongoose.model('customers');
 const RoleSchema = mongoose.model('roles');
 const saltRounds = 10;
+
+const createToken = (payload) =>
+  jwt.sign({ payload }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
 
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken);
@@ -35,13 +41,15 @@ exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getCustomerById = AsyncHandler(async (req, res, next) => {
-  const customer = await CustomerSchema.findById(req.params.id).populate('role', 'name').select('-__v');
+  const customer = await CustomerSchema.findById(req.params.id)
+    .populate('role', 'name')
+    .select('-__v');
   if (!customer) return new ApiError('Customer not found!', 404);
-  
+
   const result = {
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
     ...customer._doc,
-    role: customer.role.name
+    role: customer.role.name,
   };
 
   res.status(200).json({ data: result });
@@ -92,17 +100,19 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     });
   }
 
-  res.status(201).json({ data: {
-    id: customer._id,
-    firstName: customer.firstName,
-    lastName: customer.lastName,
-    email: customer.email,
-    phoneNumber: customer.phoneNumber,
-    image: customer.image,
-    bannedAt: customer.bannedAt,
-    deactivatedAt: customer.deactivatedAt,
-    deletedAt: customer.deletedAt,
-  } });
+  res.status(201).json({
+    data: {
+      id: customer._id,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phoneNumber: customer.phoneNumber,
+      image: customer.image,
+      bannedAt: customer.bannedAt,
+      deactivatedAt: customer.deactivatedAt,
+      deletedAt: customer.deletedAt,
+    },
+  });
 });
 
 exports.editCustomer = AsyncHandler(async (req, res, next) => {
@@ -142,7 +152,7 @@ exports.editCustomer = AsyncHandler(async (req, res, next) => {
     dateOfBirth: req.body.dateOfBirth,
     gender: req.body.gender,
     image: req.body.image,
-  }
+  };
 
   if (req.body.password) {
     updatedData.password = req.body.password;
@@ -153,7 +163,6 @@ exports.editCustomer = AsyncHandler(async (req, res, next) => {
     updatedData,
     { new: true } // Set the `new` option to return the updated document
   );
-
 
   if (req.file) {
     if (oldCustomer.image && oldCustomer.image !== 'default.jpg') {
@@ -168,18 +177,20 @@ exports.editCustomer = AsyncHandler(async (req, res, next) => {
       if (err) throw err;
     });
   }
-  
-  res.status(200).json({ data: {
-    id: updatedCustomer._id,
-    firstName: updatedCustomer.firstName,
-    lastName: updatedCustomer.lastName,
-    email: updatedCustomer.email,
-    phoneNumber: updatedCustomer.phoneNumber,
-    image: req.body.image,
-    bannedAt: updatedCustomer.bannedAt,
-    deactivatedAt: updatedCustomer.deactivatedAt,
-    deletedAt: updatedCustomer.deletedAt,
-  } });
+
+  res.status(200).json({
+    data: {
+      id: updatedCustomer._id,
+      firstName: updatedCustomer.firstName,
+      lastName: updatedCustomer.lastName,
+      email: updatedCustomer.email,
+      phoneNumber: updatedCustomer.phoneNumber,
+      image: req.body.image,
+      bannedAt: updatedCustomer.bannedAt,
+      deactivatedAt: updatedCustomer.deactivatedAt,
+      deletedAt: updatedCustomer.deletedAt,
+    },
+  });
 });
 
 exports.deactivateCustomer = AsyncHandler(async (req, res, next) => {
@@ -281,4 +292,50 @@ exports.customerForgotPassword =
 exports.customerVerifyPassResetCode =
   forgotPasswordController.verifyPassResetCode(CustomerSchema);
 
-exports.customerResetPassword = forgotPasswordController.resetPassword(CustomerSchema);
+exports.customerResetPassword =
+  forgotPasswordController.resetPassword(CustomerSchema);
+
+exports.getLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  console.log(req.decodedToken.id);
+  req.params.id = req.decodedToken.id;
+  console.log(req.params.id)
+  next();
+});
+
+exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
+  //1) update user password based on the user payload (req.user._id)
+  const user = await CustomerSchema.findByIdAndUpdate(
+    req.decodedToken.id,
+    {
+      password: await bcrypt.hash(req.body.password, 12),
+      passwordChangedAt: Date.now(),
+    },
+    {
+      new: true,
+    }
+  );
+  //2)generate token
+  const token = createToken(user._id);
+  res.status(200).json({
+    data: user,
+    token,
+  });
+});
+
+exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  const updatedUser = await CustomerSchema.findByIdAndUpdate(
+    req.decodedToken.id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+    },
+    { new: true }
+  );
+  res.status(200).json({ data: updatedUser });
+});
+
+exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  await CustomerSchema.findOneAndUpdate(req.decodedToken.id, { active: false });
+  res.status(200).json({ status: 'Your Account Deleted Successfully' });
+});

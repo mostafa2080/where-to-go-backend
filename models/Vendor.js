@@ -40,6 +40,7 @@ const VendorsSchema = ExtendSchema(User, {
   },
   role: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "roles",
   },
 });
 
