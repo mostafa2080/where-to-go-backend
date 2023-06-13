@@ -19,15 +19,17 @@ router
 
 router
   .route("/:id")
-  .all(EmployeeOrAbove)
-  .get(
-    validateCustomer.validateIdParam,
-    controller.getCustomerById
+  .all(
+    EmployeeOrAbove,
+    validateCustomer.validateIdParam
   )
-  .delete(
-    validateCustomer.validateIdParam,
-    controller.deleteCustomer
-  );
+  .get(controller.getCustomerById)
+  .patch(
+    uploadImg().single("image"),
+    validateCustomer.validatePatchArray,
+    controller.editCustomer
+  )
+  .delete(controller.deleteCustomer);
 
 router
   .route("/softDelete/:id")

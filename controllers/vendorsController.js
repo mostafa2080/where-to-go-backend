@@ -1,23 +1,28 @@
 const mongoose = require("mongoose");
+const asyncHandler = require("express-async-handler");
+const sharp = require("sharp");
+const { v4: uuidv4 } = require("uuid");
 require("../models/Vendor");
 require("../models/Tag");
 const path = require("path");
-const fs = require("fs");
 const AsyncHandler = require("express-async-handler");
-
 const forgotPasswordController = require("./forgetPasswordController");
+const { uploadMixOfImages } = require("./imageController");
+const ApiError = require("../utils/apiError");
 
 const Vendors = mongoose.model("vendor");
+const Roles = mongoose.model("roles");
 const Tags = mongoose.model("tag");
 
-exports.getAllVendors = AsyncHandler(async (req, res, next) => {
+exports.getAllVendors = asyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
   const sortOrder = req.query.sortOrder || "asc";
   const filters = req.query.filters || {};
-  const searchQuery = req.query.search || "";
+  const searchQuery = req.query.search || '';
+  const tagIds = filters.tags ? filters.tags.split(',') : []; // Split the tagIds string into an array
 
   const filterQuery = {};
 
@@ -44,6 +49,17 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   }
 
   try {
+    // Find the tags that match the given tag IDs
+    const tags = await Tags.find({ _id: { $in: tagIds } });
+
+    // Extract the category IDs from the found tags
+    const categoryIds = tags.map((tag) => tag.category);
+
+    // Add the category IDs to the filter query
+    if (categoryIds.length > 0) {
+      filterQuery.category = { $in: categoryIds };
+    }
+
     const [vendors, total] = await Promise.all([
       Vendors.find(filterQuery)
         .skip(skip)
@@ -103,173 +119,197 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
   });
 });
 
-exports.addVendor = AsyncHandler(async (req, res, next) => {
-  if (req.files) {
-    if (req.files.thumbnail) {
-      req.body.thumbnail =
-        Date.now() + path.extname(req.files.thumbnail[0].originalname);
-      req.thumbnailPath = path.join(
-        __dirname,
-        "..",
-        "images",
-        "vendors",
-        req.body.thumbnail
-      );
-    }
-    if (req.files.gallery) {
-      req.body.gallery = [];
+// exports.addVendor = AsyncHandler(async (req, res, next) => {
+//   // if (req.files) {
+//   //   if (req.files.thumbnail) {
+//   //     req.body.thumbnail =
+//   //       Date.now() + path.extname(req.files.thumbnail[0].originalname);
+//   //     req.thumbnailPath = path.join(
+//   //       __dirname,
+//   //       '..',
+//   //       'images',
+//   //       'vendors',
+//   //       req.body.thumbnail
+//   //     );
+//   //   }
+//   //   if (req.files.gallery) {
+//   //     req.body.gallery = [];
 
-      req.files.gallery.forEach((img) => {
-        req.body.gallery.push(Date.now() + path.extname(img.originalname));
-      });
+//   //     req.files.gallery.forEach((img) => {
+//   //       req.body.gallery.push(Date.now() + path.extname(img.originalname));
+//   //     });
 
-      req.gallery = [];
-      req.body.gallery.forEach((image) => {
-        req.gallery.push(
-          path.join(__dirname, "..", "images", "vendors", image)
-        );
-      });
-    }
-  } else {
-    req.body.thumbnail = "default.jpg";
-  }
+//   //     req.gallery = [];
+//   //     req.body.gallery.forEach((image) => {
+//   //       req.gallery.push(
+//   //         path.join(__dirname, '..', 'images', 'vendors', image)
+//   //       );
+//   //     });
+//   //   }
+//   // } else {
+//   //   req.body.thumbnail = 'default.jpg';
+//   // }
 
-  const vendor = await new Vendors({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    placeName: req.body.placeName,
-    address: {
-      country: req.body.country,
-      state: req.body.state,
-      city: req.body.city,
-      street: req.body.street,
-      zip: req.body.zip,
-    },
-    email: req.body.email,
-    phoneNumber: req.body.phoneNumber,
-    description: req.body.description,
-    category: req.body.category,
-    thumbnail: req.body.thumbnail,
-    gallery: req.body.gallery,
-  });
+//   const vendor = await new Vendors({
+//     firstName: req.body.firstName,
+//     lastName: req.body.lastName,
+//     placeName: req.body.placeName,
+//     address: {
+//       country: req.body.country,
+//       state: req.body.state,
+//       city: req.body.city,
+//       street: req.body.street,
+//       zip: req.body.zip,
+//     },
+//     email: req.body.email,
+//     phoneNumber: req.body.phoneNumber,
+//     description: req.body.description,
+//     category: req.body.category,
+//     thumbnail: req.body.thumbnail,
+//     gallery: req.body.gallery,
+//   });
 
-  await vendor.save();
+//   await vendor.save();
 
-  if (req.files.thumbnail) {
-    await fs.writeFile(
-      req.thumbnailPath,
-      req.files.thumbnail[0].buffer,
-      (err) => {
-        if (err) throw err;
-      }
-    );
-  }
+//   // if (req.files.thumbnail) {
+//   //   await fs.writeFile(
+//   //     req.thumbnailPath,
+//   //     req.files.thumbnail[0].buffer,
+//   //     (err) => {
+//   //       if (err) throw err;
+//   //     }
+//   //   );
+//   // }
 
-  if (req.files.gallery) {
-    req.files.gallery.forEach(async (img, index) => {
-      await fs.writeFile(req.gallery[index], img.buffer, (err) => {
-        if (err) throw err;
-      });
-      console.log(index);
-    });
-  }
+//   // if (req.files.gallery) {
+//   //   req.files.gallery.forEach(async (img, index) => {
+//   //     await fs.writeFile(req.gallery[index], img.buffer, (err) => {
+//   //       if (err) {
+//   //         console.error(`Error saving file ${index + 1}:`, err);
+//   //       } else {
+//   //         console.log(`File ${index + 1} saved successfully.`);
+//   //       }
+//   //     });
+//   //     console.log(index);
+//   //   });
+//   // }
 
-  return res.status(200).json({
-    status: "success",
-    data: vendor,
-  });
+//   return res.status(200).json({
+//     status: 'success',
+//     data: vendor,
+//   });
+// });
+exports.addVendor = asyncHandler(async (req, res, next) => {
+  const vendorRole = await Roles.find({ name: "Vendor" });
+  req.body.role = vendorRole._id;
+  const document = await Vendors.create(req.body);
+  res.status(201).json({ data: document });
 });
 
-exports.updateVendor = AsyncHandler(async (req, res, next) => {
-  if (req.files) {
-    if (req.files.thumbnail) {
-      req.body.thumbnail =
-        Date.now() + path.extname(req.files.thumbnail[0].originalname);
-      req.thumbnailPath = path.join(
-        __dirname,
-        "..",
-        "images",
-        "vendors",
-        req.body.thumbnail
-      );
-    }
-    if (req.files.gallery) {
-      req.body.gallery = [];
+// exports.updateVendor = AsyncHandler(async (req, res, next) => {
+//   console.log(req.body);
+//   if (req.files) {
+//     if (req.files.thumbnail) {
+//       req.body.thumbnail =
+//         Date.now() + path.extname(req.files.thumbnail[0].originalname);
+//       req.thumbnailPath = path.join(
+//         __dirname,
+//         '..',
+//         'images',
+//         'vendors',
+//         req.body.thumbnail
+//       );
+//     }
+//     if (req.files.gallery) {
+//       req.body.gallery = [];
 
-      req.files.gallery.forEach((img) => {
-        req.body.gallery.push(Date.now() + path.extname(img.originalname));
-      });
+//       req.files.gallery.forEach((img) => {
+//         req.body.gallery.push(Date.now() + path.extname(img.originalname));
+//       });
 
-      req.gallery = [];
-      req.body.gallery.forEach((image) => {
-        req.gallery.push(
-          path.join(__dirname, "..", "images", "vendors", image)
-        );
-      });
-    }
-  } else {
-    req.body.thumbnail = "default.jpg";
-  }
+//       req.gallery = [];
+//       req.body.gallery.forEach((image) => {
+//         req.gallery.push(
+//           path.join(__dirname, '..', 'images', 'vendors', image)
+//         );
+//       });
+//     }
+//   } else {
+//     req.body.thumbnail = 'default.jpg';
+//   }
 
-  const vendor = await Vendors.findOneAndUpdate(
-    {
-      _id: req.params.id,
-    },
-    {
-      $set: {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        placeName: req.body.placeName,
-        address: {
-          country: req.body.country,
-          state: req.body.state,
-          city: req.body.city,
-          street: req.body.street,
-          zip: req.body.zip,
-        },
-        email: req.body.email,
-        phoneNumber: req.body.phoneNumber,
-        description: req.body.description,
-        category: req.body.description,
-        thumbnail: req.body.thumbnail,
-        gallery: req.body.gallery,
-        isApproved: req.body.isApproved,
-      },
-    }
-  );
+//   const vendor = await Vendors.findOneAndUpdate(
+//     {
+//       _id: req.params.id,
+//     },
+//     {
+//       $set: {
+//         firstName: req.body.firstName,
+//         lastName: req.body.lastName,
+//         placeName: req.body.placeName,
+//         address: {
+//           country: req.body.country,
+//           state: req.body.state,
+//           city: req.body.city,
+//           street: req.body.street,
+//           zip: req.body.zip,
+//         },
+//         email: req.body.email,
+//         phoneNumber: req.body.phoneNumber,
+//         description: req.body.description,
+//         category: req.body.category,
+//         thumbnail: req.body.thumbnail,
+//         gallery: req.body.gallery,
+//         isApproved: req.body.isApproved,
+//       },
+//     }
+//   );
 
-  if (vendor.thumbnail != null) {
-    fs.unlink(__dirname, "..", "images", "vendors", vendor.thumbnail);
-  }
+//   console.log(vendor);
+//   console.log(req.files);
 
-  if (vendor.gallery != null) {
-    vendor.gallery.forEach((img) =>
-      fs.unlink(__dirname, "..", "images", "vendors", img)
-    );
-  }
+//   // if (vendor.thumbnail != null) {
+//   //   fs.unlink(__dirname, "..", "images", "vendors", vendor.thumbnail);
+//   // }
 
-  if (req.files.thumbnail) {
-    await fs.writeFile(
-      req.thumbnailPath,
-      req.files.thumbnail[0].buffer,
-      (err) => {
-        if (err) throw err;
-      }
-    );
-  }
+//   // if (vendor.gallery != null) {
+//   //   vendor.gallery.forEach((img) =>
+//   //     fs.unlink(__dirname, "..", "images", "vendors", img)
+//   //   );
+//   // }
 
-  if (req.files.gallery) {
-    req.files.gallery.forEach(async (img, index) => {
-      await fs.writeFile(req.gallery[index], img.buffer, (err) => {
-        if (err) throw err;
-      });
-      console.log(index);
-    });
-  }
-  return res.status(200).json({
-    status: "success",
-    data: vendor,
+//   // if (req.files.thumbnail) {
+//   //   await fs.writeFile(
+//   //     req.thumbnailPath,
+//   //     req.files.thumbnail[0].buffer,
+//   //     (err) => {
+//   //       if (err) throw err;
+//   //     }
+//   //   );
+//   // }
+
+//   // if (req.files.gallery) {
+//   //   req.files.gallery.map(async (img, index) => {
+//   //     await fs.writeFile(req.gallery[index], img.buffer);
+//   //     console.log(index);
+//   //   });
+//   // }
+//   console.log('inside thumb');
+//   return res.status(200).json({
+//     status: 'success',
+//     data: vendor,
+//   });
+// });
+
+exports.updateVendor = asyncHandler(async (req, res, next) => {
+  console.log('updating');
+  const document = await Vendors.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
   });
+  if (!document) {
+    return next(new ApiError("Document not found", 404));
+  }
+  res.status(200).json({ data: document });
 });
 
 exports.deactivateVendor = AsyncHandler(async (req, res, next) => {
@@ -313,6 +353,43 @@ exports.restoreVendor = AsyncHandler(async (req, res, next) => {
   } else {
     next(new Error("No Vendor With This Id"));
   }
+});
+
+exports.uploadVendorImages = uploadMixOfImages([
+  { name: "thumbnail", maxCount: 1 },
+  {
+    name: "gallery",
+    maxCount: 5,
+  },
+]);
+
+exports.processingImage = asyncHandler(async (req, res, next) => {
+  if (req.files && req.files.thumbnail) {
+    const thumbnailFileName = `vendor-${uuidv4()}-${Date.now()}-cover.jpeg`;
+    await sharp(req.files.thumbnail[0].buffer)
+      .resize(2000, 1333)
+      .toFormat("jpeg")
+      .jpeg({ quality: 90 })
+      .toFile(path.join(__dirname, "../images/vendors/", thumbnailFileName));
+    req.body.thumbnail = thumbnailFileName;
+  }
+  if (req.files && req.files.gallery) {
+    req.body.gallery = [];
+    await Promise.all(
+      req.files.gallery.map(async (img, index) => {
+        const imageName = `vendor-${uuidv4()}-${Date.now()}-${index + 1}.jpeg`;
+        await sharp(img.buffer)
+          .resize(2000, 1333)
+          .toFormat("jpeg")
+          .jpeg({ quality: 90 })
+          .toFile(path.join(__dirname, "../images/vendors/", imageName));
+
+        // save images to DB
+        req.body.gallery.push(imageName);
+      })
+    );
+  }
+  next();
 });
 
 exports.vendorForgotPassword = forgotPasswordController.forgotPassword(Vendors);

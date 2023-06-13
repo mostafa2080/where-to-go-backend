@@ -10,10 +10,16 @@ router
   .route("/")
   .get(vendorsController.getAllVendors)
   .post(
-    uploadImg().fields([
-      { name: "thumbnail", maxCount: 1 },
-      { name: "gallery", maxCount: 10 },
-    ]),
+    vendorsController.uploadVendorImages,
+    (req, res, next) => {
+      console.log("upload", req.body);
+      next();
+    },
+    vendorsController.processingImage,
+    (req, res, next) => {
+      console.log("processing", req.body);
+      next();
+    },
     vendorValidator.addValidationArray,
     validatorMiddleware,
     vendorsController.addVendor
@@ -47,10 +53,16 @@ router
     vendorsController.getVendor
   )
   .patch(
-    uploadImg().fields([
-      { name: "thumbnail", maxCount: 1 },
-      { name: "gallery", maxCount: 10 },
-    ]),
+    vendorsController.uploadVendorImages,
+    (req, res, next) => {
+      console.log("upload", req.body);
+      next();
+    },
+    vendorsController.processingImage,
+    (req, res, next) => {
+      console.log("processing", req.body);
+      next();
+    },
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor
