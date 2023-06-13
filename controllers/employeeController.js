@@ -115,7 +115,6 @@ exports.updateEmployee = AsyncHandler(async (req, res, next) => {
   if (req.body.role) {
     const role = await Roles.findOne({ name: req.body.role }, { _id: 1 });
     req.body.role = role._id;
-    const jwt = require('jsonwebtoken');
   }
 
   const employee = await Employees.findOneAndUpdate(
