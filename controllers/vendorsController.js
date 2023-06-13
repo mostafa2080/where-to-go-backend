@@ -14,14 +14,15 @@ const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
 const Tags = mongoose.model("tag");
 
-exports.getAllVendors = AsyncHandler(async (req, res, next) => {
+exports.getAllVendors = asyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
   const sortOrder = req.query.sortOrder || "asc";
   const filters = req.query.filters || {};
-  const searchQuery = req.query.search || "";
+  const searchQuery = req.query.search || '';
+  const tagIds = filters.tags ? filters.tags.split(',') : []; // Split the tagIds string into an array
 
   const filterQuery = {};
 
@@ -48,6 +49,17 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   }
 
   try {
+    // Find the tags that match the given tag IDs
+    const tags = await Tags.find({ _id: { $in: tagIds } });
+
+    // Extract the category IDs from the found tags
+    const categoryIds = tags.map((tag) => tag.category);
+
+    // Add the category IDs to the filter query
+    if (categoryIds.length > 0) {
+      filterQuery.category = { $in: categoryIds };
+    }
+
     const [vendors, total] = await Promise.all([
       Vendors.find(filterQuery)
         .skip(skip)
@@ -290,7 +302,7 @@ exports.addVendor = asyncHandler(async (req, res, next) => {
 // });
 
 exports.updateVendor = asyncHandler(async (req, res, next) => {
-  console.log("updating");
+  console.log('updating');
   const document = await Vendors.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
