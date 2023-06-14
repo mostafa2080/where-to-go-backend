@@ -299,11 +299,12 @@ exports.customerResetPassword =
 exports.getLoggedCustomerData = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken.id);
   req.params.id = req.decodedToken.id;
-  console.log(req.params.id)
+  console.log(req.params.id);
   next();
 });
 
 exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
+  console.log(req.decodedToken.id);
   //1) update user password based on the user payload (req.user._id)
   const user = await CustomerSchema.findByIdAndUpdate(
     req.decodedToken.id,

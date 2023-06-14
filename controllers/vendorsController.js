@@ -13,11 +13,12 @@ const sendMail = require('../utils/sendEmail');
 const { io } = require('../server');
 require('../models/Vendor');
 require('../models/Tag');
+require('../models/Category');
 
 const Vendors = mongoose.model('vendor');
 const Roles = mongoose.model('roles');
 const Tags = mongoose.model('tag');
-
+const Category = mongoose.model('category');
 const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -50,7 +51,160 @@ const greetingMessage = asyncHandler(async (data) => {
   }
 });
 
-exports.getAllVendors = AsyncHandler(async (req, res, next) => {
+// exports.getAllVendors = AsyncHandler(async (req, res, next) => {
+//   const page = parseInt(req.query.page, 10) || 1;
+//   const limit = parseInt(req.query.limit, 10) || 10;
+//   const skip = (page - 1) * limit;
+//   const sortField = req.query.sortField || null;
+//   const sortOrder = req.query.sortOrder || 'asc';
+//   const filters = req.query.filters || {};
+//   const searchQuery = req.query.search || '';
+//   const tagIds = filters.tags ? filters.tags.split(',') : []; // Split the tagIds string into an array
+
+//   const filterQuery = {};
+
+//   // Apply filters to the filterQuery object
+//   if (filters.category) {
+//     filterQuery.category = filters.category;
+//   }
+//   if (filters.isApproved !== undefined) {
+//     filterQuery.isApproved = filters.isApproved;
+//   }
+
+//   // Apply search query to the filterQuery object
+//   if (searchQuery) {
+//     filterQuery.$or = [
+//       { firstName: { $regex: searchQuery, $options: 'i' } },
+//       { lastName: { $regex: searchQuery, $options: 'i' } },
+//       { placeName: { $regex: searchQuery, $options: 'i' } },
+//     ];
+//   }
+
+//   const sortQuery = {};
+//   if (sortField) {
+//     sortQuery[sortField] = sortOrder === 'desc' ? -1 : 1;
+//   }
+
+//   try {
+//     // Find the tags that match the given tag IDs
+//     const tags = await Tags.find({ _id: { $in: tagIds } });
+
+//     // Extract the category IDs from the found tags
+//     const categoryIds = tags.map((tag) => tag.category);
+
+//     // Add the category IDs to the filter query
+//     if (categoryIds.length > 0) {
+//       filterQuery.category = { $in: categoryIds };
+//     }
+
+//     const [vendors, total] = await Promise.all([
+//       Vendors.find(filterQuery)
+//         .skip(skip)
+//         .limit(limit)
+//         .sort(sortQuery)
+//         .populate('category'),
+//       Vendors.countDocuments(filterQuery),
+//     ]);
+
+//     const totalPages = Math.ceil(total / limit);
+
+//     return res.status(200).json({
+//       status: 'success',
+//       pagination: {
+//         total,
+//         totalPages,
+//         currentPage: page,
+//         perPage: limit,
+//       },
+//       data: vendors,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       status: 'error',
+//       message: 'Internal server error',
+//     });
+//   }
+// });
+// exports.getAllVendors = asyncHandler(async (req, res, next) => {
+//   const page = parseInt(req.query.page, 10) || 1;
+//   const limit = parseInt(req.query.limit, 10) || 10;
+//   const skip = (page - 1) * limit;
+//   const sortField = req.query.sortField || null;
+//   const sortOrder = req.query.sortOrder || 'asc';
+//   const filters = req.query.filters || {};
+//   const searchQuery = req.query.search || '';
+//   const tagIds = filters.tags ? filters.tags.split(',') : []; // Split the tagIds string into an array
+
+//   const filterQuery = {};
+
+//   // Apply filters to the filterQuery object
+//   if (filters.category) {
+//     filterQuery.category = filters.category;
+//   }
+//   if (filters.isApproved !== undefined) {
+//     filterQuery.isApproved = filters.isApproved;
+//   }
+
+//   // Apply search query to the filterQuery object
+//   if (searchQuery) {
+//     filterQuery.$or = [
+//       { firstName: { $regex: searchQuery, $options: 'i' } },
+//       { lastName: { $regex: searchQuery, $options: 'i' } },
+//       { placeName: { $regex: searchQuery, $options: 'i' } },
+//       { 'address.country': { $regex: searchQuery, $options: 'i' } },
+//       { 'address.state': { $regex: searchQuery, $options: 'i' } },
+//       { 'address.city': { $regex: searchQuery, $options: 'i' } },
+//       { 'address.street': { $regex: searchQuery, $options: 'i' } },
+//       { 'address.zip': { $regex: searchQuery, $options: 'i' } },
+//     ];
+//   }
+
+//   const sortQuery = {};
+//   if (sortField) {
+//     sortQuery[sortField] = sortOrder === 'desc' ? -1 : 1;
+//   }
+
+//   try {
+//     // Find the tags that match the given tag IDs
+//     const tags = await Tags.find({ _id: { $in: tagIds } });
+
+//     // Extract the category IDs from the found tags
+//     const categoryIds = tags.map((tag) => tag.category);
+
+//     // Add the category IDs to the filter query
+//     if (categoryIds.length > 0) {
+//       filterQuery.category = { $in: categoryIds };
+//     }
+
+//     const [vendors, total] = await Promise.all([
+//       Vendors.find(filterQuery)
+//         .skip(skip)
+//         .limit(limit)
+//         .sort(sortQuery)
+//         .populate('category'),
+//       Vendors.countDocuments(filterQuery),
+//     ]);
+
+//     const totalPages = Math.ceil(total / limit);
+
+//     return res.status(200).json({
+//       status: 'success',
+//       pagination: {
+//         total,
+//         totalPages,
+//         currentPage: page,
+//         perPage: limit,
+//       },
+//       data: vendors,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       status: 'error',
+//       message: 'Internal server error',
+//     });
+//   }
+// });
+exports.getAllVendors = asyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
@@ -58,14 +212,12 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const sortOrder = req.query.sortOrder || 'asc';
   const filters = req.query.filters || {};
   const searchQuery = req.query.search || '';
-  const tagIds = filters.tags ? filters.tags.split(',') : []; // Split the tagIds string into an array
+  const categoryName = req.query.category || ''; // Category name parameter
+
+  const tagIds = filters.tags ? filters.tags.split(',') : [];
 
   const filterQuery = {};
 
-  // Apply filters to the filterQuery object
-  if (filters.category) {
-    filterQuery.category = filters.category;
-  }
   if (filters.isApproved !== undefined) {
     filterQuery.isApproved = filters.isApproved;
   }
@@ -76,6 +228,11 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
       { firstName: { $regex: searchQuery, $options: 'i' } },
       { lastName: { $regex: searchQuery, $options: 'i' } },
       { placeName: { $regex: searchQuery, $options: 'i' } },
+      { 'address.country': { $regex: searchQuery, $options: 'i' } },
+      { 'address.state': { $regex: searchQuery, $options: 'i' } },
+      { 'address.city': { $regex: searchQuery, $options: 'i' } },
+      { 'address.street': { $regex: searchQuery, $options: 'i' } },
+      { 'address.zip': { $regex: searchQuery, $options: 'i' } },
     ];
   }
 
@@ -94,6 +251,27 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
     // Add the category IDs to the filter query
     if (categoryIds.length > 0) {
       filterQuery.category = { $in: categoryIds };
+    }
+
+    // Find the category by name
+    if (categoryName) {
+      const category = await Category.findOne({ name: categoryName });
+
+      if (category) {
+        filterQuery.category = category._id;
+      } else {
+        // Return an empty response if category not found
+        return res.status(200).json({
+          status: 'success',
+          pagination: {
+            total: 0,
+            totalPages: 0,
+            currentPage: page,
+            perPage: limit,
+          },
+          data: [],
+        });
+      }
     }
 
     const [vendors, total] = await Promise.all([
@@ -156,12 +334,21 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
 });
 
 exports.addVendor = asyncHandler(async (req, res, next) => {
+  const address = {
+    country: req.body.country,
+    state: req.body.state,
+    city: req.body.city,
+    zip: +req.body.zip,
+    street: req.body.street || 'st',
+  };
+  req.body.address = address;
+  console.log(req.address);
   const vendorRole = await Roles.find({ name: 'Vendor' });
   req.body.role = vendorRole._id;
   const document = await Vendors.create(req.body);
   greetingMessage(document);
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
-  io.emit('notifyAdminAndEmpForAddingVendor', message);
+  // io.emit('notifyAdminAndEmpForAddingVendor', message);
   res.status(201).json({ data: document });
 });
 

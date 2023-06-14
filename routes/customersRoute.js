@@ -4,6 +4,7 @@ const validateCustomer = require('../utils/validators/customerValidator');
 const { uploadImg } = require('../utils/imageUtility');
 
 const { EmployeeOrAbove, CustomerOrAbove } = require('../middlewares/authorizationMiddleware');
+
 const router = express.Router();
 
 router.get(
