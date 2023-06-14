@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 const sendMail = require("../utils/sendEmail");
@@ -11,11 +11,10 @@ require("../models/Customer");
 require("../models/Vendor");
 require("../models/Employee");
 
-
 const saltRunds = 10;
 const salt = bcrypt.genSaltSync(saltRunds);
 
-const forgetMessage = (user) => {
+const forgetMessage = (user, resetCode) => {
   return `
   <html>
     <head>
@@ -74,9 +73,8 @@ const approvalMessage = (user, resetCode) => {
     <body>
       <div class="container">
         <h4>Congratlations Mr ${user.firstName + " " + user.lastName} </h4>
-        <p class="code">${resetCode}</p>
         <p>Your Request For Being Vendor Has Been Approved</p>
-        <p>Here is The Secret Key To Assign Your Password</p>
+        <p>Here is The Secret Key : ${resetCode}, To Assign Your Password</p>
       </div>
     </body>
   </html>`;
@@ -114,9 +112,9 @@ exports.forgotPassword = (model) =>
     await user.save();
 
     const message =
-      req.body.modelType !== null
+      req.body.modelType !== undefined
         ? approvalMessage(user, resetCode)
-        : forgetMessage(user);
+        : forgetMessage(user, resetCode);
 
     //3) send the reset code via email
     try {
@@ -193,7 +191,7 @@ exports.resetPassword = (model) =>
     if (!user.passwordResetVerified) {
       return next(new ApiError("Password reset token not verified", 400));
     }
-    
+
     user.password = bcrypt.hashSync(req.body.newPassword, salt);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;

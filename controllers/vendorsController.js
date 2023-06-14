@@ -226,6 +226,7 @@ exports.approveVendor = AsyncHandler(async (req, res, next) => {
   );
   req.body.email = document.email;
   req.body.modelType = "vendor";
+  console.log(req.body.modelType);
   next();
 });
 
