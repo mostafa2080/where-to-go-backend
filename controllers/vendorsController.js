@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const io = require("socket.io-client");
 require("../models/Vendor");
 require("../models/Tag");
+require("../models/Category");
 const path = require("path");
 const AsyncHandler = require("express-async-handler");
 const forgotPasswordController = require("./forgetPasswordController");
@@ -19,7 +20,7 @@ const socket = io("http://localhost:8001");
 const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
 const Tags = mongoose.model("tag");
-
+const Category = mongoose.model("category");
 const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -52,7 +53,7 @@ const greetingMessage = asyncHandler(async (data) => {
   }
 });
 
-exports.getAllVendors = AsyncHandler(async (req, res, next) => {
+exports.getAllVendors = asyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
@@ -60,14 +61,12 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const sortOrder = req.query.sortOrder || "asc";
   const filters = req.query.filters || {};
   const searchQuery = req.query.search || "";
-  const tagIds = filters.tags ? filters.tags.split(",") : []; // Split the tagIds string into an array
+  const categoryName = req.query.category || ""; // Category name parameter
+
+  const tagIds = filters.tags ? filters.tags.split(",") : [];
 
   const filterQuery = {};
 
-  // Apply filters to the filterQuery object
-  if (filters.category) {
-    filterQuery.category = filters.category;
-  }
   if (filters.isApproved !== undefined) {
     filterQuery.isApproved = filters.isApproved;
   }
@@ -78,6 +77,11 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
       { firstName: { $regex: searchQuery, $options: "i" } },
       { lastName: { $regex: searchQuery, $options: "i" } },
       { placeName: { $regex: searchQuery, $options: "i" } },
+      { "address.country": { $regex: searchQuery, $options: "i" } },
+      { "address.state": { $regex: searchQuery, $options: "i" } },
+      { "address.city": { $regex: searchQuery, $options: "i" } },
+      { "address.street": { $regex: searchQuery, $options: "i" } },
+      { "address.zip": { $regex: searchQuery, $options: "i" } },
     ];
   }
 
@@ -96,6 +100,27 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
     // Add the category IDs to the filter query
     if (categoryIds.length > 0) {
       filterQuery.category = { $in: categoryIds };
+    }
+
+    // Find the category by name
+    if (categoryName) {
+      const category = await Category.findOne({ name: categoryName });
+
+      if (category) {
+        filterQuery.category = category._id;
+      } else {
+        // Return an empty response if category not found
+        return res.status(200).json({
+          status: "success",
+          pagination: {
+            total: 0,
+            totalPages: 0,
+            currentPage: page,
+            perPage: limit,
+          },
+          data: [],
+        });
+      }
     }
 
     const [vendors, total] = await Promise.all([
@@ -158,6 +183,15 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
 });
 
 exports.addVendor = asyncHandler(async (req, res, next) => {
+  const address = {
+    country: req.body.country,
+    state: req.body.state,
+    city: req.body.city,
+    zip: +req.body.zip,
+    street: req.body.street || "st",
+  };
+  req.body.address = address;
+  console.log(req.address);
   const vendorRole = await Roles.find({ name: "Vendor" });
   req.body.role = vendorRole._id;
   const document = await Vendors.create(req.body);

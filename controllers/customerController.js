@@ -9,6 +9,7 @@ require('../models/Customer');
 require('../models/Role');
 const forgotPasswordController = require('./forgetPasswordController');
 const ApiError = require('../utils/apiError');
+const {dirname} = require("path");
 
 const CustomerSchema = mongoose.model('customers');
 const RoleSchema = mongoose.model('roles');
@@ -45,7 +46,7 @@ exports.getCustomerById = AsyncHandler(async (req, res, next) => {
     .populate('role', 'name')
     .select('-__v');
   if (!customer) return new ApiError('Customer not found!', 404);
-
+  console.log(customer);
   const result = {
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
     ...customer._doc,
@@ -298,17 +299,20 @@ exports.customerResetPassword =
 exports.getLoggedCustomerData = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken.id);
   req.params.id = req.decodedToken.id;
-  console.log(req.params.id)
+  console.log(req.params.id);
   next();
 });
 
 exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
+  console.log(req.decodedToken.id);
   //1) update user password based on the user payload (req.user._id)
   const user = await CustomerSchema.findByIdAndUpdate(
     req.decodedToken.id,
     {
-      password: await bcrypt.hash(req.body.password, 12),
-      passwordChangedAt: Date.now(),
+      $set: {
+        password: await bcrypt.hash(req.body.password, saltRounds),
+        passwordChangedAt: Date.now(),
+      },
     },
     {
       new: true,
@@ -323,15 +327,60 @@ exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
 });
 
 exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  let oldImage;
+  if (req.file) {
+    req.body.image = Date.now() + path.extname(req.file.originalname);
+    req.imgPath = path.join(
+        __dirname,
+        '..',
+        'images/customers',
+        req.body.image
+    );
+    oldImage = await CustomerSchema.findById(req.decodedToken.id, { image: 1 });
+  }
   const updatedUser = await CustomerSchema.findByIdAndUpdate(
     req.decodedToken.id,
     {
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone,
+      $set: {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        dateOfBirth: req.body.dateOfBirth,
+        address: {
+          country: req.body.country,
+          state: req.body.state,
+          city: req.body.city,
+          street: req.body.street,
+          zip: req.body.zip,
+        },
+        image: req.body.image,
+        gender: req.body.gender
+      },
     },
     { new: true }
   );
+  if (!updatedUser) {
+    throw new ApiError('Error happened while Updating Customer', 404);
+  }
+
+  if (req.file) {
+    console.log(req.imgPath);
+    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
+      if (err) throw err;
+    });
+
+    const root = dirname(require.main.filename);
+    const path = root + '/images/customers/' + oldImage.image;
+    if (oldImage.image !== 'default.jpg'){
+      fs.unlink(path, (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    }
+  }
   res.status(200).json({ data: updatedUser });
 });
 
