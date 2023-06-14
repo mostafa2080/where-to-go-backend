@@ -26,6 +26,7 @@
     "nodemailer": "^6.9.3",
     "sharp": "^0.32.1",
     "slugify": "^1.6.6",
+    "socket.io": "^4.6.2",
     "soft-delete-plugin-mongoose": "^1.0.15",
     "uuid": "^9.0.0"
   },

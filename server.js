@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
@@ -27,6 +29,8 @@ dotenv.config({ path: ".env" });
 
 //express app
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 //connect with DB
 dbconnection();
@@ -74,9 +78,20 @@ app.all("*", (req, res, next) => {
 //err mw
 app.use(globalError);
 
+//socket
+io.on("connection", (socket) => {
+  socket.on("tryingsocket", (data) => {
+    console.log(data);
+  });
+  console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
+
 //listening
 const { PORT } = process.env;
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`app running on Port: ${PORT}`);
 });
 
