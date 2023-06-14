@@ -24,16 +24,19 @@ const contactUsRoute = require("./routes/contactUsRoute");
 const favoritesRouter = require("./routes/favoritesRouter");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
+const websocketEvents = require("./utils/webSockets");
 
 dotenv.config({ path: ".env" });
 
 //express app
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {},
+});
 
 //connect with DB
-dbconnection();
+// dbconnection();
 
 // cors middleware
 app.use(cors());
@@ -79,15 +82,7 @@ app.all("*", (req, res, next) => {
 app.use(globalError);
 
 //socket
-io.on("connection", (socket) => {
-  socket.on("tryingsocket", (data) => {
-    console.log(data);
-  });
-  console.log("a user connected");
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-});
+websocketEvents(io);
 
 //listening
 const { PORT } = process.env;
