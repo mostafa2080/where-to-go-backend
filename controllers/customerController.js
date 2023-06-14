@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { dirname } = require('path');
 const AsyncHandler = require('express-async-handler');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
@@ -10,7 +11,6 @@ require('../models/Customer');
 require('../models/Role');
 const forgotPasswordController = require('./forgetPasswordController');
 const ApiError = require('../utils/apiError');
-const { dirname } = require('path');
 
 const CustomerSchema = mongoose.model('customers');
 const VendorSchema = mongoose.model('vendor');
