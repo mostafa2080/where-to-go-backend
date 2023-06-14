@@ -24,7 +24,7 @@ const contactUsRoute = require("./routes/contactUsRoute");
 const favoritesRouter = require("./routes/favoritesRouter");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
-const websocketEvents = require("./utils/webSockets");
+const raisedEventListener = require("./utils/webSockets");
 
 dotenv.config({ path: ".env" });
 
@@ -82,7 +82,7 @@ app.all("*", (req, res, next) => {
 app.use(globalError);
 
 //socket
-websocketEvents(io);
+raisedEventListener(io);
 
 //listening
 const { PORT } = process.env;
@@ -97,3 +97,7 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 });
+
+module.exports = {
+  io: io,
+};

@@ -1,19 +1,17 @@
-const websocketEvents = (io) => {
+const raisedEventListener = (io) => {
   io.on("connection", (socket) => {
+    console.log("a user connected");
+
     socket.on("tryingsocket", (data) => {
       console.log(data);
     });
-
-    socket.on("notifyAdminAndEmpForAddingVendor", (message) => {
-      console.log(message);
-      // socket.
+    socket.on("notifyAdminAndEmpForAddingVendor", (data) => {
+      console.log(data);
     });
-    console.log("a user connected");
 
     socket.on("disconnect", () => {
       console.log("user disconnected");
     });
   });
 };
-
-module.exports = websocketEvents;
+module.exports = raisedEventListener;
