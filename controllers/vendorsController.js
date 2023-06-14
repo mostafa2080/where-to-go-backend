@@ -153,6 +153,7 @@ exports.addVendor = asyncHandler(async (req, res, next) => {
   req.body.role = vendorRole._id;
   const document = await Vendors.create(req.body);
   greetingMessage(document);
+
   res.status(201).json({ data: document });
 });
 

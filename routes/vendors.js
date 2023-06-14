@@ -56,15 +56,7 @@ router
   )
   .patch(
     vendorsController.uploadVendorImages,
-    (req, res, next) => {
-      console.log("upload", req.body);
-      next();
-    },
     vendorsController.processingImage,
-    (req, res, next) => {
-      console.log("processing", req.body);
-      next();
-    },
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor
