@@ -21,6 +21,32 @@ const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+const greetingMessage = AsyncHandler(async (data) => {
+  const emailContent = `
+        <html>
+          <head>
+            <style>/* Styles for the email content */</style>
+          </head>
+          <body>
+            <div class="container">
+              <h4>Wellcome ${`${data.firstName} ${data.lastName}`} On Board </h4>
+              <p>Congratlation for signing Up with ${data.email}  </p>
+              <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
+              <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
+            </div>
+          </body>
+        </html>`;
+  const userEmail = data.email;
+  try {
+    await sendMail({
+      email: userEmail,
+      subject: 'Greeting From Where To Go',
+      message: emailContent,
+    });
+  } catch (error) {
+    throw ApiError(error);
+  }
+});
 
 exports.getAllEmployees = AsyncHandler(async (req, res, next) => {
   const allEmployees = await Employees.find(
@@ -95,7 +121,7 @@ exports.createEmployee = AsyncHandler(async (req, res, next) => {
   await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
     if (err) throw err;
   });
-
+  greetingMessage(employee)
   res.status(200).json({ data: employee });
 });
 

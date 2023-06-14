@@ -21,32 +21,39 @@ const createToken = (payload) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const greetingMessage = AsyncHandler(async (data) => {
+const greetingMessage = async (data) => {
   const emailContent = `
       <html>
         <head>
-          <style>/* Styles for the email content */</style>
+          <style>
+            /* Styles for the email content */
+          </style>
         </head>
         <body>
           <div class="container">
-            <h4>Wellcome ${`${data.firstName} ${data.lastName}`} On Board </h4>
-            <p>Congratlation for signing Up with ${data.email}  </p>
-            <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
-            <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
+            <h2>Welcome ${data.firstName} ${data.lastName}!</h2>
+            <p>Congratulations on registering with our system using the email address ${data.email}.</p>
+            <p>We are excited to have you on board as a new member!</p>
+            <p>This email is to inform you that we have received your request to become a vendor.</p>
+            <p>Our team will review your place details, and you can expect a response within 24-48 hours.</p>
+            <p>If you have any questions or need further assistance, please don't hesitate to contact us.</p>
+            <p>Thank you again for joining our platform!</p>
           </div>
         </body>
       </html>`;
+
   const userEmail = data.email;
+
   try {
     await sendMail({
       email: userEmail,
-      subject: 'Greeting From Where To Go',
+      subject: 'Welcome to Our Platform',
       message: emailContent,
     });
   } catch (error) {
-    throw ApiError(error);
+    throw new ApiError(error);
   }
-});
+};
 
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken);
