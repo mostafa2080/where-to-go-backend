@@ -50,7 +50,81 @@ const greetingMessage = asyncHandler(async (data) => {
   }
 });
 
-exports.getAllVendors = AsyncHandler(async (req, res, next) => {
+// exports.getAllVendors = AsyncHandler(async (req, res, next) => {
+//   const page = parseInt(req.query.page, 10) || 1;
+//   const limit = parseInt(req.query.limit, 10) || 10;
+//   const skip = (page - 1) * limit;
+//   const sortField = req.query.sortField || null;
+//   const sortOrder = req.query.sortOrder || 'asc';
+//   const filters = req.query.filters || {};
+//   const searchQuery = req.query.search || '';
+//   const tagIds = filters.tags ? filters.tags.split(',') : []; // Split the tagIds string into an array
+
+//   const filterQuery = {};
+
+//   // Apply filters to the filterQuery object
+//   if (filters.category) {
+//     filterQuery.category = filters.category;
+//   }
+//   if (filters.isApproved !== undefined) {
+//     filterQuery.isApproved = filters.isApproved;
+//   }
+
+//   // Apply search query to the filterQuery object
+//   if (searchQuery) {
+//     filterQuery.$or = [
+//       { firstName: { $regex: searchQuery, $options: 'i' } },
+//       { lastName: { $regex: searchQuery, $options: 'i' } },
+//       { placeName: { $regex: searchQuery, $options: 'i' } },
+//     ];
+//   }
+
+//   const sortQuery = {};
+//   if (sortField) {
+//     sortQuery[sortField] = sortOrder === 'desc' ? -1 : 1;
+//   }
+
+//   try {
+//     // Find the tags that match the given tag IDs
+//     const tags = await Tags.find({ _id: { $in: tagIds } });
+
+//     // Extract the category IDs from the found tags
+//     const categoryIds = tags.map((tag) => tag.category);
+
+//     // Add the category IDs to the filter query
+//     if (categoryIds.length > 0) {
+//       filterQuery.category = { $in: categoryIds };
+//     }
+
+//     const [vendors, total] = await Promise.all([
+//       Vendors.find(filterQuery)
+//         .skip(skip)
+//         .limit(limit)
+//         .sort(sortQuery)
+//         .populate('category'),
+//       Vendors.countDocuments(filterQuery),
+//     ]);
+
+//     const totalPages = Math.ceil(total / limit);
+
+//     return res.status(200).json({
+//       status: 'success',
+//       pagination: {
+//         total,
+//         totalPages,
+//         currentPage: page,
+//         perPage: limit,
+//       },
+//       data: vendors,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       status: 'error',
+//       message: 'Internal server error',
+//     });
+//   }
+// });
+exports.getAllVendors = asyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
@@ -76,6 +150,11 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
       { firstName: { $regex: searchQuery, $options: 'i' } },
       { lastName: { $regex: searchQuery, $options: 'i' } },
       { placeName: { $regex: searchQuery, $options: 'i' } },
+      { 'address.country': { $regex: searchQuery, $options: 'i' } },
+      { 'address.state': { $regex: searchQuery, $options: 'i' } },
+      { 'address.city': { $regex: searchQuery, $options: 'i' } },
+      { 'address.street': { $regex: searchQuery, $options: 'i' } },
+      { 'address.zip': { $regex: searchQuery, $options: 'i' } },
     ];
   }
 
@@ -156,6 +235,10 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
 });
 
 exports.addVendor = asyncHandler(async (req, res, next) => {
+  const address = {
+    country: req.body.country,
+  };
+  req.address = address;
   const vendorRole = await Roles.find({ name: 'Vendor' });
   req.body.role = vendorRole._id;
   const document = await Vendors.create(req.body);
