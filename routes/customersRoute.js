@@ -17,7 +17,7 @@ router.put(
   validateCustomer.changeUserPasswordValidator,
   controller.updateLoggedCustomerPassword
 );
-router.put('/updateMe', controller.updateLoggedCustomerData);
+router.put('/updateMe',uploadImg().single('image'), controller.updateLoggedCustomerData);
 router.delete('/deleteMe', controller.deleteLoggedCustomerData);
 
 router
