@@ -12,16 +12,41 @@ exports.getValidationArray = [
 ];
 
 exports.addValidationArray = [
-  body('firstName').isString().withMessage('First Name is Required'),
-  body('lastName').isString().withMessage('Last Name is Required'),
+  body('firstName')
+    .notEmpty()
+    .withMessage('First Name is Required')
+    .isString()
+    .withMessage('First Name Must Be Alphabetical'),
+  body('lastName')
+    .notEmpty()
+    .withMessage('First Name is Required')
+    .isString()
+    .withMessage('Last Name Name Must Be Alphabetical'),
   body('email')
+    .custom(async (val, { req }) => {
+      const vendor = await Vendor.findOne({ email: val });
+      if (vendor) {
+        throw new Error('Email Already Exists');
+      }
+    })
     .isEmail()
     .withMessage('Email must be a valid Email & Not duplicated'),
   body('phoneNumber').isString().withMessage('Enter A Valid Phone Number'),
   body('description').isString().withMessage('Description Is Needed'),
-  body("thumbnail").isString().withMessage("Image must be a String"),
-  body("gallery").isString().withMessage("Please Upload Gallery Images"),
+  body('thumbnail').isString().withMessage('Image must be a String'),
+  body('gallery').isArray().withMessage('Please Upload Gallery Images'),
   body('category').isMongoId().withMessage('Category is mongoID'),
+  body('country')
+    .isString()
+    .optional()
+    .withMessage('Country must be alphabetic'),
+  body('state').isString().optional().withMessage('State must be alphabetic'),
+  body('city').isString().optional().withMessage('City must be alphabetic'),
+  body('zip')
+    .matches(/^(\d{5}(?:[-\s]\d{4})?)?$/)
+    .optional()
+    .toInt()
+    .withMessage('Zip must be numeric'),
 ];
 
 exports.updateValidationArray = [
