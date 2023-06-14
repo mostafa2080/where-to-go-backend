@@ -21,23 +21,42 @@ const createToken = (payload) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const greetingMessage = async (data) => {
+const greetingMessage = AsyncHandler(async (data) => {
   const emailContent = `
       <html>
         <head>
           <style>
-            /* Styles for the email content */
+            /* CSS Styles */
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f7f7f7;
+            }
+  
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #fff;
+              border-radius: 5px;
+              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+  
+            h4 {
+              color: #333;
+            }
+  
+            p {
+              color: #777;
+              line-height: 1.4;
+            }
           </style>
         </head>
         <body>
           <div class="container">
-            <h2>Welcome ${data.firstName} ${data.lastName}!</h2>
-            <p>Congratulations on registering with our system using the email address ${data.email}.</p>
-            <p>We are excited to have you on board as a new member!</p>
-            <p>This email is to inform you that we have received your request to become a vendor.</p>
-            <p>Our team will review your place details, and you can expect a response within 24-48 hours.</p>
-            <p>If you have any questions or need further assistance, please don't hesitate to contact us.</p>
-            <p>Thank you again for joining our platform!</p>
+            <h4>Welcome ${`${data.firstName} ${data.lastName}`} On Board</h4>
+            <p>Congratulations for signing up with ${data.email}</p>
+            <p>We're sending this email to let you know that we have received your request for becoming a vendor.</p>
+            <p>Within 24-48 hours, we will review your place details and respond to you.</p>
           </div>
         </body>
       </html>`;
@@ -47,13 +66,13 @@ const greetingMessage = async (data) => {
   try {
     await sendMail({
       email: userEmail,
-      subject: 'Welcome to Our Platform',
+      subject: 'Greetings from Where To Go',
       message: emailContent,
     });
   } catch (error) {
-    throw new ApiError(error);
+    throw ApiError(error);
   }
-};
+});
 
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken);
