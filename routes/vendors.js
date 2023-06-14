@@ -2,18 +2,29 @@ const express = require("express");
 const vendorsController = require("../controllers/vendorsController");
 const vendorValidator = require("../utils/validators/vendorValidator");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
-const { uploadImg, setImage } = require("../utils/imageUtility");
+const { vendorForgotPassword } = require("../controllers/vendorsController");
 
 const router = express.Router();
+
+router.get(
+  "/getMe",
+  vendorsController.getLoggedVendorData,
+  vendorsController.getVendor
+);
+router.put(
+  "/changeMyPassaowrd",
+  vendorValidator.changeUserPasswordValidator,
+  vendorsController.updateLoggedVendorPassword
+);
+router.put("/updateMe", vendorsController.updateLoggedVendorData);
+router.delete("/deleteMe", vendorsController.deleteLoggedVendorData);
 
 router
   .route("/")
   .get(vendorsController.getAllVendors)
   .post(
-    uploadImg().fields([
-      { name: "thumbnail", maxCount: 1 },
-      { name: "gallery", maxCount: 10 },
-    ]),
+    vendorsController.uploadVendorImages,
+    vendorsController.processingImage,
     vendorValidator.addValidationArray,
     validatorMiddleware,
     vendorsController.addVendor
@@ -40,6 +51,15 @@ router
   );
 
 router
+  .route("/:id/activate")
+  .patch(
+    vendorValidator.updateValidationArray,
+    validatorMiddleware,
+    vendorsController.approveVendor,
+    vendorForgotPassword
+  );
+
+router
   .route("/:id")
   .get(
     vendorValidator.getValidationArray,
@@ -47,10 +67,8 @@ router
     vendorsController.getVendor
   )
   .patch(
-    uploadImg().fields([
-      { name: "thumbnail", maxCount: 1 },
-      { name: "gallery", maxCount: 10 },
-    ]),
+    vendorsController.uploadVendorImages,
+    vendorsController.processingImage,
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor

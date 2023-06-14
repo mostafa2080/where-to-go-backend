@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const AsyncHandler = require('express-async-handler');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
@@ -12,6 +13,11 @@ const ApiError = require('../utils/apiError');
 const CustomerSchema = mongoose.model('customers');
 const RoleSchema = mongoose.model('roles');
 const saltRounds = 10;
+
+const createToken = (payload) =>
+  jwt.sign({ payload }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
 
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken);
@@ -35,13 +41,15 @@ exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getCustomerById = AsyncHandler(async (req, res, next) => {
-  const customer = await CustomerSchema.findById(req.params.id).populate('role', 'name').select('-__v');
+  const customer = await CustomerSchema.findById(req.params.id)
+    .populate('role', 'name')
+    .select('-__v');
   if (!customer) return new ApiError('Customer not found!', 404);
-  
+
   const result = {
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
     ...customer._doc,
-    role: customer.role.name
+    role: customer.role.name,
   };
 
   res.status(200).json({ data: result });
@@ -52,8 +60,6 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     req.body.password = await bcrypt.hash(req.body.password, saltRounds);
   }
   const role = await RoleSchema.findOne({ name: 'Customer' }, { _id: 1 });
-
-  console.log(role);
   if (req.file) {
     req.body.image = Date.now() + path.extname(req.file.originalname);
     req.imgPath = path.join(
@@ -73,6 +79,7 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     phoneNumber: req.body.phoneNumber,
+    phoneCode: req.body.phoneCode,
     address: {
       country: req.body.country,
       state: req.body.state,
@@ -93,55 +100,97 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     });
   }
 
-  res.status(201).json({ data: {
-    id: customer._id,
-    firstName: customer.firstName,
-    lastName: customer.lastName,
-    email: customer.email,
-    phoneNumber: customer.phoneNumber,
-    image: customer.image,
-    bannedAt: customer.bannedAt,
-    deactivatedAt: customer.deactivatedAt,
-    deletedAt: customer.deletedAt,
-  } });
+  res.status(201).json({
+    data: {
+      id: customer._id,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phoneNumber: customer.phoneNumber,
+      image: customer.image,
+      bannedAt: customer.bannedAt,
+      deactivatedAt: customer.deactivatedAt,
+      deletedAt: customer.deletedAt,
+    },
+  });
 });
 
-exports.updateCustomer = AsyncHandler(async (req, res, next) => {
-  // if (req.body.password) {
-  //   req.body.password = await bcrypt.hash(req.body.password, saltRounds);
-  // }
-  // if (req.file) {
-  //   req.body.image = path.join('customers', Date.now() + path.extname(req.file.originalname));
-  //   req.imgPath = path.join(__dirname, '..', 'images', req.body.image);
-  // }
-  // else {
-  //   req.body.image = 'default.jpg';
-  // }
-  // const customer = await new CustomerSchema({
-  //   first_name: req.body.first_name,
-  //   last_name: req.body.last_name,
-  //   email: req.body.email,
-  //   password: req.body.password,
-  //   phone_number: req.body.phone_number,
-  //   address: {
-  //     country: req.body.country,
-  //     state: req.body.state,
-  //     city: req.body.city,
-  //     street: req.body.street,
-  //     zip: req.body.zip,
-  //   },
-  //   date_of_birth: req.body.date_of_birth,
-  //   gender: req.body.gender,
-  //   image: req.body.image,
-  //   role: role._id,
-  // });
-  // await customer.save();
-  // if (req.file) {
-  //   await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-  //     if (err) throw err
-  //   })
-  // }
-  // res.status(201).json({ data: customer });
+exports.editCustomer = AsyncHandler(async (req, res, next) => {
+  const oldCustomer = await CustomerSchema.findById(req.params.id);
+
+  if (!oldCustomer) return new ApiError('Customer not found!', 404);
+
+  if (req.body.password) {
+    req.body.password = await bcrypt.hash(req.body.password, saltRounds);
+  }
+  if (req.file) {
+    req.body.image = Date.now() + path.extname(req.file.originalname);
+    req.imgPath = path.join(
+      __dirname,
+      '..',
+      'images',
+      'customers',
+      req.body.image
+    );
+  } else {
+    req.body.image = oldCustomer.image;
+  }
+
+  const updatedData = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    phoneCode: req.body.phoneCode,
+    address: {
+      country: req.body.country,
+      state: req.body.state,
+      city: req.body.city,
+      street: req.body.street,
+      zip: req.body.zip,
+    },
+    dateOfBirth: req.body.dateOfBirth,
+    gender: req.body.gender,
+    image: req.body.image,
+  };
+
+  if (req.body.password) {
+    updatedData.password = req.body.password;
+  }
+
+  const updatedCustomer = await CustomerSchema.findByIdAndUpdate(
+    req.params.id,
+    updatedData,
+    { new: true } // Set the `new` option to return the updated document
+  );
+
+  if (req.file) {
+    if (oldCustomer.image && oldCustomer.image !== 'default.jpg') {
+      await fs.unlink(
+        path.join(__dirname, '..', 'images', 'customers', oldCustomer.image),
+        (err) => {
+          if (err) throw err;
+        }
+      );
+    }
+    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
+      if (err) throw err;
+    });
+  }
+
+  res.status(200).json({
+    data: {
+      id: updatedCustomer._id,
+      firstName: updatedCustomer.firstName,
+      lastName: updatedCustomer.lastName,
+      email: updatedCustomer.email,
+      phoneNumber: updatedCustomer.phoneNumber,
+      image: req.body.image,
+      bannedAt: updatedCustomer.bannedAt,
+      deactivatedAt: updatedCustomer.deactivatedAt,
+      deletedAt: updatedCustomer.deletedAt,
+    },
+  });
 });
 
 exports.deactivateCustomer = AsyncHandler(async (req, res, next) => {
@@ -243,4 +292,50 @@ exports.customerForgotPassword =
 exports.customerVerifyPassResetCode =
   forgotPasswordController.verifyPassResetCode(CustomerSchema);
 
-exports.customerResetPassword = forgotPasswordController.resetPassword(CustomerSchema);
+exports.customerResetPassword =
+  forgotPasswordController.resetPassword(CustomerSchema);
+
+exports.getLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  console.log(req.decodedToken.id);
+  req.params.id = req.decodedToken.id;
+  console.log(req.params.id)
+  next();
+});
+
+exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
+  //1) update user password based on the user payload (req.user._id)
+  const user = await CustomerSchema.findByIdAndUpdate(
+    req.decodedToken.id,
+    {
+      password: await bcrypt.hash(req.body.password, 12),
+      passwordChangedAt: Date.now(),
+    },
+    {
+      new: true,
+    }
+  );
+  //2)generate token
+  const token = createToken(user._id);
+  res.status(200).json({
+    data: user,
+    token,
+  });
+});
+
+exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  const updatedUser = await CustomerSchema.findByIdAndUpdate(
+    req.decodedToken.id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+    },
+    { new: true }
+  );
+  res.status(200).json({ data: updatedUser });
+});
+
+exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  await CustomerSchema.findOneAndUpdate(req.decodedToken.id, { active: false });
+  res.status(200).json({ status: 'Your Account Deleted Successfully' });
+});

@@ -33,15 +33,14 @@ const VendorsSchema = ExtendSchema(User, {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "category",
   },
-  tags: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "tag",
-    default: [],
-  },
   isApproved: {
     type: Boolean,
     required: [true, "Please Provide Approval State"],
     default: false,
+  },
+  role: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "roles",
   },
 });
 
