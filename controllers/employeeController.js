@@ -25,14 +25,29 @@ const greetingMessage = AsyncHandler(async (data) => {
   const emailContent = `
         <html>
           <head>
-            <style>/* Styles for the email content */</style>
+            <style>
+              .container {
+                background-color: #f2f2f2;
+                padding: 20px;
+                border-radius: 5px;
+              }
+              
+              h4 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+              }
+              
+              p {
+                color: #666;
+                font-size: 16px;
+              }
+            </style>
           </head>
           <body>
             <div class="container">
-              <h4>Wellcome ${`${data.firstName} ${data.lastName}`} On Board </h4>
-              <p>Congratlation for signing Up with ${data.email}  </p>
-              <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
-              <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
+              <h4>Welcome ${`${data.name}`} On Board</h4>
+              <p>We are thrilled to have you on board and look forward to working with you. If you have any questions or need assistance, feel free to reach out to any member of our team.</p>
             </div>
           </body>
         </html>`;
