@@ -13,6 +13,7 @@ const ApiError = require('../utils/apiError');
 const { dirname } = require('path');
 
 const CustomerSchema = mongoose.model('customers');
+const VendorSchema = mongoose.model('vendor');
 const RoleSchema = mongoose.model('roles');
 const saltRounds = 10;
 
@@ -23,24 +24,40 @@ const createToken = (payload) =>
 
 const greetingMessage = AsyncHandler(async (data) => {
   const emailContent = `
-      <html>
-        <head>
-          <style>/* Styles for the email content */</style>
-        </head>
-        <body>
-          <div class="container">
-            <h4>Wellcome ${`${data.firstName} ${data.lastName}`} On Board </h4>
-            <p>Congratlation for signing Up with ${data.email}  </p>
-            <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
-            <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
-          </div>
-        </body>
-      </html>`;
+        <html>
+          <head>
+            <style>
+              .container {
+                background-color: #f2f2f2;
+                padding: 20px;
+                border-radius: 5px;
+              }
+              
+              h4 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+              }
+              
+              p {
+                color: #666;
+                font-size: 16px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h4>Welcome ${`${data.firstName} ${data.lastName}`} On Board</h4>
+              <p>Thank you for registering with us. We are excited to have you as a new member!</p>
+            </div>
+          </body>
+        </html>`;
+
   const userEmail = data.email;
   try {
     await sendMail({
       email: userEmail,
-      subject: 'Greeting From Where To Go',
+      subject: 'Greetings From Where To Go',
       message: emailContent,
     });
   } catch (error) {
@@ -410,6 +427,14 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
     }
   }
   res.status(200).json({ data: updatedUser });
+});
+
+exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
+    const customer = await CustomerSchema.findById(req.decodedToken.id);
+    if (!customer) return new ApiError('Customer not found!', 404);
+    console.log(customer.favoritePlaces);
+    const places = await VendorSchema.find({ _id: { $in: customer.favoritePlaces } }).populate('category');
+    res.status(200).json({ data: places });
 });
 
 exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {

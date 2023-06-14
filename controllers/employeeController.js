@@ -21,6 +21,47 @@ const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+const greetingMessage = AsyncHandler(async (data) => {
+  const emailContent = `
+        <html>
+          <head>
+            <style>
+              .container {
+                background-color: #f2f2f2;
+                padding: 20px;
+                border-radius: 5px;
+              }
+              
+              h4 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+              }
+              
+              p {
+                color: #666;
+                font-size: 16px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h4>Welcome ${`${data.name}`} On Board</h4>
+              <p>We are thrilled to have you on board and look forward to working with you. If you have any questions or need assistance, feel free to reach out to any member of our team.</p>
+            </div>
+          </body>
+        </html>`;
+  const userEmail = data.email;
+  try {
+    await sendMail({
+      email: userEmail,
+      subject: 'Greeting From Where To Go',
+      message: emailContent,
+    });
+  } catch (error) {
+    throw ApiError(error);
+  }
+});
 
 exports.getAllEmployees = AsyncHandler(async (req, res, next) => {
   const allEmployees = await Employees.find(
@@ -95,7 +136,7 @@ exports.createEmployee = AsyncHandler(async (req, res, next) => {
   await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
     if (err) throw err;
   });
-
+  greetingMessage(employee)
   res.status(200).json({ data: employee });
 });
 

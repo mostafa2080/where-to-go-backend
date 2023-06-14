@@ -4,18 +4,16 @@ const bcrypt = require("bcrypt");
 const asyncHandler = require("express-async-handler");
 const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
-const io = require("socket.io-client");
-require("../models/Vendor");
-require("../models/Tag");
-require("../models/Category");
 const path = require("path");
 const AsyncHandler = require("express-async-handler");
 const forgotPasswordController = require("./forgetPasswordController");
 const { uploadMixOfImages } = require("./imageController");
 const ApiError = require("../utils/apiError");
 const sendMail = require("../utils/sendEmail");
-
-const socket = io("http://localhost:8001");
+const { io } = require("../server");
+require("../models/Vendor");
+require("../models/Tag");
+require("../models/Category");
 
 const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
@@ -30,14 +28,31 @@ const greetingMessage = asyncHandler(async (data) => {
   const emailContent = `
     <html>
       <head>
-        <style>/* Styles for the email content */</style>
+        <style>
+          .container {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 5px;
+          }
+          
+          h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+          }
+          
+          p {
+            color: #666;
+            font-size: 16px;
+          }
+        </style>
       </head>
       <body>
         <div class="container">
-          <h4>Wellcome ${data.firstName + " " + data.lastName} On Board </h4>
-          <p>Congratlation for signing Up with ${data.email}  </p>
-          <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
-          <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
+          <h1>Welcome ${data.firstName} ${data.lastName} on Board</h1>
+          <p>Congratulations on signing up with ${data.email}!</p>
+          <p>We are reaching out to inform you that we have received your request to become a vendor.</p>
+          <p>Our team will carefully review the details of your place, and you can expect a response within 24-48 hours.</p>
         </div>
       </body>
     </html>`;
@@ -197,8 +212,7 @@ exports.addVendor = asyncHandler(async (req, res, next) => {
   const document = await Vendors.create(req.body);
   greetingMessage(document);
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
-
-  socket.emit("notifyAdminAndEmpForAddingVendor", message);
+  // io.emit('notifyAdminAndEmpForAddingVendor', message);
   res.status(201).json({ data: document });
 });
 
@@ -226,7 +240,6 @@ exports.approveVendor = AsyncHandler(async (req, res, next) => {
   );
   req.body.email = document.email;
   req.body.modelType = "vendor";
-  console.log(req.body.modelType);
   next();
 });
 

@@ -111,6 +111,7 @@ exports.forgotPassword = (model) =>
     user.passwordResetVerified = false;
     await user.save();
 
+    console.log(req.body.modelType);
     const message =
       req.body.modelType !== undefined
         ? approvalMessage(user, resetCode)
