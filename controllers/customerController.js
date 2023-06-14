@@ -23,50 +23,40 @@ const createToken = (payload) =>
 
 const greetingMessage = AsyncHandler(async (data) => {
   const emailContent = `
-      <html>
-        <head>
-          <style>
-            /* CSS Styles */
-            body {
-              font-family: Arial, sans-serif;
-              background-color: #f7f7f7;
-            }
-  
-            .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-              background-color: #fff;
-              border-radius: 5px;
-              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            }
-  
-            h4 {
-              color: #333;
-            }
-  
-            p {
-              color: #777;
-              line-height: 1.4;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h4>Welcome ${`${data.firstName} ${data.lastName}`} On Board</h4>
-            <p>Congratulations for signing up with ${data.email}</p>
-            <p>We're sending this email to let you know that we have received your request for becoming a vendor.</p>
-            <p>Within 24-48 hours, we will review your place details and respond to you.</p>
-          </div>
-        </body>
-      </html>`;
+        <html>
+          <head>
+            <style>
+              .container {
+                background-color: #f2f2f2;
+                padding: 20px;
+                border-radius: 5px;
+              }
+              
+              h4 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+              }
+              
+              p {
+                color: #666;
+                font-size: 16px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h4>Welcome ${`${data.firstName} ${data.lastName}`} On Board</h4>
+              <p>Thank you for registering with us. We are excited to have you as a new member!</p>
+            </div>
+          </body>
+        </html>`;
 
   const userEmail = data.email;
-
   try {
     await sendMail({
       email: userEmail,
-      subject: 'Greetings from Where To Go',
+      subject: 'Greetings From Where To Go',
       message: emailContent,
     });
   } catch (error) {
