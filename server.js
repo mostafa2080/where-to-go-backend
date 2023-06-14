@@ -36,7 +36,7 @@ const io = new Server(server, {
 });
 
 //connect with DB
-// dbconnection();
+dbconnection();
 
 // cors middleware
 app.use(cors());
