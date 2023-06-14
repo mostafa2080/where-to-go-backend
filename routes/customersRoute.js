@@ -12,6 +12,10 @@ router.get(
   controller.getLoggedCustomerData,
   controller.getCustomerById
 );
+router.get(
+  '/myFavorites',
+  controller.getFavoritePlaces
+);
 router.put(
   '/changeMyPassaowrd',
   validateCustomer.changeUserPasswordValidator,
