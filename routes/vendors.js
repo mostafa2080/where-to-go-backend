@@ -2,10 +2,22 @@ const express = require("express");
 const vendorsController = require("../controllers/vendorsController");
 const vendorValidator = require("../utils/validators/vendorValidator");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
-const { uploadImg, setImage } = require("../utils/imageUtility");
 const { vendorForgotPassword } = require("../controllers/vendorsController");
 
 const router = express.Router();
+
+router.get(
+  "/getMe",
+  vendorsController.getLoggedVendorData,
+  vendorsController.getVendor
+);
+router.put(
+  "/changeMyPassaowrd",
+  vendorValidator.changeUserPasswordValidator,
+  vendorsController.updateLoggedVendorPassword
+);
+router.put("/updateMe", vendorsController.updateLoggedVendorData);
+router.delete("/deleteMe", vendorsController.deleteLoggedVendorData);
 
 router
   .route("/")

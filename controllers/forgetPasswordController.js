@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 const sendMail = require("../utils/sendEmail");
@@ -9,6 +10,10 @@ const { use } = require("../routes/imagesRouter");
 require("../models/Customer");
 require("../models/Vendor");
 require("../models/Employee");
+
+
+const saltRunds = 10;
+const salt = bcrypt.genSaltSync(saltRunds);
 
 const forgetMessage = (user) => {
   return `
@@ -188,8 +193,8 @@ exports.resetPassword = (model) =>
     if (!user.passwordResetVerified) {
       return next(new ApiError("Password reset token not verified", 400));
     }
-
-    user.password = req.body.newPassword;
+    
+    user.password = bcrypt.hashSync(req.body.newPassword, salt);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     user.passwordResetVerified = undefined;

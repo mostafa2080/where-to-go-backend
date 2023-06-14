@@ -34,7 +34,7 @@ const CustomerSchema = ExtendSchema(UserSchema, {
     type: String,
     default: null,
   },
-  favouritePlaces: {
+  favoritePlaces: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'vendors',
     default: [],
