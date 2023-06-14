@@ -6,6 +6,7 @@ const fs = require('fs');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const ApiError = require('../utils/apiError');
+const sendMail = require('../utils/sendEmail');
 
 require('../models/Employee');
 const forgotPasswordController = require('./forgetPasswordController');
