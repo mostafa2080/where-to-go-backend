@@ -129,6 +129,8 @@ exports.updateEmployee = AsyncHandler(async (req, res, next) => {
           country: req.body.country,
           street: req.body.street,
           city: req.body.city,
+          state: req.body.state,
+          zip: req.body.zip,
         },
         gender: req.body.gender,
         hireDate: req.body.hireDate,
