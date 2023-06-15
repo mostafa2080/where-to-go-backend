@@ -64,7 +64,7 @@ const greetingMessage = asyncHandler(async (data) => {
       message: emailContent,
     });
   } catch (error) {
-    throw ApiError(error);
+    throw new ApiError(error);
   }
 });
 
@@ -209,7 +209,14 @@ exports.addVendor = asyncHandler(async (req, res, next) => {
   console.log(req.address);
   const vendorRole = await Roles.find({ name: "Vendor" });
   req.body.role = vendorRole._id;
+
+  const saltRunds = 10;
+  const salt = bcrypt.genSaltSync(saltRunds);
+  const password = bcrypt.hashSync(req.body.password, salt)
+  req.body.password = password;
+  
   const document = await Vendors.create(req.body);
+  console.log(document.email);
   greetingMessage(document);
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
   // io.emit('notifyAdminAndEmpForAddingVendor', message);

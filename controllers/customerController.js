@@ -55,13 +55,14 @@ const greetingMessage = AsyncHandler(async (data) => {
 
   const userEmail = data.email;
   try {
+    console.log("before: " , data.email);
     await sendMail({
       email: userEmail,
       subject: 'Greetings From Where To Go',
       message: emailContent,
     });
   } catch (error) {
-    throw ApiError(error);
+    throw new ApiError(error);
   }
 });
 
@@ -146,6 +147,8 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
     });
   }
   greetingMessage(customer);
+
+  console.log("after: " , customer.email);
   res.status(201).json({
     data: {
       id: customer._id,
