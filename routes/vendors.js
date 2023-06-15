@@ -37,7 +37,7 @@ router.route("/rejected").get(vendorsController.getRejectedVendors);
 router
   .route("/:id/deactivate")
   .patch(
-    vendorValidator.updateValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.deactivateVendor
   );
@@ -45,7 +45,7 @@ router
 router
   .route("/:id/restore")
   .patch(
-    vendorValidator.updateValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.restoreVendor
   );
@@ -53,7 +53,7 @@ router
 router
   .route("/:id/activate")
   .patch(
-    vendorValidator.updateValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.approveVendor,
     vendorForgotPassword
@@ -62,7 +62,7 @@ router
 router
   .route("/:id")
   .get(
-    vendorValidator.getValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.getVendor
   )
