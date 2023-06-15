@@ -124,7 +124,7 @@ exports.updateLoggedUserValidator = [
         if (user) {
           return Promise.reject(new Error('Email already exists'));
         }
-      })
+      }) 
     ),
   check('phoneNumber')
     .optional()
