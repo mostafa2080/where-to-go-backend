@@ -214,12 +214,13 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
     .populate("category")
     .exec();
 
-  const tags = await Tags.find({ _id: vendor.category._id });
+  const tags = await Tags.find({ category: vendor.category[0]._id });
   vendor.tags = tags;
 
   res.status(200).json({
     status: "success",
     data: vendor,
+    tags: tags,
   });
 });
 
