@@ -4,18 +4,16 @@ const bcrypt = require("bcrypt");
 const asyncHandler = require("express-async-handler");
 const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
-const io = require("socket.io-client");
-require("../models/Vendor");
-require("../models/Tag");
-require("../models/Category");
 const path = require("path");
 const AsyncHandler = require("express-async-handler");
 const forgotPasswordController = require("./forgetPasswordController");
 const { uploadMixOfImages } = require("./imageController");
 const ApiError = require("../utils/apiError");
 const sendMail = require("../utils/sendEmail");
-
-const socket = io("http://localhost:8001");
+const { io } = require("../server");
+require("../models/Vendor");
+require("../models/Tag");
+require("../models/Category");
 
 const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
@@ -214,8 +212,7 @@ exports.addVendor = asyncHandler(async (req, res, next) => {
   const document = await Vendors.create(req.body);
   greetingMessage(document);
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
-
-  socket.emit("notifyAdminAndEmpForAddingVendor", message);
+  // io.emit('notifyAdminAndEmpForAddingVendor', message);
   res.status(201).json({ data: document });
 });
 

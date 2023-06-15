@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { dirname } = require('path');
 const AsyncHandler = require('express-async-handler');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
@@ -10,9 +11,9 @@ require('../models/Customer');
 require('../models/Role');
 const forgotPasswordController = require('./forgetPasswordController');
 const ApiError = require('../utils/apiError');
-const { dirname } = require('path');
 
 const CustomerSchema = mongoose.model('customers');
+const VendorSchema = mongoose.model('vendor');
 const RoleSchema = mongoose.model('roles');
 const saltRounds = 10;
 
@@ -426,6 +427,14 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
     }
   }
   res.status(200).json({ data: updatedUser });
+});
+
+exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
+    const customer = await CustomerSchema.findById(req.decodedToken.id);
+    if (!customer) return new ApiError('Customer not found!', 404);
+    console.log(customer.favoritePlaces);
+    const places = await VendorSchema.find({ _id: { $in: customer.favoritePlaces } }).populate('category');
+    res.status(200).json({ data: places });
 });
 
 exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {
