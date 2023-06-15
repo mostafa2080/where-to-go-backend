@@ -41,13 +41,13 @@ exports.createEmployeeValidator = [
   body("country")
     .notEmpty()
     .withMessage("Country Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("Country Must Be Alphabetic"),
 
   body("city")
     .notEmpty()
     .withMessage("City Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("City Must Be Alphabetic"),
 
   body("street")
@@ -101,13 +101,13 @@ exports.updateEmployeeValidator = [
   body("country")
     .notEmpty()
     .withMessage("Country Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("Country Must Be Alphabetic"),
 
   body("city")
     .notEmpty()
     .withMessage("City Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("City Must Be Alphabetic"),
 
   body("street")
@@ -207,13 +207,13 @@ exports.updateLoggedUserValidator = [
   body("country")
     .notEmpty()
     .withMessage("Country Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("Country Must Be Alphabetic"),
 
   body("city")
     .notEmpty()
     .withMessage("City Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("City Must Be Alphabetic"),
 
   body("street")

@@ -48,19 +48,19 @@ exports.validatePostArray = [
   body("country")
     .notEmpty()
     .withMessage("Country Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("Country Must Be Alphabetic"),
 
   body("state")
     .notEmpty()
     .withMessage("State Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("State must be Alphabetic"),
 
   body("city")
     .notEmpty()
     .withMessage("City Can't Be Empty")
-    .isAlpha()
+    .isString()
     .withMessage("City Must Be Alphabetic"),
 
   body("zip")
@@ -129,12 +129,12 @@ exports.validatePatchArray = [
 
   body("country")
     .optional()
-    .isAlpha()
+    .isString()
     .withMessage("Country Must Be Alphabetic"),
 
-  body("state").optional().isAlpha().withMessage("State must be Alphabetic"),
+  body("state").optional().isString().withMessage("State must be Alphabetic"),
 
-  body("city").optional().isAlpha().withMessage("City Must Be Alphabetic"),
+  body("city").optional().isString().withMessage("City Must Be Alphabetic"),
 
   body("zip")
     .optional()
@@ -237,12 +237,12 @@ exports.updateLoggedUserValidator = [
 
   body("country")
     .optional()
-    .isAlpha()
+    .isString()
     .withMessage("Country Must Be Alphabetic"),
 
-  body("state").optional().isAlpha().withMessage("State must be Alphabetic"),
+  body("state").optional().isString().withMessage("State must be Alphabetic"),
 
-  body("city").optional().isAlpha().withMessage("City Must Be Alphabetic"),
+  body("city").optional().isString().withMessage("City Must Be Alphabetic"),
 
   body("zip")
     .optional()
