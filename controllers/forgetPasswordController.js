@@ -83,7 +83,6 @@ const createToken = (payload) =>
 
 exports.forgotPassword = (model) =>
   asyncHandler(async (req, res, next) => {
-    console.log('insde forget');
     //1) get user by email
     const user = await model.findOne({ email: req.body.email });
 
@@ -107,7 +106,6 @@ exports.forgotPassword = (model) =>
     user.passwordResetVerified = false;
     await user.save();
 
-    console.log(req.body.modelType);
     const message =
       req.body.modelType !== undefined
         ? approvalMessage(user, resetCode)
