@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { dirname } = require('path');
 const AsyncHandler = require('express-async-handler');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const sendMail = require('../utils/sendEmail');
 
 require('../models/Customer');
 require('../models/Role');
@@ -11,6 +13,7 @@ const forgotPasswordController = require('./forgetPasswordController');
 const ApiError = require('../utils/apiError');
 
 const CustomerSchema = mongoose.model('customers');
+const VendorSchema = mongoose.model('vendor');
 const RoleSchema = mongoose.model('roles');
 const saltRounds = 10;
 
@@ -18,6 +21,49 @@ const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+
+const greetingMessage = AsyncHandler(async (data) => {
+  const emailContent = `
+        <html>
+          <head>
+            <style>
+              .container {
+                background-color: #f2f2f2;
+                padding: 20px;
+                border-radius: 5px;
+              }
+              
+              h4 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+              }
+              
+              p {
+                color: #666;
+                font-size: 16px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h4>Welcome ${`${data.firstName} ${data.lastName}`} On Board</h4>
+              <p>Thank you for registering with us. We are excited to have you as a new member!</p>
+            </div>
+          </body>
+        </html>`;
+
+  const userEmail = data.email;
+  try {
+    await sendMail({
+      email: userEmail,
+      subject: 'Greetings From Where To Go',
+      message: emailContent,
+    });
+  } catch (error) {
+    throw ApiError(error);
+  }
+});
 
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken);
@@ -45,7 +91,7 @@ exports.getCustomerById = AsyncHandler(async (req, res, next) => {
     .populate('role', 'name')
     .select('-__v');
   if (!customer) return new ApiError('Customer not found!', 404);
-
+  console.log(customer);
   const result = {
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
     ...customer._doc,
@@ -99,7 +145,7 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
       if (err) throw err;
     });
   }
-
+  greetingMessage(customer);
   res.status(201).json({
     data: {
       id: customer._id,
@@ -298,17 +344,20 @@ exports.customerResetPassword =
 exports.getLoggedCustomerData = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken.id);
   req.params.id = req.decodedToken.id;
-  console.log(req.params.id)
+  console.log(req.params.id);
   next();
 });
 
 exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
+  console.log(req.decodedToken.id);
   //1) update user password based on the user payload (req.user._id)
   const user = await CustomerSchema.findByIdAndUpdate(
     req.decodedToken.id,
     {
-      password: await bcrypt.hash(req.body.password, 12),
-      passwordChangedAt: Date.now(),
+      $set: {
+        password: await bcrypt.hash(req.body.password, saltRounds),
+        passwordChangedAt: Date.now(),
+      },
     },
     {
       new: true,
@@ -323,16 +372,72 @@ exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
 });
 
 exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  let oldImage;
+  if (req.file) {
+    req.body.image = Date.now() + path.extname(req.file.originalname);
+    req.imgPath = path.join(
+      __dirname,
+      '..',
+      'images/customers',
+      req.body.image
+    );
+    oldImage = await CustomerSchema.findById(req.decodedToken.id, { image: 1 });
+  }
   const updatedUser = await CustomerSchema.findByIdAndUpdate(
     req.decodedToken.id,
     {
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone,
+      $set: {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        dateOfBirth: req.body.dateOfBirth,
+        address: {
+          country: req.body.country,
+          state: req.body.state,
+          city: req.body.city,
+          street: req.body.street,
+          zip: req.body.zip,
+        },
+        image: req.body.image,
+        gender: req.body.gender,
+      },
     },
     { new: true }
   );
+  if (!updatedUser) {
+    throw new ApiError('Error happened while Updating Customer', 404);
+  }
+
+  if (req.file) {
+    console.log(req.imgPath);
+    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
+      if (err) throw err;
+    });
+
+    const root = dirname(require.main.filename);
+    const path = root + '/images/customers/' + oldImage.image;
+    if (oldImage.image !== 'default.jpg') {
+      fs.unlink(path, (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    }
+  }
   res.status(200).json({ data: updatedUser });
+});
+
+exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
+    // get query string
+    const { page } = req.query;
+    const customer = await CustomerSchema.findById(req.decodedToken.id);
+    if (!customer) return new ApiError('Customer not found!', 404);
+    console.log(customer.favoritePlaces);
+    const places = await VendorSchema.find({ _id: { $in: customer.favoritePlaces } }).populate('category').limit(3).skip((page - 1) * 3);
+
+    res.status(200).json({ data: places });
 });
 
 exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {

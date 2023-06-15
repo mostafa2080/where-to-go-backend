@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
@@ -22,11 +24,16 @@ const contactUsRoute = require("./routes/contactUsRoute");
 const favoritesRouter = require("./routes/favoritesRouter");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
+const raisedEventListener = require("./utils/webSockets");
 
 dotenv.config({ path: ".env" });
 
 //express app
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {},
+});
 
 //connect with DB
 dbconnection();
@@ -52,7 +59,6 @@ app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/contact", contactUsRoute);
 
 app.use(authenticationMiddleware);
-app.use("/api/v1/images", imagesRouter);
 
 app.use("/api/v1/vendors", vendorsRoute);
 app.use("/api/v1/categories", categoriesRouter);
@@ -74,9 +80,12 @@ app.all("*", (req, res, next) => {
 //err mw
 app.use(globalError);
 
+//socket
+raisedEventListener(io);
+
 //listening
 const { PORT } = process.env;
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`app running on Port: ${PORT}`);
 });
 
@@ -87,3 +96,7 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 });
+
+module.exports = {
+  io: io,
+};

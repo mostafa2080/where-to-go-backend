@@ -27,7 +27,7 @@ router.route('/').post(
             <h1>New Contact Form Submission</h1>
             <p>Name: ${name}</p>
             <p>Email: ${email}</p>
-            <p>Subject: ${subject}</p>
+            <p>Subject: Sending Regards</p>
             <p>Message: ${message}</p>
           </div>
         </body>

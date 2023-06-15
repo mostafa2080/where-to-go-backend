@@ -1,40 +1,59 @@
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const asyncHandler = require('express-async-handler');
-const sharp = require('sharp');
-const { v4: uuidv4 } = require('uuid');
-require('../models/Vendor');
-require('../models/Tag');
-const path = require('path');
-const AsyncHandler = require('express-async-handler');
-const forgotPasswordController = require('./forgetPasswordController');
-const { uploadMixOfImages } = require('./imageController');
-const ApiError = require('../utils/apiError');
-const sendMail = require('../utils/sendEmail');
-const { resetPassword } = require('./forgetPasswordController');
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const sharp = require("sharp");
+const { v4: uuidv4 } = require("uuid");
+const io = require("socket.io-client");
+const path = require("path");
+const AsyncHandler = require("express-async-handler");
+const forgotPasswordController = require("./forgetPasswordController");
+const { uploadMixOfImages } = require("./imageController");
+const ApiError = require("../utils/apiError");
+const sendMail = require("../utils/sendEmail");
 
-const Vendors = mongoose.model('vendor');
-const Roles = mongoose.model('roles');
-const Tags = mongoose.model('tag');
+require("../models/Vendor");
+require("../models/Tag");
+require("../models/Category");
 
+const socket = io("http://localhost:8001");
+const Vendors = mongoose.model("vendor");
+const Roles = mongoose.model("roles");
+const Tags = mongoose.model("tag");
+const Category = mongoose.model("category");
 const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const greetingMessage = asyncHandler(async (data) => {
+const greetingMessage = AsyncHandler(async (data) => {
   const emailContent = `
     <html>
       <head>
-        <style>/* Styles for the email content */</style>
+        <style>
+          .container {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 5px;
+          }
+          
+          h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+          }
+          
+          p {
+            color: #666;
+            font-size: 16px;
+          }
+        </style>
       </head>
       <body>
         <div class="container">
-          <h4>Wellcome ${data.firstName + ' ' + data.lastName} On Board </h4>
-          <p>Congratlation for signing Up with ${data.email}  </p>
-          <p>we 're sending this email to let you know that we have recieved your request for being a vendor </p>
-          <p>and we will review your place details and within 24 - 48 Hours we will Respond </p>
+          <h1>Welcome ${data.firstName} ${data.lastName} on Board</h1>
+          <p>Congratulations on signing up with ${data.email}!</p>
+          <p>We are reaching out to inform you that we have received your request to become a vendor.</p>
+          <p>Our team will carefully review the details of your place, and you can expect a response within 24-48 hours.</p>
         </div>
       </body>
     </html>`;
@@ -42,7 +61,7 @@ const greetingMessage = asyncHandler(async (data) => {
   try {
     await sendMail({
       email: userEmail,
-      subject: 'Greeting From Where To Go',
+      subject: "Greeting From Where To Go",
       message: emailContent,
     });
   } catch (error) {
@@ -55,17 +74,15 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const limit = parseInt(req.query.limit) || 5;
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
-  const sortOrder = req.query.sortOrder || 'asc';
+  const sortOrder = req.query.sortOrder || "asc";
   const filters = req.query.filters || {};
-  const searchQuery = req.query.search || '';
-  const tagIds = filters.tags ? filters.tags.split(',') : []; // Split the tagIds string into an array
+  const searchQuery = req.query.search || "";
+  const categoryName = req.query.category || ""; // Category name parameter
+
+  const tagIds = filters.tags ? filters.tags.split(",") : [];
 
   const filterQuery = {};
 
-  // Apply filters to the filterQuery object
-  if (filters.category) {
-    filterQuery.category = filters.category;
-  }
   if (filters.isApproved !== undefined) {
     filterQuery.isApproved = filters.isApproved;
   }
@@ -73,15 +90,20 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   // Apply search query to the filterQuery object
   if (searchQuery) {
     filterQuery.$or = [
-      { firstName: { $regex: searchQuery, $options: 'i' } },
-      { lastName: { $regex: searchQuery, $options: 'i' } },
-      { placeName: { $regex: searchQuery, $options: 'i' } },
+      { firstName: { $regex: searchQuery, $options: "i" } },
+      { lastName: { $regex: searchQuery, $options: "i" } },
+      { placeName: { $regex: searchQuery, $options: "i" } },
+      { "address.country": { $regex: searchQuery, $options: "i" } },
+      { "address.state": { $regex: searchQuery, $options: "i" } },
+      { "address.city": { $regex: searchQuery, $options: "i" } },
+      { "address.street": { $regex: searchQuery, $options: "i" } },
+      { "address.zip": { $regex: searchQuery, $options: "i" } },
     ];
   }
 
   const sortQuery = {};
   if (sortField) {
-    sortQuery[sortField] = sortOrder === 'desc' ? -1 : 1;
+    sortQuery[sortField] = sortOrder === "desc" ? -1 : 1;
   }
 
   try {
@@ -96,19 +118,40 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
       filterQuery.category = { $in: categoryIds };
     }
 
+    // Find the category by name
+    if (categoryName) {
+      const category = await Category.findOne({ name: categoryName });
+
+      if (category) {
+        filterQuery.category = category._id;
+      } else {
+        // Return an empty response if category not found
+        return res.status(200).json({
+          status: "success",
+          pagination: {
+            total: 0,
+            totalPages: 0,
+            currentPage: page,
+            perPage: limit,
+          },
+          data: [],
+        });
+      }
+    }
+
     const [vendors, total] = await Promise.all([
       Vendors.find(filterQuery)
         .skip(skip)
         .limit(limit)
         .sort(sortQuery)
-        .populate('category'),
+        .populate("category"),
       Vendors.countDocuments(filterQuery),
     ]);
 
     const totalPages = Math.ceil(total / limit);
 
     return res.status(200).json({
-      status: 'success',
+      status: "success",
       pagination: {
         total,
         totalPages,
@@ -119,8 +162,8 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
     });
   } catch (error) {
     return res.status(500).json({
-      status: 'error',
-      message: 'Internal server error',
+      status: "error",
+      message: "Internal server error",
     });
   }
 });
@@ -128,7 +171,7 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
 exports.getApprovedVendors = AsyncHandler(async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: true });
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: vendors,
   });
 });
@@ -136,40 +179,53 @@ exports.getApprovedVendors = AsyncHandler(async (req, res, next) => {
 exports.getRejectedVendors = AsyncHandler(async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: false });
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: vendors,
   });
 });
 
 exports.getVendor = AsyncHandler(async (req, res, next) => {
   const vendor = await Vendors.findById(req.params.id)
-    .populate('category')
+    .populate("category")
     .exec();
 
   const tags = await Tags.find({ _id: vendor.category._id });
   vendor.tags = tags;
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: vendor,
   });
 });
 
-exports.addVendor = asyncHandler(async (req, res, next) => {
-  const vendorRole = await Roles.find({ name: 'Vendor' });
+exports.addVendor = AsyncHandler(async (req, res, next) => {
+  const address = {
+    country: req.body.country,
+    state: req.body.state,
+    city: req.body.city,
+    zip: +req.body.zip,
+    street: req.body.street || "st",
+  };
+  req.body.address = address;
+
+  const vendorRole = await Roles.find({ name: "Vendor" });
   req.body.role = vendorRole._id;
   const document = await Vendors.create(req.body);
+  console.log(document);
   greetingMessage(document);
+  const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
+  socket.emit("notifyAdminAndEmpForAddingVendor", message);
+
   res.status(201).json({ data: document });
 });
 
-exports.updateVendor = asyncHandler(async (req, res, next) => {
-  console.log('updating');
+exports.updateVendor = AsyncHandler(async (req, res, next) => {
+  console.log("updating");
   const document = await Vendors.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
   if (!document) {
-    return next(new ApiError('Document not found', 404));
+    return next(new ApiError("Document not found", 404));
   }
   res.status(200).json({ data: document });
 });
@@ -186,7 +242,7 @@ exports.approveVendor = AsyncHandler(async (req, res, next) => {
     }
   );
   req.body.email = document.email;
-  req.body.modelType = 'vendor';
+  req.body.modelType = "vendor";
   next();
 });
 
@@ -204,11 +260,11 @@ exports.deactivateVendor = AsyncHandler(async (req, res, next) => {
 
   if (deletedVendor.modifiedCount > 0) {
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: deletedVendor,
     });
   } else {
-    next(new Error('No Vendor With This Id'));
+    next(new Error("No Vendor With This Id"));
   }
 });
 
@@ -225,30 +281,30 @@ exports.restoreVendor = AsyncHandler(async (req, res, next) => {
   );
   if (restoredVendor.modifiedCount > 0) {
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: restoredVendor,
     });
   } else {
-    next(new Error('No Vendor With This Id'));
+    next(new Error("No Vendor With This Id"));
   }
 });
 
 exports.uploadVendorImages = uploadMixOfImages([
-  { name: 'thumbnail', maxCount: 1 },
+  { name: "thumbnail", maxCount: 1 },
   {
-    name: 'gallery',
+    name: "gallery",
     maxCount: 5,
   },
 ]);
 
-exports.processingImage = asyncHandler(async (req, res, next) => {
+exports.processingImage = AsyncHandler(async (req, res, next) => {
   if (req.files && req.files.thumbnail) {
     const thumbnailFileName = `vendor-${uuidv4()}-${Date.now()}-cover.jpeg`;
     await sharp(req.files.thumbnail[0].buffer)
       .resize(2000, 1333)
-      .toFormat('jpeg')
+      .toFormat("jpeg")
       .jpeg({ quality: 90 })
-      .toFile(path.join(__dirname, '../images/vendors/', thumbnailFileName));
+      .toFile(path.join(__dirname, "../images/vendors/", thumbnailFileName));
     req.body.thumbnail = thumbnailFileName;
   }
   if (req.files && req.files.gallery) {
@@ -258,9 +314,9 @@ exports.processingImage = asyncHandler(async (req, res, next) => {
         const imageName = `vendor-${uuidv4()}-${Date.now()}-${index + 1}.jpeg`;
         await sharp(img.buffer)
           .resize(2000, 1333)
-          .toFormat('jpeg')
+          .toFormat("jpeg")
           .jpeg({ quality: 90 })
-          .toFile(path.join(__dirname, '../images/vendors/', imageName));
+          .toFile(path.join(__dirname, "../images/vendors/", imageName));
 
         // save images to DB
         req.body.gallery.push(imageName);
@@ -319,5 +375,5 @@ exports.updateLoggedVendorData = AsyncHandler(async (req, res, next) => {
 
 exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
   await Vendors.findOneAndUpdate(req.decodedToken.id, { active: false });
-  res.status(200).json({ status: 'Your Account Deleted Successfully' });
+  res.status(200).json({ status: "Your Account Deleted Successfully" });
 });

@@ -4,6 +4,7 @@ const validateCustomer = require('../utils/validators/customerValidator');
 const { uploadImg } = require('../utils/imageUtility');
 
 const { EmployeeOrAbove, CustomerOrAbove } = require('../middlewares/authorizationMiddleware');
+
 const router = express.Router();
 
 router.get(
@@ -11,12 +12,16 @@ router.get(
   controller.getLoggedCustomerData,
   controller.getCustomerById
 );
+router.get(
+  '/myFavorites',
+  controller.getFavoritePlaces
+);
 router.put(
   '/changeMyPassaowrd',
   validateCustomer.changeUserPasswordValidator,
   controller.updateLoggedCustomerPassword
 );
-router.put('/updateMe', controller.updateLoggedCustomerData);
+router.put('/updateMe',uploadImg().single('image'), controller.updateLoggedCustomerData);
 router.delete('/deleteMe', controller.deleteLoggedCustomerData);
 
 router

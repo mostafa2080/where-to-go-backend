@@ -1,26 +1,26 @@
-const express = require('express');
-const vendorsController = require('../controllers/vendorsController');
-const vendorValidator = require('../utils/validators/vendorValidator');
-const validatorMiddleware = require('../middlewares/validatorMiddleware');
-const { vendorForgotPassword } = require('../controllers/vendorsController');
+const express = require("express");
+const vendorsController = require("../controllers/vendorsController");
+const vendorValidator = require("../utils/validators/vendorValidator");
+const validatorMiddleware = require("../middlewares/validatorMiddleware");
+const { vendorForgotPassword } = require("../controllers/vendorsController");
 
 const router = express.Router();
 
 router.get(
-  '/getMe',
+  "/getMe",
   vendorsController.getLoggedVendorData,
   vendorsController.getVendor
 );
 router.put(
-  '/changeMyPassaowrd',
+  "/changeMyPassaowrd",
   vendorValidator.changeUserPasswordValidator,
   vendorsController.updateLoggedVendorPassword
 );
-router.put('/updateMe', vendorsController.updateLoggedVendorData);
-router.delete('/deleteMe', vendorsController.deleteLoggedVendorData);
+router.put("/updateMe", vendorsController.updateLoggedVendorData);
+router.delete("/deleteMe", vendorsController.deleteLoggedVendorData);
 
 router
-  .route('/')
+  .route("/")
   .get(vendorsController.getAllVendors)
   .post(
     vendorsController.uploadVendorImages,
@@ -30,12 +30,12 @@ router
     vendorsController.addVendor
   );
 
-router.route('/approved').get(vendorsController.getApprovedVendors);
+router.route("/approved").get(vendorsController.getApprovedVendors);
 
-router.route('/rejected').get(vendorsController.getRejectedVendors);
+router.route("/rejected").get(vendorsController.getRejectedVendors);
 
 router
-  .route('/:id/deactivate')
+  .route("/:id/deactivate")
   .patch(
     vendorValidator.updateValidationArray,
     validatorMiddleware,
@@ -43,7 +43,7 @@ router
   );
 
 router
-  .route('/:id/restore')
+  .route("/:id/restore")
   .patch(
     vendorValidator.updateValidationArray,
     validatorMiddleware,
@@ -51,7 +51,7 @@ router
   );
 
 router
-  .route('/:id/activate')
+  .route("/:id/activate")
   .patch(
     vendorValidator.updateValidationArray,
     validatorMiddleware,
@@ -60,7 +60,7 @@ router
   );
 
 router
-  .route('/:id')
+  .route("/:id")
   .get(
     vendorValidator.getValidationArray,
     validatorMiddleware,
@@ -68,15 +68,7 @@ router
   )
   .patch(
     vendorsController.uploadVendorImages,
-    (req, res, next) => {
-      console.log('upload', req.body);
-      next();
-    },
     vendorsController.processingImage,
-    (req, res, next) => {
-      console.log('processing', req.body);
-      next();
-    },
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor
