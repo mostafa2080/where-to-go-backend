@@ -2,6 +2,7 @@ const { check, body, param } = require("express-validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const validatorMiddleware = require("../../middlewares/validatorMiddleware");
+const ApiError = require("../apiError");
 require("../../models/Customer");
 
 const Customer = mongoose.model("customers");
@@ -24,7 +25,7 @@ exports.validatePostArray = [
     .custom(async (val, { req }) => {
       const vendor = await Customer.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -80,7 +81,7 @@ exports.validatePostArray = [
         return true;
       }
       if (!value.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        throw new Error("Date of birth must be a valid date");
+        throw new ApiError("Date of birth must be a valid date", 404);
       }
       return true;
     })
@@ -108,7 +109,7 @@ exports.validatePatchArray = [
     .custom(async (val, { req }) => {
       const vendor = await Customer.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -154,7 +155,7 @@ exports.validatePatchArray = [
         return true;
       }
       if (!value.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        throw new Error("Date of birth must be a valid date");
+        throw new ApiError("Date of birth must be a valid date", 404);
       }
       return true;
     })
@@ -185,18 +186,18 @@ exports.changeUserPasswordValidator = [
       //verify current password
       const user = await Customer.findById(req.decodedToken.id);
       if (!user) {
-        throw new Error("No User Found For This ID");
+        throw new ApiError("No User Found For This ID", 404);
       }
       const isCorrectPassword = await bcrypt.compare(
         req.body.currentPassword,
         user.password
       );
       if (!isCorrectPassword) {
-        throw new Error("Incorrect User Password");
+        throw new ApiError("Incorrect User Password", 404);
       }
       //verify password confirmation
       if (val !== req.body.passwordConfirm) {
-        throw new Error("password does not match");
+        throw new ApiError("password does not match", 404);
       }
       return true;
     }),
@@ -216,7 +217,7 @@ exports.updateLoggedUserValidator = [
     .custom(async (val, { req }) => {
       const vendor = await Customer.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -262,7 +263,7 @@ exports.updateLoggedUserValidator = [
         return true;
       }
       if (!value.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        throw new Error("Date of birth must be a valid date");
+        throw new ApiError("Date of birth must be a valid date", 404);
       }
       return true;
     })

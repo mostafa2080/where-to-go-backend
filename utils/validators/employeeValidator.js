@@ -1,6 +1,7 @@
 const { check, body, param, decodedToken } = require("express-validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const ApiError = require("../apiError");
 
 const validatorMiddleware = require("../../middlewares/validatorMiddleware");
 require("../../models/Employee");
@@ -23,7 +24,7 @@ exports.createEmployeeValidator = [
     .custom(async (val, { req }) => {
       const vendor = await Employees.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -83,7 +84,7 @@ exports.updateEmployeeValidator = [
     .custom(async (val, { req }) => {
       const vendor = await Employees.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -155,18 +156,18 @@ exports.changeUserPasswordValidator = [
       //verify current password
       const user = await Employees.findById(req.decodedToken.id);
       if (!user) {
-        throw new Error("No User Found For This ID");
+        throw new ApiError("No User Found For This ID", 404);
       }
       const isCorrectPassword = await bcrypt.compare(
         req.body.currentPassword,
         user.password
       );
       if (!isCorrectPassword) {
-        throw new Error("Incorrect User Password");
+        throw new ApiError("Incorrect User Password", 404);
       }
       //verify password confirmation
       if (val !== req.body.passwordConfirm) {
-        throw new Error("password does not match");
+        throw new ApiError("password does not match", 404);
       }
       return true;
     }),
@@ -187,7 +188,7 @@ exports.updateLoggedUserValidator = [
     .custom(async (val, { req }) => {
       const vendor = await Employees.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")

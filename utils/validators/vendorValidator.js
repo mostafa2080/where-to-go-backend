@@ -2,6 +2,7 @@ const { check, body, param } = require("express-validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const _ = require("lodash");
+const ApiError = require("../apiError");
 const validatorMiddleware = require("../../middlewares/validatorMiddleware");
 
 require("../../models/Vendor");
@@ -72,7 +73,7 @@ exports.addValidationArray = [
     .custom(async (val, { req }) => {
       const vendor = await Vendor.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -93,7 +94,7 @@ exports.addValidationArray = [
     .withMessage("Gallery Must Contain At Least 3 Images")
     .custom((value) => {
       if (!_.every(value, _.isString)) {
-        throw new Error("gallery elements must be strings");
+        throw new ApiError("gallery elements must be strings", 404);
       }
       return true;
     }),
@@ -158,7 +159,7 @@ exports.updateValidationArray = [
     .custom(async (val, { req }) => {
       const vendor = await Vendor.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -180,7 +181,7 @@ exports.updateValidationArray = [
     .withMessage("Gallery Must Contain At Least 3 Images")
     .custom((value) => {
       if (!_.every(value, _.isString)) {
-        throw new Error("gallery elements must be strings");
+        throw new ApiError("gallery elements must be strings", 404);
       }
       return true;
     }),
@@ -201,18 +202,18 @@ exports.changeUserPasswordValidator = [
       //verify current password
       const user = await Vendor.findById(req.decodedToken.id);
       if (!user) {
-        throw new Error("No User Found For This ID");
+        throw new ApiError("No User Found For This ID", 404);
       }
       const isCorrectPassword = await bcrypt.compare(
         req.body.currentPassword,
         user.password
       );
       if (!isCorrectPassword) {
-        throw new Error("Incorrect User Password");
+        throw new ApiError("Incorrect User Password", 404);
       }
       //verify password confirmation
       if (val !== req.body.passwordConfirm) {
-        throw new Error("password does not match");
+        throw new ApiError("password does not match", 404);
       }
       return true;
     }),
@@ -278,7 +279,7 @@ exports.updateLoggedUserValidator = [
     .custom(async (val, { req }) => {
       const vendor = await Vendor.findOne({ email: val });
       if (vendor) {
-        throw new Error("Email Already Exists");
+        throw new ApiError("Email Already Exists", 404);
       }
     })
     .withMessage("Email Must Be Unique And Not Duplicated")
@@ -300,7 +301,7 @@ exports.updateLoggedUserValidator = [
     .withMessage("Gallery Must Contain At Least 3 Images")
     .custom((value) => {
       if (!_.every(value, _.isString)) {
-        throw new Error("gallery elements must be strings");
+        throw new ApiError("gallery elements must be strings", 404);
       }
       return true;
     }),
