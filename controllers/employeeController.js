@@ -346,25 +346,7 @@ exports.getLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
   next();
 });
 
-// exports.updateLoggedEmployeePassword = AsyncHandler(async (req, res, next) => {
-//   //1) update user password based on the user payload (req.user._id)
-//   const user = await Employees.findByIdAndUpdate(
-//     req.decodedToken.id,
-//     {
-//       password: await bcrypt.hash(req.body.password, 12),
-//       passwordChangedAt: Date.now(),
-//     },
-//     {
-//       new: true,
-//     }
-//   );
-//   //2)generate token
-//   const token = createToken(user._id);
-//   res.status(200).json({
-//     data: user,
-//     token,
-//   });
-// });
+
 exports.updateLoggedEmployeePassword = AsyncHandler(async (req, res, next) => {
   // 1) Update user password based on the user payload (req.user._id)
   const user = await Employees.findByIdAndUpdate(
@@ -391,60 +373,6 @@ exports.updateLoggedEmployeePassword = AsyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.updateLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
-//   let oldEmpImage;
-//   if (req.file) {
-//     req.body.image = Date.now() + path.extname(req.file.originalname);
-//     req.imgPath = path.join(
-//       __dirname,
-//       '..',
-//       'images/employees',
-//       req.body.image
-//     );
-//     oldEmpImage = await Employees.findById(req.params.id, { image: 1 });
-//   }
-//   // Update user data based on the user payload (req.user._id)
-//   const updatedUser = await Employees.findByIdAndUpdate(
-//     req.decodedToken.id,
-//     {
-//       name: req.body.name,
-//       email: req.body.email,
-//       dateOfBirth: req.body.dateOfBirth,
-//       phoneNumber: req.body.phoneNumber,
-//       address: {
-//         country: req.body.country,
-//         street: req.body.street,
-//         city: req.body.city,
-//         state: req.body.state,
-//         zip: req.body.zip,
-//       },
-//       gender: req.body.gender,
-//       image: req.body.image,
-//     },
-//     { new: true }
-//   );
-
-//   // Throw an error if no user is found
-//   if (!updatedUser) {
-//     throw new ApiError('No user found', 404);
-//   }
-//   if (req.file) {
-//     console.log(req.imgPath);
-//     await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-//       if (err) throw err;
-//     });
-
-//     const root = dirname(require.main.filename);
-//     const path = root + '/images/employees/' + oldEmpImage.image;
-//     fs.unlink(path, (err) => {
-//       if (err) {
-//         console.log(err);
-//       }
-//     });
-//   }
-
-//   res.status(200).json({ data: updatedUser });
-// });
 exports.updateLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
   let oldEmpImage;
   if (req.file) {
