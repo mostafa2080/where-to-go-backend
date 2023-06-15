@@ -51,8 +51,8 @@ const greetingMessage = asyncHandler(async (data) => {
 });
 
 exports.getAllVendors = AsyncHandler(async (req, res, next) => {
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 10;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
   const sortOrder = req.query.sortOrder || 'asc';
