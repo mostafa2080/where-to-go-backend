@@ -44,4 +44,5 @@ const VendorsSchema = ExtendSchema(User, {
   },
 });
 
-mongoose.model("vendor", VendorsSchema);
+const Vendor = mongoose.model("vendor", VendorsSchema);
+module.exports = Vendor;

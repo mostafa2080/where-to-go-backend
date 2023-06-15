@@ -107,7 +107,13 @@ exports.updateLoggedUserValidator = [
     .optional()
     .isMobilePhone(['ar-EG', 'ar-SA'])
     .withMessage('Inavalid Phone Number Only EGY And SA Numbers Accepted '),
-
+  body('country')
+    .optional()
+    .notEmpty()
+    .withMessage('Please Enter country Name'),
+  body('city').optional().notEmpty().withMessage('Please Enter City'),
+  body('street').optional().notEmpty().withMessage('Please Enter Street'),
+  body('city').optional().notEmpty().withMessage('Please Enter City'),
+  body('zip').optional().notEmpty().withMessage('Please Enter Zip code'),
   validatorMiddleware,
 ];
-

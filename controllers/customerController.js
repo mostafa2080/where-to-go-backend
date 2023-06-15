@@ -1,15 +1,16 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { dirname } = require('path');
 const AsyncHandler = require('express-async-handler');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const sendMail = require('../utils/sendEmail');
 
 require('../models/Customer');
 require('../models/Role');
 const forgotPasswordController = require('./forgetPasswordController');
 const ApiError = require('../utils/apiError');
-const {dirname} = require("path");
 
 const CustomerSchema = mongoose.model('customers');
 const VendorSchema = mongoose.model('vendor');
@@ -20,6 +21,49 @@ const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+
+const greetingMessage = AsyncHandler(async (data) => {
+  const emailContent = `
+        <html>
+          <head>
+            <style>
+              .container {
+                background-color: #f2f2f2;
+                padding: 20px;
+                border-radius: 5px;
+              }
+              
+              h4 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+              }
+              
+              p {
+                color: #666;
+                font-size: 16px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h4>Welcome ${`${data.firstName} ${data.lastName}`} On Board</h4>
+              <p>Thank you for registering with us. We are excited to have you as a new member!</p>
+            </div>
+          </body>
+        </html>`;
+
+  const userEmail = data.email;
+  try {
+    await sendMail({
+      email: userEmail,
+      subject: 'Greetings From Where To Go',
+      message: emailContent,
+    });
+  } catch (error) {
+    throw ApiError(error);
+  }
+});
 
 exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   console.log(req.decodedToken);
@@ -101,7 +145,7 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
       if (err) throw err;
     });
   }
-
+  greetingMessage(customer);
   res.status(201).json({
     data: {
       id: customer._id,
@@ -333,10 +377,10 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
   if (req.file) {
     req.body.image = Date.now() + path.extname(req.file.originalname);
     req.imgPath = path.join(
-        __dirname,
-        '..',
-        'images/customers',
-        req.body.image
+      __dirname,
+      '..',
+      'images/customers',
+      req.body.image
     );
     oldImage = await CustomerSchema.findById(req.decodedToken.id, { image: 1 });
   }
@@ -357,7 +401,7 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
           zip: req.body.zip,
         },
         image: req.body.image,
-        gender: req.body.gender
+        gender: req.body.gender,
       },
     },
     { new: true }
@@ -374,7 +418,7 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
 
     const root = dirname(require.main.filename);
     const path = root + '/images/customers/' + oldImage.image;
-    if (oldImage.image !== 'default.jpg'){
+    if (oldImage.image !== 'default.jpg') {
       fs.unlink(path, (err) => {
         if (err) {
           console.log(err);
