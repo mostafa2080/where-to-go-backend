@@ -86,6 +86,7 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
       Message: 'Authenticated',
       token,
       role: roleName,
+      id: vendor._id,
     });
   } else {
     return next(
