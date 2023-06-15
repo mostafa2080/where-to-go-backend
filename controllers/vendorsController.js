@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const asyncHandler = require("express-async-handler");
 const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
@@ -10,7 +9,7 @@ const forgotPasswordController = require("./forgetPasswordController");
 const { uploadMixOfImages } = require("./imageController");
 const ApiError = require("../utils/apiError");
 const sendMail = require("../utils/sendEmail");
-const { io } = require("../server");
+
 require("../models/Vendor");
 require("../models/Tag");
 require("../models/Category");
@@ -24,7 +23,7 @@ const createToken = (payload) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const greetingMessage = asyncHandler(async (data) => {
+const greetingMessage = AsyncHandler(async (data) => {
   const emailContent = `
     <html>
       <head>
@@ -68,7 +67,7 @@ const greetingMessage = asyncHandler(async (data) => {
   }
 });
 
-exports.getAllVendors = asyncHandler(async (req, res, next) => {
+exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
@@ -197,7 +196,7 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
   });
 });
 
-exports.addVendor = asyncHandler(async (req, res, next) => {
+exports.addVendor = AsyncHandler(async (req, res, next) => {
   const address = {
     country: req.body.country,
     state: req.body.state,
@@ -206,17 +205,18 @@ exports.addVendor = asyncHandler(async (req, res, next) => {
     street: req.body.street || "st",
   };
   req.body.address = address;
-  console.log(req.address);
+
   const vendorRole = await Roles.find({ name: "Vendor" });
   req.body.role = vendorRole._id;
   const document = await Vendors.create(req.body);
+  console.log(document);
   greetingMessage(document);
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
   // io.emit('notifyAdminAndEmpForAddingVendor', message);
   res.status(201).json({ data: document });
 });
 
-exports.updateVendor = asyncHandler(async (req, res, next) => {
+exports.updateVendor = AsyncHandler(async (req, res, next) => {
   console.log("updating");
   const document = await Vendors.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -294,7 +294,7 @@ exports.uploadVendorImages = uploadMixOfImages([
   },
 ]);
 
-exports.processingImage = asyncHandler(async (req, res, next) => {
+exports.processingImage = AsyncHandler(async (req, res, next) => {
   if (req.files && req.files.thumbnail) {
     const thumbnailFileName = `vendor-${uuidv4()}-${Date.now()}-cover.jpeg`;
     await sharp(req.files.thumbnail[0].buffer)
