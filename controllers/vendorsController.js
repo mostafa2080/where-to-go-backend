@@ -65,7 +65,7 @@ const greetingMessage = AsyncHandler(async (data) => {
       message: emailContent,
     });
   } catch (error) {
-    throw ApiError(error);
+    throw new ApiError("Sending Mail Failed Please Try Again.... ", 400);
   }
 });
 
