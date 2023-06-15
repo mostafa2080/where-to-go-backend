@@ -65,19 +65,20 @@ const greetingMessage = AsyncHandler(async (data) => {
       message: emailContent,
     });
   } catch (error) {
-    throw new ApiError("Sending Mail Failed Please Try Again.... ", 400);
+    throw new ApiError('Sending Mail Failed Please Try Again.... ', 400);
   }
 });
 
 exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 10;
+  const limit = parseInt(req.query.limit, 10) || 10;  
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
   const sortOrder = req.query.sortOrder || 'asc';
   const filters = req.query.filters || {};
   const searchQuery = req.query.search || '';
-  const categoryName = req.query.category || ''; // Category name parameter
+  const categoryName = req.query.category || '';
+  const tagSearchQuery = req.query.tags || ''; 
 
   const tagIds = filters.tags ? filters.tags.split(',') : [];
 
@@ -126,6 +127,30 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
         filterQuery.category = category._id;
       } else {
         // Return an empty response if category not found
+        return res.status(200).json({
+          status: 'success',
+          pagination: {
+            total: 0,
+            totalPages: 0,
+            currentPage: page,
+            perPage: limit,
+          },
+          data: [],
+        });
+      }
+    }
+
+    // Find the vendors based on tag search query
+    if (tagSearchQuery) {
+      const matchingTags = await Tags.find({ name: tagSearchQuery });
+
+      // Extract the category IDs from the found tags
+      const matchingCategoryIds = matchingTags.map((tag) => tag.category);
+
+      if (matchingCategoryIds.length > 0) {
+        filterQuery.category = { $in: matchingCategoryIds };
+      } else {
+        // Return an empty response if no matching tags found
         return res.status(200).json({
           status: 'success',
           pagination: {
