@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
+const io = require("socket.io-client");
 const path = require("path");
 const AsyncHandler = require("express-async-handler");
 const forgotPasswordController = require("./forgetPasswordController");
@@ -14,6 +15,7 @@ require("../models/Vendor");
 require("../models/Tag");
 require("../models/Category");
 
+const socket = io("http://localhost:8001");
 const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
 const Tags = mongoose.model("tag");
@@ -212,7 +214,8 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
   console.log(document);
   greetingMessage(document);
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
-  // io.emit('notifyAdminAndEmpForAddingVendor', message);
+  socket.emit("notifyAdminAndEmpForAddingVendor", message);
+
   res.status(201).json({ data: document });
 });
 
