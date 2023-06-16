@@ -1,4 +1,4 @@
-const { check } = require('express-validator');
+const { check, body } = require('express-validator');
 const validatorMiddleware = require('../../middlewares/validatorMiddleware');
 
 exports.forgotPasswordValidator = [
@@ -19,3 +19,17 @@ exports.loginValidator = [
     .notEmpty()
     .withMessage('Password required...!'),
 ];
+
+exports.resetPasswordValidator = [
+  body('passwordConfirm')
+      .notEmpty()
+      .withMessage('Enter Your New Password Confirmation'),
+  body('password')
+      .custom((value, {req}) => {
+          if (value !== req.body.passwordConfirm) {
+              throw new Error('password does not match');
+          }
+          return true;
+      }),
+  validatorMiddleware,
+]
