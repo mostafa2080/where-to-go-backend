@@ -20,6 +20,8 @@ const Vendors = mongoose.model('vendor');
 const Roles = mongoose.model('roles');
 const Tags = mongoose.model('tag');
 const Category = mongoose.model('category');
+const Review = require('../models/Review');
+
 const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -71,14 +73,14 @@ const greetingMessage = AsyncHandler(async (data) => {
 
 exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 10;  
+  const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
   const sortOrder = req.query.sortOrder || 'asc';
   const filters = req.query.filters || {};
   const searchQuery = req.query.search || '';
   const categoryName = req.query.category || '';
-  const tagSearchQuery = req.query.tags || ''; 
+  const tagSearchQuery = req.query.tags || '';
 
   const tagIds = filters.tags ? filters.tags.split(',') : [];
 
@@ -86,6 +88,21 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
 
   if (filters.isApproved !== undefined) {
     filterQuery.isApproved = filters.isApproved;
+  }
+
+  // Add rating filter based on the Review collection
+  if (filters.rating) {
+    const rating = parseFloat(filters.rating);
+
+    if (!isNaN(rating)) {
+      const reviewFilter = { rating };
+
+      // Get the placeIds from the reviews with the specified rating
+      const reviewPlaceIds = await Review.distinct('placeId', reviewFilter);
+
+      // Add the filtered placeIds to the filterQuery
+      filterQuery._id = { $in: reviewPlaceIds };
+    }
   }
 
   // Apply search query to the filterQuery object
@@ -117,6 +134,11 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
     // Add the category IDs to the filter query
     if (categoryIds.length > 0) {
       filterQuery.category = { $in: categoryIds };
+    }
+
+    // Apply category filter
+    if (filters.category) {
+      filterQuery.category = filters.category;
     }
 
     // Find the category by name
@@ -214,12 +236,13 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
     .populate('category')
     .exec();
 
-  const tags = await Tags.find({ _id: vendor.category._id });
+  const tags = await Tags.find({ category: vendor.category[0]._id });
   vendor.tags = tags;
 
   res.status(200).json({
     status: 'success',
     data: vendor,
+    tags: tags,
   });
 });
 
@@ -236,11 +259,11 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
   const vendorRole = await Roles.find({ name: 'Vendor' });
   req.body.role = vendorRole._id;
 
-  const saltRunds = 10;
-  const salt = bcrypt.genSaltSync(saltRunds);
-  const password = bcrypt.hashSync(req.body.password, salt)
-  req.body.password = password;
-  
+  // const saltRunds = 10;
+  // const salt = bcrypt.genSaltSync(saltRunds);
+  // const password = bcrypt.hashSync(req.body.password, salt)
+  // req.body.password = password;
+
   const document = await Vendors.create(req.body);
   greetingMessage(document);
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;

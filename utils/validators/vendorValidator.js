@@ -1,105 +1,219 @@
-const { check, body, param } = require('express-validator');
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const validatorMiddleware = require('../../middlewares/validatorMiddleware');
+const { check, body, param } = require("express-validator");
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const _ = require("lodash");
+const ApiError = require("../apiError");
+const validatorMiddleware = require("../../middlewares/validatorMiddleware");
 
-require('../../models/Vendor');
+require("../../models/Vendor");
 
-const Vendor = mongoose.model('vendor');
+const Vendor = mongoose.model("vendor");
 
-exports.getValidationArray = [
-  param('id').isMongoId().withMessage('Id Needs To Be MongoId'),
+exports.paramIdValidationArray = [
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
 ];
 
 exports.addValidationArray = [
-  body('firstName')
+  body("firstName")
     .notEmpty()
-    .withMessage('First Name is Required')
-    .isString()
-    .withMessage('First Name Must Be Alphabetical'),
-  body('lastName')
+    .withMessage("First Name Can't Be Empty")
+    .isAlpha()
+    .withMessage("First Name Must Be Alphabetical"),
+
+  body("lastName")
     .notEmpty()
-    .withMessage('First Name is Required')
+    .withMessage("Last Name Can't Be Empty")
     .isString()
-    .withMessage('Last Name Name Must Be Alphabetical'),
-  body('email')
+    .withMessage("Last Name Must Be Alphabetical"),
+
+  body("placeName")
+    .notEmpty()
+    .withMessage("Place Name Can't Be Empty")
+    .isString()
+    .withMessage("Place Name Must Be Alphabetical"),
+
+  body("category").isMongoId().withMessage("Category Must Be Valid MongoID"),
+
+  body("street")
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphanumeric"),
+
+  body("country")
+    .notEmpty()
+    .withMessage("Country Can't Be Empty")
+    .isString()
+    .withMessage("Country Must Be Alphabetic"),
+
+  body("state")
+    .notEmpty()
+    .withMessage("State Can't Be Empty")
+    .isString()
+    .withMessage("State must be Alphabetic"),
+
+  body("city")
+    .notEmpty()
+    .withMessage("City Can't Be Empty")
+    .isString()
+    .withMessage("City Must Be Alphabetic"),
+
+  body("zip")
+    .optional()
+    .matches(/^(\d{5}(?:[-\s]\d{4})?)?$/)
+    .toInt()
+    .withMessage("Zip must be numeric"),
+
+  body("phoneNumber")
+    .notEmpty()
+    .isString()
+    .withMessage("Phone Number Must Be Valid Phone Number"),
+
+  body("email")
     .custom(async (val, { req }) => {
       const vendor = await Vendor.findOne({ email: val });
       if (vendor) {
-        throw new Error('Email Already Exists');
+        throw new ApiError("Email Already Exists", 404);
       }
     })
+    .withMessage("Email Must Be Unique And Not Duplicated")
     .isEmail()
-    .withMessage('Email must be a valid Email & Not duplicated'),
-  body('phoneNumber').isString().withMessage('Enter A Valid Phone Number'),
-  body('description').isString().withMessage('Description Is Needed'),
-  body('thumbnail').isString().withMessage('Image must be a String'),
-  body('gallery').isArray().withMessage('Please Upload Gallery Images'),
-  body('category').isMongoId().withMessage('Category is mongoID'),
-  body('country')
+    .withMessage("Email Must Be Valid Email "),
+
+  body("description")
+    .notEmpty()
     .isString()
-    .optional()
-    .withMessage('Country must be alphabetic'),
-  body('state').isString().optional().withMessage('State must be alphabetic'),
-  body('city').isString().optional().withMessage('City must be alphabetic'),
-  body('zip')
-    .matches(/^(\d{5}(?:[-\s]\d{4})?)?$/)
-    .optional()
-    .toInt()
-    .withMessage('Zip must be numeric'),
+    .withMessage("Description Can't Be Empty"),
+
+  body("thumbnail").notEmpty().isString().withMessage("Image Can't Be Empty"),
+
+  body("gallery")
+    .isArray()
+    .withMessage("Gallery Must Be An Array")
+    .isLength({ min: 3 })
+    .withMessage("Gallery Must Contain At Least 3 Images")
+    .custom((value) => {
+      if (!_.every(value, _.isString)) {
+        throw new ApiError("gallery elements must be strings", 404);
+      }
+      return true;
+    }),
 ];
 
 exports.updateValidationArray = [
-  body('firstName').optional().isString().withMessage('First Name is Required'),
-  body('lastName').optional().isString().withMessage('Last Name is Required'),
-  body('email')
+  body("firstName")
     .optional()
+    .notEmpty()
+    .withMessage("First Name Can't Be Empty")
+    .isAlpha()
+    .withMessage("First Name Must Be Alphabetical"),
+
+  body("lastName")
+    .optional()
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphabetical"),
+
+  body("placeName")
+    .optional()
+    .notEmpty()
+    .withMessage("Place Name Can't Be Empty")
+    .isString()
+    .withMessage("Place Name Must Be Alphabetical"),
+
+  body("category")
+    .optional()
+    .isMongoId()
+    .withMessage("Category Must Be Valid MongoID"),
+
+  body("street")
+    .optional()
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphanumeric"),
+
+  body("country")
+    .optional()
+    .isString()
+    .withMessage("Country Must Be Alphabetic"),
+
+  body("state").optional().isString().withMessage("State must be Alphabetic"),
+
+  body("city").optional().isString().withMessage("City Must Be Alphabetic"),
+
+  body("zip")
+    .optional()
+    .matches(/^(\d{5}(?:[-\s]\d{4})?)?$/)
+    .toInt()
+    .withMessage("Zip must be numeric"),
+
+  body("phoneNumber")
+    .optional()
+    .isString()
+    .withMessage("Phone Number Must Be Valid Phone Number"),
+
+  body("email")
+    .optional()
+    .custom(async (val, { req }) => {
+      const vendor = await Vendor.findOne({ email: val });
+      if (vendor) {
+        throw new ApiError("Email Already Exists", 404);
+      }
+    })
+    .withMessage("Email Must Be Unique And Not Duplicated")
     .isEmail()
-    .withMessage('Email must be a valid Email & Not duplicated'),
-  body('phoneNumber')
+    .withMessage("Email Must Be Valid Email "),
+
+  body("description")
     .optional()
     .isString()
-    .withMessage('Enter A Valid Phone Number'),
-  body('description')
-    .optional()
-    .isString()
-    .withMessage('Description Is Needed'),
-  body('thumbnail').optional().isString().withMessage('Image must be a String'),
-  body('gallery')
+    .withMessage("Description Can't Be Empty"),
+
+  body("thumbnail").optional().isString().withMessage("Image Can't Be Empty"),
+
+  body("gallery")
     .optional()
     .isArray()
-    .withMessage('Please Upload Gallery Images'),
-];
-
-exports.deleteValidationArray = [
-  param('id').isMongoId().withMessage('Id Needs To Be MongoId'),
+    .withMessage("Gallery Must Be An Array")
+    .isLength({ min: 3 })
+    .withMessage("Gallery Must Contain At Least 3 Images")
+    .custom((value) => {
+      if (!_.every(value, _.isString)) {
+        throw new ApiError("gallery elements must be strings", 404);
+      }
+      return true;
+    }),
 ];
 
 exports.changeUserPasswordValidator = [
-  body('currentPassword').notEmpty().withMessage('Enter Your Current Password'),
+  body("currentPassword")
+    .notEmpty()
+    .withMessage("Current Password Can't Be Empty"),
 
-  body('passwordConfirm')
+  body("passwordConfirm")
     .notEmpty()
-    .withMessage('Enter Your New Password Confirmation'),
-  body('password')
+    .withMessage("Password Confirmation Can't Be Empty"),
+  body("password")
     .notEmpty()
-    .withMessage('Enter Your New Password')
+    .withMessage("New Password Can't Be Empty")
     .custom(async (val, { req }) => {
       //verify current password
       const user = await Vendor.findById(req.decodedToken.id);
       if (!user) {
-        throw new Error('No User Found For This ID');
+        throw new ApiError("No User Found For This ID", 404);
       }
       const isCorrectPassword = await bcrypt.compare(
         req.body.currentPassword,
         user.password
       );
       if (!isCorrectPassword) {
-        throw new Error('Incorrect User Password');
+        throw new ApiError("Incorrect User Password", 404);
       }
       //verify password confirmation
       if (val !== req.body.passwordConfirm) {
-        throw new Error('password does not match');
+        throw new ApiError("password does not match", 404);
       }
       return true;
     }),
@@ -107,34 +221,90 @@ exports.changeUserPasswordValidator = [
 ];
 
 exports.updateLoggedUserValidator = [
-  body('firstName')
-    .notEmpty()
-    .isAlpha()
-    .withMessage('First name must be alphabetic'),
-  body('lastName')
-    .notEmpty()
-    .isAlpha()
-    .withMessage('Last name must be alphabetic'),
-  check('email')
-    .notEmpty()
-    .isEmail()
-    .withMessage('Please enter a valid email address')
-    .custom((val) =>
-      Vendor.findOne({ email: val }).then((user) => {
-        if (user) {
-          return Promise.reject(new Error('Email already exists'));
-        }
-      }) 
-    ),
-  check('phoneNumber')
+  body("firstName")
     .optional()
-    .isMobilePhone(['ar-EG', 'ar-SA'])
-    .withMessage('Inavalid Phone Number Only EGY And SA Numbers Accepted '),
-  body('thumbnail').optional().isString().withMessage('Image must be a String'),
-  body('gallery')
+    .notEmpty()
+    .withMessage("First Name Can't Be Empty")
+    .isAlpha()
+    .withMessage("First Name Must Be Alphabetical"),
+
+  body("lastName")
+    .optional()
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphabetical"),
+
+  body("placeName")
+    .optional()
+    .notEmpty()
+    .withMessage("Place Name Can't Be Empty")
+    .isAlpha()
+    .withMessage("Place Name Must Be Alphabetical"),
+
+  body("category")
+    .optional()
+    .isMongoId()
+    .withMessage("Category Must Be Valid MongoID"),
+
+  body("street")
+    .optional()
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphanumeric"),
+
+  body("country")
+    .optional()
+    .isAlpha()
+    .withMessage("Country Must Be Alphabetic"),
+
+  body("state").optional().isAlpha().withMessage("State must be Alphabetic"),
+
+  body("city").optional().isAlpha().withMessage("City Must Be Alphabetic"),
+
+  body("zip")
+    .optional()
+    .matches(/^(\d{5}(?:[-\s]\d{4})?)?$/)
+    .toInt()
+    .withMessage("Zip must be numeric"),
+
+  body("phoneNumber")
+    .optional()
+    .isString()
+    .withMessage("Phone Number Must Be Valid Phone Number"),
+
+  body("email")
+    .optional()
+    .custom(async (val, { req }) => {
+      const vendor = await Vendor.findOne({ email: val });
+      if (vendor) {
+        throw new ApiError("Email Already Exists", 404);
+      }
+    })
+    .withMessage("Email Must Be Unique And Not Duplicated")
+    .isEmail()
+    .withMessage("Email Must Be Valid Email "),
+
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Description Can't Be Empty"),
+
+  body("thumbnail").optional().isString().withMessage("Image Can't Be Empty"),
+
+  body("gallery")
     .optional()
     .isArray()
-    .withMessage('Please Upload Gallery Images'),
+    .withMessage("Gallery Must Be An Array")
+    .isLength({ min: 3 })
+    .withMessage("Gallery Must Contain At Least 3 Images")
+    .custom((value) => {
+      if (!_.every(value, _.isString)) {
+        throw new ApiError("gallery elements must be strings", 404);
+      }
+      return true;
+    }),
 
   validatorMiddleware,
 ];
