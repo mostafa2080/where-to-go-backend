@@ -1,89 +1,173 @@
-const { check, body, param, decodedToken } = require('express-validator');
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const { check, body, param, decodedToken } = require("express-validator");
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const ApiError = require("../apiError");
 
-const validatorMiddleware = require('../../middlewares/validatorMiddleware');
-require('../../models/Employee');
+const validatorMiddleware = require("../../middlewares/validatorMiddleware");
+require("../../models/Employee");
 
 exports.getEmployeeValidator = [
-  param('id').isMongoId().withMessage('Please Enter Valid Id'),
+  param("id").isMongoId().withMessage("Please Enter Valid Id"),
 ];
 
-const Employees = mongoose.model('employees');
+const Employees = mongoose.model("employees");
 
 exports.createEmployeeValidator = [
-  body('name').notEmpty().withMessage('Please Enter Employee Name'),
-  body('email').isEmail().withMessage('Please Enter Valid Email'),
-  body('password').notEmpty().withMessage('Please Enter Password'),
-  body('dateOfBirth').notEmpty().withMessage('Please Enter Date Of Birth'),
-  body('phoneNumber')
+  body("name")
     .notEmpty()
-    .withMessage('Please Enter Contact Phone Number'),
-  body('country').notEmpty().withMessage('Please Enter country Name'),
-  body('city').notEmpty().withMessage('Please Enter City'),
-  body('street').notEmpty().withMessage('Please Enter Street'),
-  body('gender').isIn(['Male', 'Female']).withMessage('Enter a Valid Gender'),
-  body('hireDate').notEmpty().withMessage('Please Enter Hire Date'),
-  body('salary').isNumeric().withMessage('Please Enter Salary'),
-  body('role')
-    .isIn(['Admin', 'Employee'])
-    .withMessage('Please Enter Valid Role Admin / Employee'),
+    .withMessage("Name Can't Be Empty")
+    .isAlpha()
+    .withMessage("Name Must Be Alphabetic"),
+
+  body("email")
+    .optional()
+    .custom(async (val, { req }) => {
+      const vendor = await Employees.findOne({ email: val });
+      if (vendor) {
+        throw new ApiError("Email Already Exists", 404);
+      }
+    })
+    .withMessage("Email Must Be Unique And Not Duplicated")
+    .isEmail()
+    .withMessage("Email Must Be Valid Email "),
+
+  body("password").notEmpty().withMessage("Password Can't Be Empty"),
+
+  body("dateOfBirth").notEmpty().withMessage("Date Of Birth Can't Be Empty"),
+
+  body("phoneNumber")
+    .notEmpty()
+    .withMessage("Please Enter Contact Phone Number"),
+
+  body("country")
+    .notEmpty()
+    .withMessage("Country Can't Be Empty")
+    .isString()
+    .withMessage("Country Must Be Alphabetic"),
+
+  body("city")
+    .notEmpty()
+    .withMessage("City Can't Be Empty")
+    .isString()
+    .withMessage("City Must Be Alphabetic"),
+
+  body("street")
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphanumeric"),
+
+  body("gender")
+    .isIn(["Male", "Female"])
+    .withMessage("Gender Must Be Valid Value -> Male | Female"),
+
+  body("hireDate").notEmpty().withMessage("Hire Date Can't Be Empty"),
+
+  body("salary").isNumeric().withMessage("Salary Must Be Numeric Value"),
+
+  body("role")
+    .isIn(["Admin", "Employee"])
+    .withMessage("Role Must Be Valid Value -> Admin | Employee"),
 ];
 
 exports.updateEmployeeValidator = [
-  param('id').isMongoId().withMessage('Please Enter Valid Id'),
-  body('email').optional().isEmail().withMessage('Please Enter Valid Email'),
-  body('country')
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
+
+  // body("name")
+  //   .notEmpty()
+  //   .withMessage("Name Can't Be Empty")
+  //   .isAlpha()
+  //   .withMessage("Name Must Be Alphabetic"),
+
+  body("email")
     .optional()
+    .custom(async (val, { req }) => {
+      const vendor = await Employees.findOne({ email: val });
+      if (vendor) {
+        throw new ApiError("Email Already Exists", 404);
+      }
+    })
+    .withMessage("Email Must Be Unique And Not Duplicated")
+    .isEmail()
+    .withMessage("Email Must Be Valid Email "),
+
+  // body("password").notEmpty().withMessage("Password Can't Be Empty"),
+
+  // body("dateOfBirth").notEmpty().withMessage("Date Of Birth Can't Be Empty"),
+
+  // body("phoneNumber")
+  //   .notEmpty()
+  //   .withMessage("Please Enter Contact Phone Number"),
+
+  body("country")
     .notEmpty()
-    .withMessage('Please Enter country Name'),
-  body('city').optional().notEmpty().withMessage('Please Enter City'),
-  body('street').optional().notEmpty().withMessage('Please Enter Street'),
-  body('salary').optional().isNumeric().withMessage('Please Enter Salary'),
-  body('role')
-    .optional()
-    .isIn(['Admin', 'Employee'])
-    .withMessage('Please Enter Valid Role Admin / Employee'),
+    .withMessage("Country Can't Be Empty")
+    .isString()
+    .withMessage("Country Must Be Alphabetic"),
+
+  body("city")
+    .notEmpty()
+    .withMessage("City Can't Be Empty")
+    .isString()
+    .withMessage("City Must Be Alphabetic"),
+
+  body("street")
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphanumeric"),
+
+  // body("gender")
+  //   .isIn(["Male", "Female"])
+  //   .withMessage("Gender Must Be Valid Value -> Male | Female"),
+
+  // body("hireDate").notEmpty().withMessage("Hire Date Can't Be Empty"),
+
+  body("salary").isNumeric().withMessage("Salary Must Be Numeric Value"),
+
+  body("role")
+    .isIn(["Admin", "Employee"])
+    .withMessage("Role Must Be Valid Value -> Admin | Employee"),
 ];
 
 exports.deleteEmployeeValidator = [
-  param('id').isMongoId().withMessage('Please Enter Valid Id'),
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
 ];
 
 exports.resetPasswordValidator = [
-  param('id').isMongoId().withMessage('Please Enter Valid Id'),
-  body('password').notEmpty().withMessage('Please Enter Password'),
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
+  body("password").notEmpty().withMessage("Password Can't Be Empty"),
 ];
 
 exports.bannEmployeeValidator = [
-  param('id').isMongoId().withMessage('Please Enter Valid Id'),
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
 ];
 
 exports.changeUserPasswordValidator = [
-  body('currentPassword').notEmpty().withMessage('Enter Your Current Password'),
+  body("currentPassword").notEmpty().withMessage("Enter Your Current Password"),
 
-  body('passwordConfirm')
+  body("passwordConfirm")
     .notEmpty()
-    .withMessage('Enter Your New Password Confirmation'),
-  body('password')
+    .withMessage("Enter Your New Password Confirmation"),
+  body("password")
     .notEmpty()
-    .withMessage('Enter Your New Password')
+    .withMessage("Enter Your New Password")
     .custom(async (val, { req }) => {
       //verify current password
       const user = await Employees.findById(req.decodedToken.id);
       if (!user) {
-        throw new Error('No User Found For This ID');
+        throw new ApiError("No User Found For This ID", 404);
       }
       const isCorrectPassword = await bcrypt.compare(
         req.body.currentPassword,
         user.password
       );
       if (!isCorrectPassword) {
-        throw new Error('Incorrect User Password');
+        throw new ApiError("Incorrect User Password", 404);
       }
       //verify password confirmation
       if (val !== req.body.passwordConfirm) {
-        throw new Error('password does not match');
+        throw new ApiError("password does not match", 404);
       }
       return true;
     }),
@@ -91,29 +175,64 @@ exports.changeUserPasswordValidator = [
 ];
 
 exports.updateLoggedUserValidator = [
-  body('name').notEmpty().withMessage('Please Enter Employee Name'),
-  check('email')
-    .notEmpty()
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
+
+  // body("name")
+  //   .notEmpty()
+  //   .withMessage("Name Can't Be Empty")
+  //   .isAlpha()
+  //   .withMessage("Name Must Be Alphabetic"),
+
+  body("email")
+    .optional()
+    .custom(async (val, { req }) => {
+      const vendor = await Employees.findOne({ email: val });
+      if (vendor) {
+        throw new ApiError("Email Already Exists", 404);
+      }
+    })
+    .withMessage("Email Must Be Unique And Not Duplicated")
     .isEmail()
-    .withMessage('Please enter a valid email address')
-    .custom((val) =>
-      Employees.findOne({ email: val }).then((user) => {
-        if (user) {
-          return Promise.reject(new Error('Email already exists'));
-        }
-      })
-    ),
-  check('phoneNumber')
-    .optional()
-    .isMobilePhone(['ar-EG', 'ar-SA'])
-    .withMessage('Inavalid Phone Number Only EGY And SA Numbers Accepted '),
-  body('country')
-    .optional()
+    .withMessage("Email Must Be Valid Email "),
+
+  // body("password").notEmpty().withMessage("Password Can't Be Empty"),
+
+  // body("dateOfBirth").notEmpty().withMessage("Date Of Birth Can't Be Empty"),
+
+  body("phoneNumber")
     .notEmpty()
-    .withMessage('Please Enter country Name'),
-  body('city').optional().notEmpty().withMessage('Please Enter City'),
-  body('street').optional().notEmpty().withMessage('Please Enter Street'),
-  body('city').optional().notEmpty().withMessage('Please Enter City'),
-  body('zip').optional().notEmpty().withMessage('Please Enter Zip code'),
+    .withMessage("Please Enter Contact Phone Number")
+    .isMobilePhone(["ar-EG", "ar-SA"])
+    .withMessage("Inavalid Phone Number Only EGY And SA Numbers Accepted "),
+
+  body("country")
+    .notEmpty()
+    .withMessage("Country Can't Be Empty")
+    .isString()
+    .withMessage("Country Must Be Alphabetic"),
+
+  body("city")
+    .notEmpty()
+    .withMessage("City Can't Be Empty")
+    .isString()
+    .withMessage("City Must Be Alphabetic"),
+
+  body("street")
+    .notEmpty()
+    .withMessage("Last Name Can't Be Empty")
+    .isString()
+    .withMessage("Last Name Must Be Alphanumeric"),
+
+  // body("gender")
+  //   .isIn(["Male", "Female"])
+  //   .withMessage("Gender Must Be Valid Value -> Male | Female"),
+
+  // body("hireDate").notEmpty().withMessage("Hire Date Can't Be Empty"),
+
+  body("salary").isNumeric().withMessage("Salary Must Be Numeric Value"),
+
+  body("role")
+    .isIn(["Admin", "Employee"])
+    .withMessage("Role Must Be Valid Value -> Admin | Employee"),
   validatorMiddleware,
 ];

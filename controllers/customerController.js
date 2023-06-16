@@ -1,20 +1,20 @@
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const { dirname } = require('path');
-const AsyncHandler = require('express-async-handler');
-const fs = require('fs');
-const bcrypt = require('bcrypt');
-const path = require('path');
-const sendMail = require('../utils/sendEmail');
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const { dirname } = require("path");
+const AsyncHandler = require("express-async-handler");
+const fs = require("fs");
+const bcrypt = require("bcrypt");
+const path = require("path");
+const sendMail = require("../utils/sendEmail");
 
-require('../models/Customer');
-require('../models/Role');
-const forgotPasswordController = require('./forgetPasswordController');
-const ApiError = require('../utils/apiError');
+require("../models/Customer");
+require("../models/Role");
+const forgotPasswordController = require("./forgetPasswordController");
+const ApiError = require("../utils/apiError");
 
-const CustomerSchema = mongoose.model('customers');
-const VendorSchema = mongoose.model('vendor');
-const RoleSchema = mongoose.model('roles');
+const CustomerSchema = mongoose.model("customers");
+const VendorSchema = mongoose.model("vendor");
+const RoleSchema = mongoose.model("roles");
 const saltRounds = 10;
 
 const createToken = (payload) =>
@@ -55,13 +55,14 @@ const greetingMessage = AsyncHandler(async (data) => {
 
   const userEmail = data.email;
   try {
+    console.log("before: ", data.email);
     await sendMail({
       email: userEmail,
-      subject: 'Greetings From Where To Go',
+      subject: "Greetings From Where To Go",
       message: emailContent,
     });
   } catch (error) {
-    throw ApiError(error);
+    throw new ApiError(error);
   }
 });
 
@@ -70,7 +71,7 @@ exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
   const allCustomers = await CustomerSchema.find(
     {},
     {
-      id: '$_id',
+      id: "$_id",
       firstName: 1,
       lastName: 1,
       phoneNumber: 1,
@@ -82,15 +83,15 @@ exports.getAllCustomers = AsyncHandler(async (req, res, next) => {
       _id: 0,
     }
   );
-  if (!allCustomers) return new ApiError('No customers found!', 404);
+  if (!allCustomers) return new ApiError("No customers found!", 404);
   res.status(200).json({ data: allCustomers });
 });
 
 exports.getCustomerById = AsyncHandler(async (req, res, next) => {
   const customer = await CustomerSchema.findById(req.params.id)
-    .populate('role', 'name')
-    .select('-__v');
-  if (!customer) return new ApiError('Customer not found!', 404);
+    .populate("role", "name")
+    .select("-__v");
+  if (!customer) return new ApiError("Customer not found!", 404);
   console.log(customer);
   const result = {
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
@@ -105,18 +106,18 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
   if (req.body.password) {
     req.body.password = await bcrypt.hash(req.body.password, saltRounds);
   }
-  const role = await RoleSchema.findOne({ name: 'Customer' }, { _id: 1 });
+  const role = await RoleSchema.findOne({ name: "Customer" }, { _id: 1 });
   if (req.file) {
     req.body.image = Date.now() + path.extname(req.file.originalname);
     req.imgPath = path.join(
       __dirname,
-      '..',
-      'images',
-      'customers',
+      "..",
+      "images",
+      "customers",
       req.body.image
     );
   } else {
-    req.body.image = 'default.jpg';
+    req.body.image = "default.jpg";
   }
 
   const customer = await new CustomerSchema({
@@ -141,11 +142,13 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
   await customer.save();
 
   if (req.file) {
-    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-      if (err) throw err;
+    await fs.writeFile(req.imgPath, req.file.buffer, (error) => {
+      if (error) throw new ApiError(error, 404);
     });
   }
   greetingMessage(customer);
+
+  console.log("after: ", customer.email);
   res.status(201).json({
     data: {
       id: customer._id,
@@ -164,7 +167,7 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
 exports.editCustomer = AsyncHandler(async (req, res, next) => {
   const oldCustomer = await CustomerSchema.findById(req.params.id);
 
-  if (!oldCustomer) return new ApiError('Customer not found!', 404);
+  if (!oldCustomer) return new ApiError("Customer not found!", 404);
 
   if (req.body.password) {
     req.body.password = await bcrypt.hash(req.body.password, saltRounds);
@@ -173,9 +176,9 @@ exports.editCustomer = AsyncHandler(async (req, res, next) => {
     req.body.image = Date.now() + path.extname(req.file.originalname);
     req.imgPath = path.join(
       __dirname,
-      '..',
-      'images',
-      'customers',
+      "..",
+      "images",
+      "customers",
       req.body.image
     );
   } else {
@@ -211,16 +214,16 @@ exports.editCustomer = AsyncHandler(async (req, res, next) => {
   );
 
   if (req.file) {
-    if (oldCustomer.image && oldCustomer.image !== 'default.jpg') {
+    if (oldCustomer.image && oldCustomer.image !== "default.jpg") {
       await fs.unlink(
-        path.join(__dirname, '..', 'images', 'customers', oldCustomer.image),
-        (err) => {
-          if (err) throw err;
+        path.join(__dirname, "..", "images", "customers", oldCustomer.image),
+        (error) => {
+          if (error) throw new ApiError(error, 404);
         }
       );
     }
-    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-      if (err) throw err;
+    await fs.writeFile(req.imgPath, req.file.buffer, (error) => {
+      if (error) throw new ApiError(error, 404);
     });
   }
 
@@ -245,9 +248,9 @@ exports.deactivateCustomer = AsyncHandler(async (req, res, next) => {
     { _id: req.params.id },
     { deactivatedAt }
   );
-  if (!customer) return new ApiError('Customer not found!', 404);
+  if (!customer) return new ApiError("Customer not found!", 404);
   res.status(200).json({
-    meesage: 'Customer is deactivated successfully',
+    meesage: "Customer is deactivated successfully",
     id: customer._id,
     deactivatedAt,
   });
@@ -258,10 +261,10 @@ exports.activateCustomer = AsyncHandler(async (req, res, next) => {
     { _id: req.params.id },
     { deactivatedAt: null }
   );
-  if (!customer) return new ApiError('Customer not found!', 404);
+  if (!customer) return new ApiError("Customer not found!", 404);
   res
     .status(200)
-    .json({ meesage: 'Customer is activated successfully', id: customer._id });
+    .json({ meesage: "Customer is activated successfully", id: customer._id });
 });
 
 exports.banCustomer = AsyncHandler(async (req, res, next) => {
@@ -270,9 +273,9 @@ exports.banCustomer = AsyncHandler(async (req, res, next) => {
     { _id: req.params.id },
     { bannedAt }
   );
-  if (!customer) return new ApiError('Customer not found!', 404);
+  if (!customer) return new ApiError("Customer not found!", 404);
   res.status(200).json({
-    meesage: 'Customer is banned successfully',
+    meesage: "Customer is banned successfully",
     id: customer._id,
     bannedAt,
   });
@@ -283,10 +286,10 @@ exports.unbanCustomer = AsyncHandler(async (req, res, next) => {
     { _id: req.params.id },
     { bannedAt: null }
   );
-  if (!customer) return new ApiError('Customer not found!', 404);
+  if (!customer) return new ApiError("Customer not found!", 404);
   res
     .status(200)
-    .json({ meesage: 'Customer is unbanned successfully', id: customer._id });
+    .json({ meesage: "Customer is unbanned successfully", id: customer._id });
 });
 
 exports.softDeleteCustomer = AsyncHandler(async (req, res, next) => {
@@ -295,9 +298,9 @@ exports.softDeleteCustomer = AsyncHandler(async (req, res, next) => {
     { _id: req.params.id },
     { deletedAt }
   );
-  if (!customer) return new ApiError('Customer not found!', 404);
+  if (!customer) return new ApiError("Customer not found!", 404);
   res.status(200).json({
-    meesage: 'Customer is soft deleted successfully',
+    meesage: "Customer is soft deleted successfully",
     id: customer._id,
     deletedAt,
   });
@@ -308,26 +311,26 @@ exports.restoreCustomer = AsyncHandler(async (req, res, next) => {
     { _id: req.params.id },
     { deletedAt: null }
   );
-  if (!customer) return new ApiError('Customer not found!', 404);
+  if (!customer) return new ApiError("Customer not found!", 404);
   res
     .status(200)
-    .json({ meesage: 'Customer is restored successfully', id: customer._id });
+    .json({ meesage: "Customer is restored successfully", id: customer._id });
 });
 
 exports.deleteCustomer = AsyncHandler(async (req, res, next) => {
   const customer = await CustomerSchema.findOne({ _id: req.params.id });
-  if (!customer) return new ApiError('Customer not found!', 404);
-  if (customer.image !== 'default.jpg') {
+  if (!customer) return new ApiError("Customer not found!", 404);
+  if (customer.image !== "default.jpg") {
     await fs.unlink(
-      path.join(__dirname, '..', 'images', 'customers', customer.image),
-      (err) => {
-        if (err) throw err;
+      path.join(__dirname, "..", "images", "customers", customer.image),
+      (error) => {
+        if (error) throw new ApiError(error, 404);
       }
     );
   }
   await CustomerSchema.deleteOne({ _id: req.params.id });
   res.status(200).json({
-    message: 'Customer deleted forever successfully',
+    message: "Customer deleted forever successfully",
     id: req.params.id,
   });
 });
@@ -378,8 +381,8 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
     req.body.image = Date.now() + path.extname(req.file.originalname);
     req.imgPath = path.join(
       __dirname,
-      '..',
-      'images/customers',
+      "..",
+      "images/customers",
       req.body.image
     );
     oldImage = await CustomerSchema.findById(req.decodedToken.id, { image: 1 });
@@ -407,21 +410,21 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
     { new: true }
   );
   if (!updatedUser) {
-    throw new ApiError('Error happened while Updating Customer', 404);
+    throw new ApiError("Error happened while Updating Customer", 404);
   }
 
   if (req.file) {
     console.log(req.imgPath);
-    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-      if (err) throw err;
+    await fs.writeFile(req.imgPath, req.file.buffer, (error) => {
+      if (error) throw new ApiError(error, 404);
     });
 
     const root = dirname(require.main.filename);
-    const path = root + '/images/customers/' + oldImage.image;
-    if (oldImage.image !== 'default.jpg') {
-      fs.unlink(path, (err) => {
-        if (err) {
-          console.log(err);
+    const path = root + "/images/customers/" + oldImage.image;
+    if (oldImage.image !== "default.jpg") {
+      fs.unlink(path, (error) => {
+        if (error) {
+          throw new ApiError(error, 404);
         }
       });
     }
@@ -430,17 +433,22 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
-    // get query string
-    const { page } = req.query;
-    const customer = await CustomerSchema.findById(req.decodedToken.id);
-    if (!customer) return new ApiError('Customer not found!', 404);
-    console.log(customer.favoritePlaces);
-    const places = await VendorSchema.find({ _id: { $in: customer.favoritePlaces } }).populate('category').limit(3).skip((page - 1) * 3);
+  // get query string
+  const { page } = req.query;
+  const customer = await CustomerSchema.findById(req.decodedToken.id);
+  if (!customer) return new ApiError("Customer not found!", 404);
+  console.log(customer.favoritePlaces);
+  const places = await VendorSchema.find({
+    _id: { $in: customer.favoritePlaces },
+  })
+    .populate("category")
+    .limit(3)
+    .skip((page - 1) * 3);
 
-    res.status(200).json({ data: places });
+  res.status(200).json({ data: places });
 });
 
 exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {
   await CustomerSchema.findOneAndUpdate(req.decodedToken.id, { active: false });
-  res.status(200).json({ status: 'Your Account Deleted Successfully' });
+  res.status(200).json({ status: "Your Account Deleted Successfully" });
 });
