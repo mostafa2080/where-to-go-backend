@@ -14,23 +14,26 @@ const ApiError = require('../utils/apiError');
 // });
 exports.createReview = asyncHandler(async (req, res) => {
   const userId = req.decodedToken.id;
-  const {placeId} = req.body;
+  const { placeId } = req.body;
 
   // Check if the user has already submitted a review for the place
   const existingReview = await Review.findOne({ userId, placeId });
 
   if (existingReview) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        error: 'You have already submitted a review for this place.',
-      });
+    return res.status(400).json({
+      success: false,
+      error: 'You have already submitted a review for this place.',
+    });
   }
 
   // If the user hasn't submitted a review, create a new one
   req.body.userId = userId;
   const review = await Review.create(req.body);
+  if (!review) {
+    throw new ApiError(
+      'Something went wrong while posting your review , try again later...'
+    );
+  }
 
   res.status(201).json({ success: true, review });
 });
