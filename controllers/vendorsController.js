@@ -261,7 +261,8 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
 
   const saltRunds = 10;
   const salt = bcrypt.genSaltSync(saltRunds);
-  const password = bcrypt.hashSync(req.body.password, salt)
+  const passwordBody = req.body.password || '';
+  const password = bcrypt.hashSync(passwordBody, salt);
   req.body.password = password;
 
   const document = await Vendors.create(req.body);
