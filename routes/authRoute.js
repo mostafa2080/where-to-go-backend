@@ -13,6 +13,7 @@ const {
   customerVerifyPassResetCode,
   customerResetPassword,
   addCustomer,
+  registerCustomer,
 } = require('../controllers/customerController');
 
 const {
@@ -74,7 +75,7 @@ router.route(
   '/customer/register',
   validateRegisterArray,
   validatorMiddleware,
-  addCustomer
+  registerCustomer
 );
 
 module.exports = router;
