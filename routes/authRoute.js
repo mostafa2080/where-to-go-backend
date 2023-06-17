@@ -32,7 +32,9 @@ const {
   loginValidator,
   resetPasswordValidator,
 } = require('../utils/validators/authValidator');
-const { validateCustomer } = require('../utils/validators/customerValidator');
+const {
+  validateRegisterArray,
+} = require('../utils/validators/customerValidator');
 
 router
   .route('/employee/login')
@@ -70,7 +72,7 @@ router
 
 router.route(
   '/customer/register',
-  validateCustomer.validatePostArray,
+  validateRegisterArray,
   validatorMiddleware,
   addCustomer
 );
