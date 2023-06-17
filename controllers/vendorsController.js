@@ -93,7 +93,7 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
 
   // Add rating filter based on the Review collection
   if (filters.rating) {
-    const ratingRange = JSON.parse(filters.rating);
+    const ratingRange = filters.rating.split(',');
     const minRating = parseFloat(ratingRange[0]);
     const maxRating = parseFloat(ratingRange[1]);
 
@@ -504,8 +504,8 @@ exports.vendorVerifyPassResetCode =
 exports.vendorResetPassword = forgotPasswordController.resetPassword(Vendors);
 
 exports.getLoggedVendorData = AsyncHandler(async (req, res, next) => {
-  console.log(req.decodedToken.id);
-  req.params.id = req.decodedToken.id;
+  console.log(req.decodedToken.payload.id);
+  req.params.id = req.decodedToken.payload.id;
   console.log(req.params.id);
   next();
 });
@@ -513,7 +513,7 @@ exports.getLoggedVendorData = AsyncHandler(async (req, res, next) => {
 exports.updateLoggedVendorPassword = AsyncHandler(async (req, res, next) => {
   //1) update user password based on the user payload (req.user._id)
   const user = await Vendors.findByIdAndUpdate(
-    req.decodedToken.id,
+    req.decodedToken.payload.id,
     {
       password: await bcrypt.hash(req.body.password, 12),
       passwordChangedAt: Date.now(),
@@ -532,7 +532,7 @@ exports.updateLoggedVendorPassword = AsyncHandler(async (req, res, next) => {
 
 exports.updateLoggedVendorData = AsyncHandler(async (req, res, next) => {
   const updatedUser = await Vendors.findByIdAndUpdate(
-    req.decodedToken.id,
+    req.decodedToken.payload.id,
     {
       name: req.body.name,
       email: req.body.email,
@@ -544,7 +544,7 @@ exports.updateLoggedVendorData = AsyncHandler(async (req, res, next) => {
 });
 
 exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
-  await Vendors.findOneAndUpdate(req.decodedToken.id, { active: false });
+  await Vendors.findOneAndUpdate(req.decodedToken.payload.id, { active: false });
   res.status(200).json({ status: 'Your Account Deleted Successfully' });
 });
 

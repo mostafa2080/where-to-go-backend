@@ -342,14 +342,14 @@ exports.employeeResetPassword =
   forgotPasswordController.resetPassword(Employees);
 
 exports.getLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
-  req.params.id = req.decodedToken.id;
+  req.params.id = req.decodedToken.payload.id;
   next();
 });
 
 exports.updateLoggedEmployeePassword = AsyncHandler(async (req, res, next) => {
   // 1) Update user password based on the user payload (req.user._id)
   const user = await Employees.findByIdAndUpdate(
-    req.decodedToken.id,
+    req.decodedToken.payload.id,
     {
       password: await bcrypt.hash(req.body.password, 12),
       passwordChangedAt: Date.now(),
@@ -382,7 +382,7 @@ exports.updateLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
       "images/employees",
       req.body.image
     );
-    oldEmpImage = await Employees.findById(req.decodedToken.id, { image: 1 });
+    oldEmpImage = await Employees.findById(req.decodedToken.payload.id, { image: 1 });
   }
 
   // Prepare the updated data for the user
@@ -408,7 +408,7 @@ exports.updateLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
 
   // Update user data based on the user payload (req.user._id)
   const updatedUser = await Employees.findByIdAndUpdate(
-    req.decodedToken.id,
+    req.decodedToken.payload.id,
     updatedData,
     { new: true }
   );
@@ -439,7 +439,7 @@ exports.updateLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
 exports.deleteLoggedEmployeeData = AsyncHandler(async (req, res, next) => {
   // Update user data to set active: false based on the user payload (req.user._id)
   const updatedUser = await Employees.findOneAndDelete({
-    _id: req.decodedToken.id,
+    _id: req.decodedToken.payload.id,
   });
   const root = dirname(require.main.filename);
   const path = `${root}/images/employees/${updatedUser.image}`;
