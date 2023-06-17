@@ -345,17 +345,17 @@ exports.customerResetPassword =
   forgotPasswordController.resetPassword(CustomerSchema);
 
 exports.getLoggedCustomerData = AsyncHandler(async (req, res, next) => {
-  console.log(req.decodedToken.id);
-  req.params.id = req.decodedToken.id;
+  console.log(req.decodedToken.payload.id);
+  req.params.id = req.decodedToken.payload.id;
   console.log(req.params.id);
   next();
 });
 
 exports.updateLoggedCustomerPassword = AsyncHandler(async (req, res, next) => {
-  console.log(req.decodedToken.id);
+  console.log(req.decodedToken.payload.id);
   //1) update user password based on the user payload (req.user._id)
   const user = await CustomerSchema.findByIdAndUpdate(
-    req.decodedToken.id,
+    req.decodedToken.payload.id,
     {
       $set: {
         password: await bcrypt.hash(req.body.password, saltRounds),
@@ -385,10 +385,10 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
       'images/customers',
       req.body.image
     );
-    oldImage = await CustomerSchema.findById(req.decodedToken.id, { image: 1 });
+    oldImage = await CustomerSchema.findById(req.decodedToken.payload.id, { image: 1 });
   }
   const updatedUser = await CustomerSchema.findByIdAndUpdate(
-    req.decodedToken.id,
+    req.decodedToken.payload.id,
     {
       $set: {
         firstName: req.body.firstName,
@@ -435,7 +435,7 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
 exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
   // get query string
   const { page } = req.query;
-  const customer = await CustomerSchema.findById(req.decodedToken.id);
+  const customer = await CustomerSchema.findById(req.decodedToken.payload.id);
   if (!customer) return new ApiError('Customer not found!', 404);
   console.log(customer.favoritePlaces);
   const places = await VendorSchema.find({
@@ -449,7 +449,7 @@ exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
 });
 
 exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {
-  await CustomerSchema.findOneAndUpdate(req.decodedToken.id, { active: false });
+  await CustomerSchema.findOneAndUpdate(req.decodedToken.payload.id, { active: false });
   res.status(200).json({ status: 'Your Account Deleted Successfully' });
 });
 
