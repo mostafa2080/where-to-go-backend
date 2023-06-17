@@ -8,7 +8,7 @@ const { vendor } = require("sharp");
 // @route     POST /reviews
 // @access    Public
 exports.createReview = asyncHandler(async (req, res) => {
-  const userId = req.decodedToken.id;
+  const userId = req.decodedToken.payload.id;
   const { placeId } = req.body;
   // Check if the user has already submitted a review for the place
   const existingReview = await Review.findOne({ userId, placeId });

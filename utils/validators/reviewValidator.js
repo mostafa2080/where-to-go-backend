@@ -16,7 +16,8 @@ exports.validateCreateReview = [
   }),
 
   body('userId').custom(async (value, { req }) => {
-    const user = await User.findById(req.decodedToken.id);
+    console.log(req.decodedToken.payload.id);
+    const user = await User.findById(req.decodedToken.payload.id);
     if (!user) {
       throw new ApiError('Invalid user ID', 404);
     }
