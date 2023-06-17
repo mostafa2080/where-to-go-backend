@@ -1,23 +1,25 @@
-const { body, param } = require('express-validator');
-const mongoose = require('mongoose');
-const ApiError = require('../apiError');
-const validatorMiddleware = require('../../middlewares/validatorMiddleware');
-const Permission = require('../../models/Permission');
+const { body, param } = require("express-validator");
+const mongoose = require("mongoose");
+const ApiError = require("../apiError");
+const validatorMiddleware = require("../../middlewares/validatorMiddleware");
+const Permission = require("../../models/Permission");
 
 // Validate role data before sending it to the DB
 
 // Validation for createRole
 exports.validateCreateRole = [
-  body('name')
+  body("name")
     .trim()
     .notEmpty()
-    .withMessage('Name is required')
+    .withMessage("Name Can't Be Empty")
     .isLength({ max: 50 })
-    .withMessage('Name must not exceed 50 characters'),
+    .withMessage("Name Can't Exceed 50 Characters"),
 
-  body('permissions')
-    .isArray({ min: 1 })
-    .withMessage('Permissions must be an array with at least one permission ID')
+  body("permissions")
+    .isArray()
+    .withMessage("Permisions Must Be An Array")
+    .isLength({ min: 1 })
+    .withMessage("Permisions Must Contain At Least 1 Permision")
     .custom(async (permissions) => {
       const permissionIds = permissions.map((permissionId) =>
         mongoose.Types.ObjectId.createFromHexString(permissionId)
@@ -26,7 +28,7 @@ exports.validateCreateRole = [
         _id: { $in: permissionIds },
       });
       if (existingPermissions.length !== permissionIds.length) {
-        throw new ApiError('Invalid permission ID', 400);
+        throw new ApiError("Can't Find This Permision Id", 400);
       }
       return true;
     }),
@@ -36,37 +38,37 @@ exports.validateCreateRole = [
 
 // Validation for deleteRole
 exports.validateDeleteRole = [
-  param('id')
-    .custom((value) => mongoose.Types.ObjectId.isValid(value))
-    .withMessage('Invalid role ID'),
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
 
   validatorMiddleware,
 ];
 
 // Validation for updateRole
 exports.validateUpdateRole = [
-  param('id')
-    .custom((value) => mongoose.Types.ObjectId.isValid(value))
-    .withMessage('Invalid role ID'),
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
 
-  body('name')
+  body("name")
     .optional()
     .trim()
     .notEmpty()
-    .withMessage('Name is required')
+    .withMessage("Name Can't Be Empty")
     .isLength({ max: 50 })
-    .withMessage('Name must not exceed 50 characters'),
+    .withMessage("Name Can't Exceed 50 Characters"),
 
-  body('permissions')
-    .optional()
-    .isArray({ min: 1 })
-    .withMessage('Permissions must be an array with at least one permission ID')
-    .custom((permissions) => {
-      const isValid = permissions.every((permission) =>
-        mongoose.Types.ObjectId.isValid(permission)
+  body("permissions")
+    .isArray()
+    .withMessage("Permisions Must Be An Array")
+    .isLength({ min: 1 })
+    .withMessage("Permisions Must Contain At Least 1 Permision")
+    .custom(async (permissions) => {
+      const permissionIds = permissions.map((permissionId) =>
+        mongoose.Types.ObjectId.createFromHexString(permissionId)
       );
-      if (!isValid) {
-        throw new ApiError('Invalid permission ID', 400);
+      const existingPermissions = await Permission.find({
+        _id: { $in: permissionIds },
+      });
+      if (existingPermissions.length !== permissionIds.length) {
+        throw new ApiError("Can't Find This Permision Id", 400);
       }
       return true;
     }),
@@ -76,9 +78,7 @@ exports.validateUpdateRole = [
 
 // Validation for getRoleById
 exports.validateGetRoleById = [
-  param('id')
-    .custom((value) => mongoose.Types.ObjectId.isValid(value))
-    .withMessage('Invalid role ID'),
+  param("id").isMongoId().withMessage("Id Must Be Valid MongoId"),
 
   validatorMiddleware,
 ];

@@ -55,13 +55,14 @@ const greetingMessage = AsyncHandler(async (data) => {
 
   const userEmail = data.email;
   try {
+    console.log('before: ', data.email);
     await sendMail({
       email: userEmail,
       subject: 'Greetings From Where To Go',
       message: emailContent,
     });
   } catch (error) {
-    throw ApiError(error);
+    throw new ApiError(error);
   }
 });
 
@@ -141,11 +142,13 @@ exports.addCustomer = AsyncHandler(async (req, res, next) => {
   await customer.save();
 
   if (req.file) {
-    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-      if (err) throw err;
+    await fs.writeFile(req.imgPath, req.file.buffer, (error) => {
+      if (error) throw new ApiError(error, 404);
     });
   }
   greetingMessage(customer);
+
+  console.log('after: ', customer.email);
   res.status(201).json({
     data: {
       id: customer._id,
@@ -214,13 +217,13 @@ exports.editCustomer = AsyncHandler(async (req, res, next) => {
     if (oldCustomer.image && oldCustomer.image !== 'default.jpg') {
       await fs.unlink(
         path.join(__dirname, '..', 'images', 'customers', oldCustomer.image),
-        (err) => {
-          if (err) throw err;
+        (error) => {
+          if (error) throw new ApiError(error, 404);
         }
       );
     }
-    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-      if (err) throw err;
+    await fs.writeFile(req.imgPath, req.file.buffer, (error) => {
+      if (error) throw new ApiError(error, 404);
     });
   }
 
@@ -320,8 +323,8 @@ exports.deleteCustomer = AsyncHandler(async (req, res, next) => {
   if (customer.image !== 'default.jpg') {
     await fs.unlink(
       path.join(__dirname, '..', 'images', 'customers', customer.image),
-      (err) => {
-        if (err) throw err;
+      (error) => {
+        if (error) throw new ApiError(error, 404);
       }
     );
   }
@@ -412,16 +415,16 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
 
   if (req.file) {
     console.log(req.imgPath);
-    await fs.writeFile(req.imgPath, req.file.buffer, (err) => {
-      if (err) throw err;
+    await fs.writeFile(req.imgPath, req.file.buffer, (error) => {
+      if (error) throw new ApiError(error, 404);
     });
 
     const root = dirname(require.main.filename);
     const path = root + '/images/customers/' + oldImage.image;
     if (oldImage.image !== 'default.jpg') {
-      fs.unlink(path, (err) => {
-        if (err) {
-          console.log(err);
+      fs.unlink(path, (error) => {
+        if (error) {
+          throw new ApiError(error, 404);
         }
       });
     }
@@ -430,17 +433,51 @@ exports.updateLoggedCustomerData = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
-    // get query string
-    const { page } = req.query;
-    const customer = await CustomerSchema.findById(req.decodedToken.id);
-    if (!customer) return new ApiError('Customer not found!', 404);
-    console.log(customer.favoritePlaces);
-    const places = await VendorSchema.find({ _id: { $in: customer.favoritePlaces } }).populate('category').limit(3).skip((page - 1) * 3);
+  // get query string
+  const { page } = req.query;
+  const customer = await CustomerSchema.findById(req.decodedToken.id);
+  if (!customer) return new ApiError('Customer not found!', 404);
+  console.log(customer.favoritePlaces);
+  const places = await VendorSchema.find({
+    _id: { $in: customer.favoritePlaces },
+  })
+    .populate('category')
+    .limit(3)
+    .skip((page - 1) * 3);
 
-    res.status(200).json({ data: places });
+  res.status(200).json({ data: places });
 });
 
 exports.deleteLoggedCustomerData = AsyncHandler(async (req, res, next) => {
   await CustomerSchema.findOneAndUpdate(req.decodedToken.id, { active: false });
   res.status(200).json({ status: 'Your Account Deleted Successfully' });
+});
+
+exports.registerCustomer = AsyncHandler(async (req, res, next) => {
+  if (req.body.password) {
+    req.body.password = await bcrypt.hash(req.body.password, saltRounds);
+  }
+  const role = await RoleSchema.findOne({ name: 'Customer' }, { _id: 1 });
+  const customer = await new CustomerSchema({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    password: req.body.password,
+    role: role._id,
+  });
+  await customer.save();
+  greetingMessage(customer);
+  res.status(201).json({
+    data: {
+      id: customer._id,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phoneNumber: customer.phoneNumber,
+      image: customer.image,
+      bannedAt: customer.bannedAt,
+      deactivatedAt: customer.deactivatedAt,
+      deletedAt: customer.deletedAt,
+    },
+  });
 });

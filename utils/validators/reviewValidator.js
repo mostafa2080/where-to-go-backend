@@ -2,24 +2,23 @@ const { body, param } = require('express-validator');
 const mongoose = require('mongoose');
 const validatorMiddleware = require('../../middlewares/validatorMiddleware');
 const User = require('../../models/Customer');
-require('../../models/Vendor');
-
-const Place = mongoose.model('vendor');
+const ApiError = require('../apiError');
+const Place = require('../../models/Vendor');
 
 // Validation for createReview
 exports.validateCreateReview = [
   body('placeId').custom(async (value) => {
     const place = await Place.findById(value);
     if (!place) {
-      throw new Error('Invalid place ID');
+      throw new ApiError('Invalid place ID', 404);
     }
     return true;
   }),
 
-  body('userId').custom(async (value) => {
-    const user = await User.findById(value);
+  body('userId').custom(async (value, { req }) => {
+    const user = await User.findById(req.decodedToken.id);
     if (!user) {
-      throw new Error('Invalid user ID');
+      throw new ApiError('Invalid user ID', 404);
     }
     return true;
   }),

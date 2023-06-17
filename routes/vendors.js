@@ -24,7 +24,7 @@ router
   .get(vendorsController.getAllVendors)
   .post(
     vendorsController.uploadVendorImages,
-    vendorsController.processingImage,
+    vendorsController.updatingDatabaseImageValues,
     vendorValidator.addValidationArray,
     validatorMiddleware,
     vendorsController.addVendor
@@ -37,7 +37,7 @@ router.route("/rejected").get(vendorsController.getRejectedVendors);
 router
   .route("/:id/deactivate")
   .patch(
-    vendorValidator.updateValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.deactivateVendor
   );
@@ -45,7 +45,7 @@ router
 router
   .route("/:id/restore")
   .patch(
-    vendorValidator.updateValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.restoreVendor
   );
@@ -53,7 +53,7 @@ router
 router
   .route("/:id/activate")
   .patch(
-    vendorValidator.updateValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.approveVendor,
     vendorForgotPassword
@@ -62,13 +62,13 @@ router
 router
   .route("/:id")
   .get(
-    vendorValidator.getValidationArray,
+    vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.getVendor
   )
   .patch(
     vendorsController.uploadVendorImages,
-    vendorsController.processingImage,
+    vendorsController.updatingDatabaseImageValues,
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor

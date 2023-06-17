@@ -12,6 +12,8 @@ const {
   customerForgotPassword,
   customerVerifyPassResetCode,
   customerResetPassword,
+  addCustomer,
+  registerCustomer,
 } = require('../controllers/customerController');
 
 const {
@@ -29,7 +31,11 @@ const {
 const {
   forgotPasswordValidator,
   loginValidator,
+  resetPasswordValidator,
 } = require('../utils/validators/authValidator');
+const {
+  validateRegisterArray,
+} = require('../utils/validators/customerValidator');
 
 router
   .route('/employee/login')
@@ -45,17 +51,31 @@ router
   .route('/customer/forgotPassword')
   .post(forgotPasswordValidator, customerForgotPassword);
 router.route('/customer/verifyResetCode').post(customerVerifyPassResetCode);
-router.route('/customer/resetPassword').put(customerResetPassword);
+router
+  .route('/customer/resetPassword')
+  .put(resetPasswordValidator, customerResetPassword);
 
 router
   .route('/vendor/forgotPassword')
   .post(forgotPasswordValidator, vendorForgotPassword);
 router.route('/vendor/verifyResetCode').post(vendorVerifyPassResetCode);
-router.route('/vendor/resetPassword').put(vendorResetPassword);
+router
+  .route('/vendor/resetPassword')
+  .put(resetPasswordValidator, vendorResetPassword);
 
 router
   .route('/employee/forgotPassword')
   .post(forgotPasswordValidator, employeeForgotPassword);
 router.route('/employee/verifyResetCode').post(employeeVerifyPassResetCode);
-router.route('/employee/resetPassword').put(employeeResetPassword);
+router
+  .route('/employee/resetPassword')
+  .put(resetPasswordValidator, employeeResetPassword);
+
+router.route(
+  '/customer/register',
+  validateRegisterArray,
+  validatorMiddleware,
+  registerCustomer
+);
+
 module.exports = router;

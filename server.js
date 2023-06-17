@@ -59,12 +59,11 @@ app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/contact", contactUsRoute);
 
 app.use(authenticationMiddleware);
-app.use("/api/v1/images", imagesRouter);
 
 app.use("/api/v1/vendors", vendorsRoute);
 app.use("/api/v1/categories", categoriesRouter);
 app.use("/api/v1/tags", tagsRouter);
-app.use(EmployeeRoutes);
+app.use('/api/v1/employees/',EmployeeRoutes);
 app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/reviews", reviewRoute);
 

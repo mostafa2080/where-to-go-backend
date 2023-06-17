@@ -4,7 +4,7 @@ const ApiError = require('../utils/apiError');
 
 // @desc      Get all roles
 // @route     GET /roles
-// @access    Public
+// @access    Private : Employee || Admin 
 const getRoles = asyncHandler(async (req, res) => {
   const roles = await Role.find();
   res.json(roles);

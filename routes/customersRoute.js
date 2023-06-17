@@ -1,52 +1,55 @@
-const express = require('express');
-const controller = require('../controllers/customerController');
-const validateCustomer = require('../utils/validators/customerValidator');
-const { uploadImg } = require('../utils/imageUtility');
+const express = require("express");
+const controller = require("../controllers/customerController");
+const validateCustomer = require("../utils/validators/customerValidator");
+const { uploadImg } = require("../utils/imageUtility");
 
-const { EmployeeOrAbove, CustomerOrAbove } = require('../middlewares/authorizationMiddleware');
+const {
+  EmployeeOrAbove,
+  CustomerOrAbove,
+} = require("../middlewares/authorizationMiddleware");
 
 const router = express.Router();
 
 router.get(
-  '/getMe',
+  "/getMe",
   controller.getLoggedCustomerData,
   controller.getCustomerById
 );
-router.get(
-  '/myFavorites',
-  controller.getFavoritePlaces
-);
+router.get("/myFavorites", controller.getFavoritePlaces);
 router.put(
-  '/changeMyPassaowrd',
+  "/changeMyPassword",
   validateCustomer.changeUserPasswordValidator,
   controller.updateLoggedCustomerPassword
 );
-router.put('/updateMe',uploadImg().single('image'), controller.updateLoggedCustomerData);
-router.delete('/deleteMe', controller.deleteLoggedCustomerData);
+router.put(
+  "/updateMe",
+  uploadImg().single("image"),
+  controller.updateLoggedCustomerData
+);
+router.delete("/deleteMe", controller.deleteLoggedCustomerData);
 
 router
-  .route('/')
-  .all(EmployeeOrAbove)
-  .get(controller.getAllCustomers)
+  .route("/")
+  .get(EmployeeOrAbove, controller.getAllCustomers)
   .post(
-    uploadImg().single('image'),
+    uploadImg().single("image"),
     validateCustomer.validatePostArray,
     controller.addCustomer
   );
 
 router
-  .route('/:id')
+  .route("/:id")
   .all(CustomerOrAbove, validateCustomer.validateIdParam)
   .get(controller.getCustomerById)
   .patch(
-    uploadImg().single('image'),
+    uploadImg().single("image"),
     validateCustomer.validatePatchArray,
     controller.editCustomer
   )
   .delete(controller.deleteCustomer);
 
 router
-  .route('/softDelete/:id')
+  .route("/softDelete/:id")
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
@@ -54,7 +57,7 @@ router
   );
 
 router
-  .route('/restore/:id')
+  .route("/restore/:id")
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
@@ -62,7 +65,7 @@ router
   );
 
 router
-  .route('/deactivate/:id')
+  .route("/deactivate/:id")
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
@@ -70,7 +73,7 @@ router
   );
 
 router
-  .route('/activate/:id')
+  .route("/activate/:id")
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
@@ -78,7 +81,7 @@ router
   );
 
 router
-  .route('/ban/:id')
+  .route("/ban/:id")
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
@@ -86,7 +89,7 @@ router
   );
 
 router
-  .route('/unban/:id')
+  .route("/unban/:id")
   .patch(
     EmployeeOrAbove,
     validateCustomer.validateIdParam,
