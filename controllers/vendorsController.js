@@ -204,7 +204,6 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
     ]);
 
     const totalPages = Math.ceil(total / limit);
-
     return res.status(200).json({
       status: 'success',
       pagination: {
@@ -227,6 +226,7 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
 
 exports.getApprovedVendors = AsyncHandler(async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: true });
+
   res.status(200).json({
     status: 'success',
     data: vendors,
@@ -317,7 +317,7 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
   }
 
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
-  socket.emit('notifyAdminAndEmpForAddingVendor', message);
+  socket.emit("message", message);
 
   greetingMessage(document);
   res.status(201).json({ data: document });
