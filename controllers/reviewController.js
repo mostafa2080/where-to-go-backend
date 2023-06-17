@@ -50,6 +50,7 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   if (reviews.length === 0) {
     throw new ApiError("No reviews found", 404);
   }
+
   const totalReviews = reviews.length;
   let totalRates = 0;
 

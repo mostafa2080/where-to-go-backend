@@ -315,32 +315,55 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
 });
 
 exports.updateVendor = AsyncHandler(async (req, res, next) => {
-  const document = await Vendors.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
+  const document = await Vendors.findOneAndUpdate(
+    { _id: req.params.id },
+    {
+      $set: {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        placeName: req.body.placeName,
+        email: req.body.email,
+        category: req.body.category,
+
+        street: req.body.street,
+        country: req.body.country,
+        state: req.body.state,
+        city: req.body.city,
+        zip: req.body.zip,
+
+        phoneNumber: req.body.phoneNumber,
+        description: req.body.description,
+        thumbnail: req.body.thumbnail,
+        gallery: req.body.gallery,
+      },
+    }
+  );
+  // const document = await Vendors.findByIdAndUpdate(req.params.id, req.body, {
+  //   new: true,
+  // });
   if (!document) {
     return next(new ApiError("Document not found", 404));
   }
   console.log(document);
 
-  // if (document.thumbnail) {
-  //   await fs.unlink(
-  //     path.join(__dirname, "..", "images", "vendors", document.thumbnail),
-  //     (error) => {
-  //       if (error) throw new ApiError(error, 404);
-  //     }
-  //   );
-  // }
-  // if (document.gallery) {
-  //   document.gallery.forEach(async (image) => {
-  //     await fs.unlink(
-  //       path.join(__dirname, "..", "images", "vendors", image),
-  //       (error) => {
-  //         if (error) throw new ApiError(error, 404);
-  //       }
-  //     );
-  //   });
-  // }
+  if (document.thumbnail) {
+    await fs.unlink(
+      path.join(__dirname, "..", "images", "vendors", document.thumbnail),
+      (error) => {
+        if (error) throw new ApiError(error, 404);
+      }
+    );
+  }
+  if (document.gallery) {
+    document.gallery.forEach(async (image) => {
+      await fs.unlink(
+        path.join(__dirname, "..", "images", "vendors", image),
+        (error) => {
+          if (error) throw new ApiError(error, 404);
+        }
+      );
+    });
+  }
 
   if (req.files && req.files.thumbnail) {
     await sharp(req.files.thumbnail[0].buffer)
