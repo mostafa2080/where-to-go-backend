@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Review = require("../models/Review");
 const Vendor = require("../models/Vendor");
 const ApiError = require("../utils/apiError");
+const { vendor } = require("sharp");
 
 // @desc      Create a review
 // @route     POST /reviews
@@ -18,11 +19,20 @@ exports.createReview = asyncHandler(async (req, res) => {
   const { placeId } = req.body;
   // Check if the user has already submitted a review for the place
   const existingReview = await Review.findOne({ userId, placeId });
+  const place = await Vendor.findOne({ _id: placeId });
+  const previousAvgRate = place.avgRate;
+  const prevnumberOfReviews = place.numberOfReviews;
+  const newAvgRate =
+    (previousAvgRate * prevnumberOfReviews + req.body.rating) /
+    (prevnumberOfReviews + 1);
 
   await Vendor.updateOne(
     { _id: placeId },
     {
-      $inc: { numberOfReviews: 1 },
+      $set: {
+        $inc: { numberOfReviews: 1 },
+        avgRate: newAvgRate,
+      },
     }
   );
 
@@ -56,9 +66,7 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const reviews = await Review.find({ placeId: id })
-    .skip(skip)
-    .limit(limit)
+  const reviews = await Review.find({ placeId: id }).skip(skip).limit(limit);
 
   if (reviews.length === 0) {
     throw new ApiError("No reviews found", 404);
