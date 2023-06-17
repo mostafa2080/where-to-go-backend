@@ -59,6 +59,9 @@ router
     vendorForgotPassword
   );
 
+router.route('/topRated')
+  .get(vendorsController.getTopRatedPlaces)
+
 router
   .route("/:id")
   .get(
@@ -73,8 +76,5 @@ router
     validatorMiddleware,
     vendorsController.updateVendor
   );
-
-router.route('/topRated')
-    .get(vendorsController.getTopRatedPlaces)
 
 module.exports = router;

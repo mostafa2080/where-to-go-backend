@@ -540,5 +540,18 @@ exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
-  // Code Here...
+  try {
+    // Code Here...
+    const topRatedPlaces = await Vendors.find()
+    .sort({avarage_rate: -1})
+    .limit(5)
+
+    if (topRatedPlaces.length > 0) {
+      res.status(200).json({data: topRatedPlaces});
+    }else {
+      res.status(200).json({data: 'There are no top-rated places yet.'})
+    }
+  } catch (error) {
+    throw new ApiError('Error to get top rated places...!', 500);
+  }
 })
