@@ -72,12 +72,9 @@ router
   .route('/employee/resetPassword')
   .put(resetPasswordValidator, employeeResetPassword);
 
-router.route(
-  '/customer/register',
-  validateRegisterArray,
-  validatorMiddleware,
-  registerCustomer
-);
+router
+  .route('/customer/register')
+  .post(validateRegisterArray, validatorMiddleware, registerCustomer);
 
 router
   .route('/vendor/register')
