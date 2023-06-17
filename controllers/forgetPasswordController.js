@@ -10,11 +10,12 @@ const { use } = require('../routes/imagesRouter');
 require('../models/Customer');
 require('../models/Vendor');
 require('../models/Employee');
+const Role = require('../models/Role');
 
 const saltRunds = 10;
 const salt = bcrypt.genSaltSync(saltRunds);
 
-const forgetMessage = (user, resetCode) => `
+const forgetMessage = (user, resetCode, roleName) => `
   <html>
     <head>
       <style>
@@ -52,7 +53,7 @@ const forgetMessage = (user, resetCode) => `
     </head>
     <body>
       <div class="container">
-        <h1>Hi ${user.firstName},</h1>
+        <h1>Hi ${roleName === 'Employee' || roleName === 'Admin' ? user.name : user.firstName},</h1>
         <p>We have received a request to reset your password on Where To Go Account.</p>
         <p class="code">${resetCode}</p>
         <p>Enter this code to complete the reset request.</p>
@@ -106,13 +107,16 @@ exports.forgotPassword = (model) =>
     user.passwordResetVerified = false;
     await user.save();
 
+    const role = await Role.findOne({ _id: user.role });
+    const roleName = role.name;
     const message =
       req.body.modelType !== undefined
         ? approvalMessage(user, resetCode)
-        : forgetMessage(user, resetCode);
+        : forgetMessage(user, resetCode, roleName);
 
     //3) send the reset code via email
     try {
+      console.log(user.name);
       await sendMail({
         email: user.email,
         subject: 'Your Password reset code (Valid for 10 min )',

@@ -52,7 +52,13 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const { id } = req.params;
   console.log(id);
 
-  const reviews = await Review.find({ placeId: id });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const reviews = await Review.find({ placeId: id })
+    .skip(skip)
+    .limit(limit)
 
   if (reviews.length === 0) {
     throw new ApiError("No reviews found", 404);
