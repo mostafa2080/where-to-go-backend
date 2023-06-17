@@ -5,6 +5,7 @@ const raisedEventListener = (io) => {
     socket.on("tryingsocket", (data) => {
       console.log(data);
     });
+
     socket.on("notifyAdminAndEmpForAddingVendor", (data) => {
       console.log(data);
     });

@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Review = require("../models/Review");
+const Vendor = require("../models/Vendor");
 const ApiError = require("../utils/apiError");
 
 // @desc      Create a review
@@ -15,9 +16,15 @@ const ApiError = require("../utils/apiError");
 exports.createReview = asyncHandler(async (req, res) => {
   const userId = req.decodedToken.id;
   const { placeId } = req.body;
-
   // Check if the user has already submitted a review for the place
   const existingReview = await Review.findOne({ userId, placeId });
+
+  await Vendor.updateOne(
+    { _id: placeId },
+    {
+      $inc: { numberOfReviews: 1 },
+    }
+  );
 
   if (existingReview) {
     return res.status(400).json({
