@@ -1,6 +1,6 @@
-const asyncHandler = require('express-async-handler');
-const Review = require('../models/Review');
-const ApiError = require('../utils/apiError');
+const asyncHandler = require("express-async-handler");
+const Review = require("../models/Review");
+const ApiError = require("../utils/apiError");
 
 // @desc      Create a review
 // @route     POST /reviews
@@ -21,10 +21,11 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const reviews = await Review.find({ placeId: id });
 
   if (reviews.length === 0) {
-    throw new ApiError('No reviews found', 404);
+    throw new ApiError("No reviews found", 404);
   }
+  const totalReviews = reviews.length;
 
-  res.json({ success: true, reviews });
+  res.json({ success: true, reviews, totalReviews });
 });
 
 // @desc      update review
@@ -41,7 +42,7 @@ exports.updateReview = asyncHandler(async (req, res) => {
   );
 
   if (!updatedReview) {
-    throw new ApiError('Review not found', 404);
+    throw new ApiError("Review not found", 404);
   }
 
   res.json({ success: true, review: updatedReview });
@@ -54,8 +55,8 @@ exports.deleteReview = asyncHandler(async (req, res) => {
   const deletedReview = await Review.findByIdAndDelete(req.params.id);
 
   if (!deletedReview) {
-    throw new ApiError('Review not found', 404);
+    throw new ApiError("Review not found", 404);
   }
 
-  res.json({ success: 'Deleted Successfully', review: deletedReview });
+  res.json({ success: "Deleted Successfully", review: deletedReview });
 });
