@@ -22,7 +22,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   if (existingReview) {
     return res.status(400).json({
       success: false,
-      error: 'You have already submitted a review for this place.',
+      error: "You have already submitted a review for this place.",
     });
   }
 
@@ -31,7 +31,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   const review = await Review.create(req.body);
   if (!review) {
     throw new ApiError(
-      'Something went wrong while posting your review , try again later...'
+      "Something went wrong while posting your review , try again later..."
     );
   }
 
@@ -51,8 +51,15 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
     throw new ApiError("No reviews found", 404);
   }
   const totalReviews = reviews.length;
+  let totalRates = 0;
 
-  res.json({ success: true, reviews, totalReviews });
+  reviews.forEach((review) => {
+    totalRates += review.rating;
+  });
+
+  const avgRate = totalRates / totalReviews;
+
+  res.json({ success: true, reviews, totalReviews, avgRate });
 });
 
 // @desc      update review
