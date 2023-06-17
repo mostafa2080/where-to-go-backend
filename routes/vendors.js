@@ -74,4 +74,7 @@ router
     vendorsController.updateVendor
   );
 
+router.route('/topRated')
+    .get(vendorsController.getTopRatedPlaces)
+
 module.exports = router;

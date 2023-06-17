@@ -538,3 +538,7 @@ exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
   await Vendors.findOneAndUpdate(req.decodedToken.id, { active: false });
   res.status(200).json({ status: "Your Account Deleted Successfully" });
 });
+
+exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
+  // Code Here...
+})

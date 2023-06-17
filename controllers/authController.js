@@ -121,6 +121,8 @@ exports.customerLogin = asyncHandler(async (req, res, next) => {
       Message: 'Authenticated',
       token,
       role: roleName,
+      id: customer._id,
+      img: customer.image,
     });
   } else {
     return next(
