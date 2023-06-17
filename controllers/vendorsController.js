@@ -216,6 +216,8 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
   }
 });
 
+//getSearchedVendors
+
 exports.getApprovedVendors = AsyncHandler(async (req, res, next) => {
   const vendors = await Vendors.find({ isApproved: true });
   res.status(200).json({
