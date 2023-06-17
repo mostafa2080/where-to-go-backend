@@ -68,7 +68,7 @@ router
   )
   .patch(
     vendorsController.uploadVendorImages,
-    vendorsController.processingImage,
+    vendorsController.updatingDatabaseImageValues,
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor

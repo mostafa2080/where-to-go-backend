@@ -5,6 +5,7 @@ const sharp = require("sharp");
 const io = require("socket.io-client");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
+const fs = require("fs");
 const AsyncHandler = require("express-async-handler");
 const forgotPasswordController = require("./forgetPasswordController");
 const { uploadMixOfImages } = require("./imageController");
@@ -319,6 +320,47 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
   });
   if (!document) {
     return next(new ApiError("Document not found", 404));
+  }
+  console.log(document);
+
+  // if (document.thumbnail) {
+  //   await fs.unlink(
+  //     path.join(__dirname, "..", "images", "vendors", document.thumbnail),
+  //     (error) => {
+  //       if (error) throw new ApiError(error, 404);
+  //     }
+  //   );
+  // }
+  // if (document.gallery) {
+  //   document.gallery.forEach(async (image) => {
+  //     await fs.unlink(
+  //       path.join(__dirname, "..", "images", "vendors", image),
+  //       (error) => {
+  //         if (error) throw new ApiError(error, 404);
+  //       }
+  //     );
+  //   });
+  // }
+
+  if (req.files && req.files.thumbnail) {
+    await sharp(req.files.thumbnail[0].buffer)
+      .resize(2000, 1333)
+      .toFormat("jpeg")
+      .jpeg({ quality: 90 })
+      .toFile(path.join(__dirname, "../images/vendors/", req.body.thumbnail));
+  }
+  if (req.files && req.files.gallery) {
+    await Promise.all(
+      req.files.gallery.map(async (img, index) => {
+        await sharp(img.buffer)
+          .resize(2000, 1333)
+          .toFormat("jpeg")
+          .jpeg({ quality: 90 })
+          .toFile(
+            path.join(__dirname, "../images/vendors/", req.body.gallery[index])
+          );
+      })
+    );
   }
   res.status(200).json({ data: document });
 });
