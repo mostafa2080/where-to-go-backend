@@ -42,8 +42,14 @@ const VendorsSchema = ExtendSchema(User, {
     type: mongoose.Schema.Types.ObjectId,
     ref: "roles",
   },
-  avgRate: Number,
-  numberOfReviews: Number,
+  avgRate: {
+    type: Number,
+    default: 0,
+  },
+  numberOfReviews: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Vendor = mongoose.model("vendor", VendorsSchema);
