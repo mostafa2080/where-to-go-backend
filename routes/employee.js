@@ -8,23 +8,23 @@ const { Admin } = require('../middlewares/authorizationMiddleware');
 const router = express.Router();
 
 router.get(
-  '/api/v1/employees/getMe',
+  '/getMe',
   Controller.getLoggedEmployeeData,
   Controller.getEmployeeById
 );
 router.put(
-  '/api/v1/employees/changeMyPassaowrd',
+  '/changeMyPassaowrd',
   Validator.changeUserPasswordValidator,
   Controller.updateLoggedEmployeePassword
 );
-router.put('/api/v1/employees/updateMe', Controller.updateLoggedEmployeeData);
+router.put('/updateMe', Controller.updateLoggedEmployeeData);
 router.delete(
-  '/api/v1/employees/deleteMe',
+  '/deleteMe',
   Controller.deleteLoggedEmployeeData
 );
 
 router
-  .route('/api/v1/employees')
+  .route('')
   .get(Admin, Controller.getAllEmployees)
   .post(
     Admin,
@@ -33,10 +33,10 @@ router
     validatorMiddleware,
     Controller.createEmployee
   );
-router.route('/api/v1/employees/filter').get(Admin, Controller.filterEmployee);
+router.route('/filter').get(Admin, Controller.filterEmployee);
 
 router
-  .route('/api/v1/employees/:id')
+  .route('/:id')
   .get(
     Admin,
     Validator.getEmployeeValidator,
@@ -58,7 +58,7 @@ router
   );
 
 router
-  .route('/api/v1/employees/resetPassword/:id')
+  .route('/resetPassword/:id')
   .put(
     Admin,
     Validator.resetPasswordValidator,
@@ -67,7 +67,7 @@ router
   );
 
 router
-  .route('/api/v1/employees/ban/:id')
+  .route('/ban/:id')
   .put(
     Admin,
     Validator.bannEmployeeValidator,
@@ -76,7 +76,7 @@ router
   );
 
 router
-  .route('/api/v1/employees/unban/:id')
+  .route('/unban/:id')
   .put(
     Admin,
     Validator.bannEmployeeValidator,
@@ -85,7 +85,7 @@ router
   );
 
 router
-  .route('/api/v1/employees/deactivate/:id')
+  .route('/deactivate/:id')
   .put(
     Admin,
     Validator.bannEmployeeValidator,
@@ -94,7 +94,7 @@ router
   );
 
 router
-  .route('/api/v1/employees/activate/:id')
+  .route('/activate/:id')
   .put(
     Admin,
     Validator.bannEmployeeValidator,
