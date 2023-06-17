@@ -545,7 +545,7 @@ exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
   try {
     // Code Here...
     const topRatedPlaces = await Vendors.find()
-    .sort({avarage_rate: -1})
+    .sort({avgRate: -1})
     .limit(5)
 
     if (topRatedPlaces.length > 0) {
