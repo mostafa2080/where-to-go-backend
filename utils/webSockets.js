@@ -1,6 +1,6 @@
 const raisedEventListener = (io) => {
   io.on("connection", (socket) => {
-    console.log("a user connected");
+    console.log("a user connected , socket id : ", socket.id);
 
     socket.on("tryingsocket", (data) => {
       console.log(data);
@@ -12,6 +12,10 @@ const raisedEventListener = (io) => {
 
     socket.on("disconnect", () => {
       console.log("user disconnected");
+    });
+
+    socket.on("message", (data) => {
+      io.emit("message", data);
     });
   });
 };
