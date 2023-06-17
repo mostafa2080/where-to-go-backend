@@ -24,7 +24,7 @@ router
   .get(vendorsController.getAllVendors)
   .post(
     vendorsController.uploadVendorImages,
-    vendorsController.processingImage,
+    vendorsController.updatingDatabaseImageValues,
     vendorValidator.addValidationArray,
     validatorMiddleware,
     vendorsController.addVendor
@@ -68,7 +68,7 @@ router
   )
   .patch(
     vendorsController.uploadVendorImages,
-    vendorsController.processingImage,
+    vendorsController.updatingDatabaseImageValues,
     vendorValidator.updateValidationArray,
     validatorMiddleware,
     vendorsController.updateVendor

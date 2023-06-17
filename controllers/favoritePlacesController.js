@@ -51,7 +51,7 @@ exports.removePlace = AsyncHandler( async(req, res, next) => {
         throw new ApiError('No such customer exists...!')
     }
 
-    const vendorId = req.body.vendorId
+    const {vendorId} = req.body
 
     if (!customer.favoritePlaces.includes(vendorId)){
         throw new ApiError('This place is not exist in your favorites...!')
