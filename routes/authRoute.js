@@ -12,6 +12,7 @@ const {
   customerForgotPassword,
   customerVerifyPassResetCode,
   customerResetPassword,
+  addCustomer,
 } = require('../controllers/customerController');
 
 const {
@@ -31,6 +32,7 @@ const {
   loginValidator,
   resetPasswordValidator,
 } = require('../utils/validators/authValidator');
+const { validateCustomer } = require('../utils/validators/customerValidator');
 
 router
   .route('/employee/login')
@@ -66,6 +68,11 @@ router
   .route('/employee/resetPassword')
   .put(resetPasswordValidator, employeeResetPassword);
 
-router.route('/customer/register', validatorMiddleware, customerLogin);
+router.route(
+  '/customer/register',
+  validateCustomer.validatePostArray,
+  validatorMiddleware,
+  addCustomer
+);
 
 module.exports = router;
