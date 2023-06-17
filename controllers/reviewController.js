@@ -7,13 +7,6 @@ const { vendor } = require("sharp");
 // @desc      Create a review
 // @route     POST /reviews
 // @access    Public
-// exports.createReview = asyncHandler(async (req, res) => {
-//   const userId = req.decodedToken.id;
-//   req.body.userId = userId;
-//   const review = await Review.create(req.body);
-
-//   res.status(201).json({ success: true, review });
-// });
 exports.createReview = asyncHandler(async (req, res) => {
   const userId = req.decodedToken.id;
   const { placeId } = req.body;

@@ -59,6 +59,9 @@ router
     vendorForgotPassword
   );
 
+router.route('/topRated')
+  .get(vendorsController.getTopRatedPlaces)
+
 router
   .route("/:id")
   .get(

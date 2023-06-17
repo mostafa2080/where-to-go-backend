@@ -6,6 +6,9 @@ const Customer = require('../models/Customer')
 require('../models/Vendor')
 const Vendor = mongoose.model('vendor')
 
+// @desc     Add Place To My Favourites as a Customer ...
+// @route    /api/v1/customers/favorites
+// @access   Private (requires login first)
 exports.addPlaceToFavorite = AsyncHandler( async(req, res, next) => {
     const vendor = await Vendor.findOne({_id: req.body.vendorId})
     if (!vendor) {
@@ -40,6 +43,9 @@ exports.addPlaceToFavorite = AsyncHandler( async(req, res, next) => {
     })
 })
 
+// @desc     Remove Place From My Favourites as a Customer ...
+// @route    /api/v1/customers/favorites
+// @access   Private (requires login first)
 exports.removePlace = AsyncHandler( async(req, res, next) => {
     const vendor = await Vendor.findOne({_id: req.body.vendorId})
     if (!vendor) {

@@ -14,9 +14,6 @@ const VendorModel = mongoose.model('vendor');
 const EmployeeModel = mongoose.model('employees');
 const RoleModel = mongoose.model('roles');
 
-const saltRunds = 10;
-const salt = bcrypt.genSaltSync(saltRunds);
-
 const createToken = (payload) =>
   jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -26,7 +23,9 @@ const createToken = (payload) =>
 //====================== Starting Login For All System Users & Admins ===================//
 //=======================================================================================//
 
-// Admins(super admin & employees) Login ...
+// @desc     Admins(super admin & employees) Login ...
+// @route    /api/v1/auth/employee/login
+// @access   Public
 exports.adminLogin = asyncHandler(async (req, res, next) => {
   const employee = await EmployeeModel.findOne({ email: req.body.email });
   if (!employee) {
@@ -42,11 +41,7 @@ exports.adminLogin = asyncHandler(async (req, res, next) => {
       roleName = role.name;
     }
 
-    const token = jwt.sign(
-      { id: employee._id, role: roleName },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
+    const token = createToken({ id: employee._id, role: roleName });
 
     res.status(200).json({
       Message: 'Authenticated',
@@ -60,7 +55,9 @@ exports.adminLogin = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Vendor Login ...
+// @desc     Vendor Login ...
+// @route    /api/v1/auth/vendor/login
+// @access   Public
 exports.vendorLogin = asyncHandler(async (req, res, next) => {
   const vendor = await VendorModel.findOne({ email: req.body.email });
   if (!vendor) {
@@ -76,11 +73,7 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
       roleName = role.name;
     }
 
-    const token = jwt.sign(
-      { id: vendor._id, role: roleName },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
+    const token = createToken({ id: vendor._id, role: roleName });
 
     res.status(200).json({
       Message: 'Authenticated',
@@ -95,7 +88,9 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Customer Login ...
+// @desc     Admins(super admin & employees) Login ...
+// @route    /api/v1/auth/customer/login
+// @access   Public
 exports.customerLogin = asyncHandler(async (req, res, next) => {
   const customer = await customerModel.findOne({ email: req.body.email });
   if (!customer) {
@@ -111,16 +106,14 @@ exports.customerLogin = asyncHandler(async (req, res, next) => {
       roleName = role.name;
     }
 
-    const token = jwt.sign(
-      { id: customer._id, role: roleName },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
+    const token = createToken({ id: customer._id, role: roleName });
 
     res.status(200).json({
       Message: 'Authenticated',
       token,
       role: roleName,
+      id: customer._id,
+      img: customer.image,
     });
   } else {
     return next(
