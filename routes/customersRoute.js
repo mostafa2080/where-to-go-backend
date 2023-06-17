@@ -17,7 +17,7 @@ router.get(
   controller.getFavoritePlaces
 );
 router.put(
-  '/changeMyPassaowrd',
+  '/changeMyPassword',
   validateCustomer.changeUserPasswordValidator,
   controller.updateLoggedCustomerPassword
 );
