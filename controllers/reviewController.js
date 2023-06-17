@@ -22,8 +22,8 @@ exports.createReview = asyncHandler(async (req, res) => {
   await Vendor.updateOne(
     { _id: placeId },
     {
+      $inc: { numberOfReviews: 1 },
       $set: {
-        $inc: { numberOfReviews: 1 },
         avgRate: newAvgRate,
       },
     }
