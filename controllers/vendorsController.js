@@ -93,13 +93,20 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
 
   // Add rating filter based on the Review collection
   if (filters.rating) {
-    const rating = parseFloat(filters.rating);
+    const ratingRange = JSON.parse(filters.rating);
+    const minRating = parseFloat(ratingRange[0]);
+    const maxRating = parseFloat(ratingRange[1]);
 
-    if (!isNaN(rating)) {
-      const reviewFilter = { rating };
+    if (!isNaN(minRating) && !isNaN(maxRating)) {
+      const reviewFilter = { 
+        avgRate: {
+          $gte: minRating,
+          $lte: maxRating,
+        }
+      };
 
-      // Get the placeIds from the reviews with the specified rating
-      const reviewPlaceIds = await Review.distinct('placeId', reviewFilter);
+      // Get the placeIds from the reviews with the specified minRating, maxRating
+      const reviewPlaceIds = await Vendors.distinct('_id', reviewFilter);
 
       // Add the filtered placeIds to the filterQuery
       filterQuery._id = { $in: reviewPlaceIds };
