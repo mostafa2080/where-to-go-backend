@@ -7,6 +7,7 @@ const {
   generatePlacePopularityReport,
   generateUserActivityReport,
   generateVendorPerformanceReport,
+  vendorReports,
 } = require('../controllers/reportController');
 
 router.get(
@@ -24,5 +25,9 @@ router.get(
   EmployeeOrAbove,
   generateUserActivityReport
 );
-
+router.get(
+  '/vendorReport',
+  EmployeeOrAbove,
+  vendorReports
+);
 module.exports = router;

@@ -111,3 +111,27 @@ exports.generatePlacePopularityReport = asyncHandler(async (req, res, next) => {
 
   res.json(report);
 });
+// @desc      Get Place Popularity Report
+// @route     GET /generatePlacePopularityReport
+// @access    Private
+
+exports.vendorReports = async (req, res) => {
+  try {
+    const totalVendors = await VendorModel.countDocuments();
+    const approvedVendors = await VendorModel.countDocuments({ isApproved: true });
+    const notApprovedVendors = await VendorModel.countDocuments({ isApproved: false });
+    const bannedVendors = await VendorModel.countDocuments({ role: { $ne: null } });
+
+    const report = {
+      totalVendors,
+      approvedVendors,
+      notApprovedVendors,
+      bannedVendors,
+    };
+
+    res.json(report);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
