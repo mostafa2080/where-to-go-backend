@@ -271,6 +271,7 @@ exports.updatingDatabaseImageValues = AsyncHandler(async (req, res, next) => {
       })
     );
   }
+ 
   next();
 });
 
