@@ -39,7 +39,7 @@ const CustomerSchema = ExtendSchema(UserSchema, {
     ref: 'vendors',
     default: [],
   },
-});
+}, { timestamps: true });
 
 // Mapping Schema to Model
 const customerModel = mongoose.model('customers', CustomerSchema);
