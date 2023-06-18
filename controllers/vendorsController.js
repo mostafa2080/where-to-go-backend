@@ -15,8 +15,10 @@ const sendMail = require("../utils/sendEmail");
 require("../models/Vendor");
 require("../models/Tag");
 require("../models/Category");
+require("../models/Notification");
 
 const socket = io("http://localhost:8001");
+const Notification = mongoose.model("notification");
 const Vendors = mongoose.model("vendor");
 const Roles = mongoose.model("roles");
 const Tags = mongoose.model("tag");
@@ -310,6 +312,10 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
   }
 
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
+  await new Notification({
+    content: message,
+    for: "admin/emp",
+  }).save();
   socket.emit("notifyAdminAndEmpForAddingVendor", message);
 
   greetingMessage(document);
