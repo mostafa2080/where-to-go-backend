@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 
@@ -122,9 +123,15 @@ exports.generatePlacePopularityReport = asyncHandler(async (req, res, next) => {
 exports.vendorReports = async (req, res) => {
   try {
     const totalVendors = await VendorModel.countDocuments();
-    const approvedVendors = await VendorModel.countDocuments({ isApproved: true });
-    const notApprovedVendors = await VendorModel.countDocuments({ isApproved: false });
-    const bannedVendors = await VendorModel.countDocuments({ role: { $ne: null } });
+    const approvedVendors = await VendorModel.countDocuments({
+      isApproved: true,
+    });
+    const notApprovedVendors = await VendorModel.countDocuments({
+      isApproved: false,
+    });
+    const bannedVendors = await VendorModel.countDocuments({
+      role: { $ne: null },
+    });
 
     const report = {
       totalVendors,
@@ -136,11 +143,11 @@ exports.vendorReports = async (req, res) => {
     res.json(report);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-exports.generateYearlyUserReport = async (req, res) => {
+exports.generateCurrentMonthUserReport = async (req, res) => {
   try {
     const currentDate = new Date();
     const startOfMonth = new Date(currentDate.getFullYear(), 0, 1);
@@ -169,5 +176,151 @@ exports.generateYearlyUserReport = async (req, res) => {
     res.json(report);
   } catch (error) {
     res.status(500).json({ error: 'Error generating user report' });
+  }
+};
+exports.generateYearlyUserReport = async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+
+    const monthlyUserCounts = [];
+
+    // eslint-disable-next-line no-plusplus
+    for (let month = 0; month < 12; month++) {
+      const startDate = new Date(currentYear, month, 1);
+      const endDate = new Date(currentYear, month + 1, 0, 23, 59, 59);
+
+      const customerCount = await CustomerModel.countDocuments({
+        createdAt: { $gte: startDate, $lte: endDate },
+      });
+
+      const vendorCount = await VendorModel.countDocuments({
+        createdAt: { $gte: startDate, $lte: endDate },
+      });
+
+      const employeeCount = await employeeModel.countDocuments({
+        createdAt: { $gte: startDate, $lte: endDate },
+      });
+
+      const totalUsers = customerCount + vendorCount + employeeCount;
+
+      const monthlyCount = {
+        month: month + 1,
+        newUsers: totalUsers,
+      };
+
+      monthlyUserCounts.push(monthlyCount);
+    }
+
+    res.json(monthlyUserCounts);
+  } catch (error) {
+    console.error('Error generating user report:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+exports.generateUserWholeYearWeeklyReport = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
+    const startDate = new Date(currentYear, currentMonth, 1);
+    const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+
+    const daysInMonth = endDate.getDate();
+
+    const weeklyUserCounts = [];
+
+    const startDateOfWeek = startDate;
+
+    while (startDateOfWeek.getMonth() === currentMonth) {
+      const endDateOfWeek = new Date(startDateOfWeek);
+      endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
+      const customerCount = await CustomerModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const vendorCount = await VendorModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const employeeCount = await employeeModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const totalUsers = customerCount + vendorCount + employeeCount;
+
+      const weeklyCount = {
+        week: `${startDateOfWeek.getDate()  } - ${  endDateOfWeek.getDate()}`,
+        newUsers: totalUsers,
+      };
+
+      weeklyUserCounts.push(weeklyCount);
+
+      startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
+    }
+
+    res.json(weeklyUserCounts);
+  } catch (error) {
+    console.error("Error generating user report:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+exports.generateUserWeeklyReport = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
+    const startDate = new Date(currentYear, currentMonth, 1);
+    const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+
+    const daysInMonth = endDate.getDate();
+
+    const weeklyUserCounts = [];
+
+    const startDateOfWeek = startDate;
+    let endDateOfWeek = new Date(startDate);
+    endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
+    while (startDateOfWeek.getMonth() === currentMonth) {
+      const customerCount = await CustomerModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const vendorCount = await VendorModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const employeeCount = await employeeModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const totalUsers = customerCount + vendorCount + employeeCount;
+
+      const weeklyCount = {
+        startDate: startDateOfWeek,
+        endDate: endDateOfWeek,
+        newUsers: totalUsers,
+      };
+
+      weeklyUserCounts.push(weeklyCount);
+
+      startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
+      endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
+      if (endDateOfWeek > endDate) {
+        endDateOfWeek = endDate;
+      }
+    }
+
+    res.json(weeklyUserCounts);
+  } catch (error) {
+    console.error("Error generating user report:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

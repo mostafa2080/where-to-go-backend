@@ -9,6 +9,9 @@ const {
   generateVendorPerformanceReport,
   vendorReports,
   generateYearlyUserReport,
+  generateCurrentMonthUserReport,
+  generateUserWeeklyReport,
+  generateUserWeeklyDaysReport,
 } = require('../controllers/reportController');
 
 router.get(
@@ -28,4 +31,10 @@ router.get(
 );
 router.get('/vendorReport', EmployeeOrAbove, vendorReports);
 router.get('/yearlyReport', EmployeeOrAbove, generateYearlyUserReport);
+router.get(
+  '/currentMonthlyReport',
+  EmployeeOrAbove,
+  generateCurrentMonthUserReport
+);
+router.get('/weeklyReport', EmployeeOrAbove, generateUserWeeklyReport);
 module.exports = router;
