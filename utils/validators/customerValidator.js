@@ -302,8 +302,8 @@ exports.validateRegisterArray = [
   body('email')
     .optional()
     .custom(async (val, { req }) => {
-      const vendor = await Customer.findOne({ email: val });
-      if (vendor) {
+      const customer = await Customer.findOne({ email: val });
+      if (customer) {
         throw new ApiError('Email Already Exists', 404);
       }
     })
