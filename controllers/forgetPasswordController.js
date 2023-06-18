@@ -1,16 +1,16 @@
-const mongoose = require('mongoose');
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const asyncHandler = require('express-async-handler');
-const ApiError = require('../utils/apiError');
-const sendMail = require('../utils/sendEmail');
-const { use } = require('../routes/imagesRouter');
+const mongoose = require("mongoose");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const asyncHandler = require("express-async-handler");
+const ApiError = require("../utils/apiError");
+const sendMail = require("../utils/sendEmail");
+const { use } = require("../routes/imagesRouter");
 
-require('../models/Customer');
-require('../models/Vendor');
-require('../models/Employee');
-const Role = require('../models/Role');
+require("../models/Customer");
+require("../models/Vendor");
+require("../models/Employee");
+const Role = require("../models/Role");
 
 const saltRunds = 10;
 const salt = bcrypt.genSaltSync(saltRunds);
@@ -53,7 +53,11 @@ const forgetMessage = (user, resetCode, roleName) => `
     </head>
     <body>
       <div class="container">
-        <h1>Hi ${roleName === 'Employee' || roleName === 'Admin' ? user.name : user.firstName},</h1>
+        <h1>Hi ${
+          roleName === "Employee" || roleName === "Admin"
+            ? user.name
+            : user.firstName
+        },</h1>
         <p>We have received a request to reset your password on Where To Go Account.</p>
         <p class="code">${resetCode}</p>
         <p>Enter this code to complete the reset request.</p>
@@ -96,9 +100,9 @@ exports.forgotPassword = (model) =>
     //2) if email is exist, generate a hash reset random 6 digits and save it in DB
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedResetCode = crypto
-      .createHash('sha256')
+      .createHash("sha256")
       .update(resetCode)
-      .digest('hex');
+      .digest("hex");
 
     //save the hashed reset code into the database
     user.passwordResetToken = hashedResetCode;
@@ -107,19 +111,18 @@ exports.forgotPassword = (model) =>
     user.passwordResetVerified = false;
     await user.save();
 
-    const role = await Role.findOne({ _id: user.role });
-    const roleName = role.name;
+    const role = (await Role.findOne({ _id: user.role })) || "Vendor";
+    const roleName = role.name || "Vendor";
     const message =
       req.body.modelType !== undefined
         ? approvalMessage(user, resetCode)
         : forgetMessage(user, resetCode, roleName);
-
+    // console.log(message);
     //3) send the reset code via email
     try {
-      console.log(user.name);
       await sendMail({
         email: user.email,
-        subject: 'Your Password reset code (Valid for 10 min )',
+        subject: "Your Password reset code (Valid for 10 min )",
         message,
       });
     } catch (e) {
@@ -127,32 +130,33 @@ exports.forgotPassword = (model) =>
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;
       await user.save();
+      console.log(e);
       return next(
         new ApiError(
-          'Something went wrong when sending email, please try again later',
+          "Something went wrong when sending email, please try again later",
           500
         )
       );
     }
 
     res.status(200).json({
-      status: 'success',
-      message: 'Your reset code sent successfully',
+      status: "success",
+      message: "Your reset code sent successfully",
     });
   });
 
 //@desc verify reset code
 //@route POST /api/v1/auth/model/verifyResetCode
 //@access public
-let userMail = '';
+let userMail = "";
 
 exports.verifyPassResetCode = (model) =>
   asyncHandler(async (req, res, next) => {
     // 1) get user based on reset code
     const hashedCode = crypto
-      .createHash('sha256')
+      .createHash("sha256")
       .update(req.body.resetCode)
-      .digest('hex');
+      .digest("hex");
 
     const user = await model.findOne({
       passwordResetToken: hashedCode,
@@ -161,7 +165,7 @@ exports.verifyPassResetCode = (model) =>
 
     if (!user) {
       return next(
-        new ApiError('Password reset token is invalid or has expired', 400)
+        new ApiError("Password reset token is invalid or has expired", 400)
       );
     }
 
@@ -169,7 +173,7 @@ exports.verifyPassResetCode = (model) =>
     user.passwordResetVerified = true;
     await user.save();
 
-    res.status(200).json({ status: 'success' });
+    res.status(200).json({ status: "success" });
     userMail = user.email;
   });
 //@desc  reset pw
@@ -188,7 +192,7 @@ exports.resetPassword = (model) =>
 
     //2) check if reset code is verified
     if (!user.passwordResetVerified) {
-      return next(new ApiError('Password reset token not verified', 400));
+      return next(new ApiError("Password reset token not verified", 400));
     }
 
     user.password = bcrypt.hashSync(req.body.newPassword, salt);
