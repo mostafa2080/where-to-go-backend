@@ -36,5 +36,5 @@ router.get(
   EmployeeOrAbove,
   generateCurrentMonthUserReport
 );
-router.get('/WeeklyReport', EmployeeOrAbove, generateUserWeeklyReport);
+router.get('/weeklyReport', EmployeeOrAbove, generateUserWeeklyReport);
 module.exports = router;
