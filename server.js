@@ -22,6 +22,7 @@ const reportsRoute = require("./routes/reportsRoute");
 const reviewRoute = require("./routes/reviewRoute");
 const contactUsRoute = require("./routes/contactUsRoute");
 const favoritesRouter = require("./routes/favoritesRouter");
+const notificationsRoute = require("./routes/notificationsRoute");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
 const raisedEventListener = require("./utils/webSockets");
@@ -61,9 +62,10 @@ app.use("/api/v1/contact", contactUsRoute);
 app.use(authenticationMiddleware);
 
 app.use("/api/v1/vendors", vendorsRoute);
+app.use("/api/v1/notifications", notificationsRoute);
 app.use("/api/v1/categories", categoriesRouter);
 app.use("/api/v1/tags", tagsRouter);
-app.use('/api/v1/employees/',EmployeeRoutes);
+app.use("/api/v1/employees/", EmployeeRoutes);
 app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/reviews", reviewRoute);
 
