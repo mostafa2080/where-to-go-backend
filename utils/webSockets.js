@@ -10,6 +10,12 @@ const raisedEventListener = (io) => {
       console.log(data);
     });
 
+    socket.on("changeInVendorTable", () => {
+      const message = "Add Or Approve For Vendor Has Been Made";
+      io.emit("changeInVendorTable", message);
+      console.log(message);
+    });
+
     socket.on("disconnect", () => {
       console.log("user disconnected");
     });
