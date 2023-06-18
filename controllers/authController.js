@@ -66,7 +66,7 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
     );
   }
   if (bcrypt.compareSync(req.body.password, vendor.password)) {
-    let roleName = '';
+    let roleName = 'vendor';
 
     const role = await RoleModel.findOne({ _id: vendor.role });
     if (role) {
