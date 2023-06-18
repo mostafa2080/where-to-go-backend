@@ -1,0 +1,12 @@
+[
+  {
+    "name": "John Doe",
+    "dateOfBirth": "1990-05-15",
+    "gender": "Male",
+    "hireDate": "2022-01-10",
+    "bannedAtt": null,
+    "image": "john_doe.jpg",
+    "salary": 5000,
+    "email": "janesmith@example.com"
+  }
+]
