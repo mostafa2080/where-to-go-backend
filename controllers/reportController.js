@@ -218,65 +218,109 @@ exports.generateYearlyUserReport = async (req, res) => {
   }
 };
 
-exports.generateUserWeeklyReport = async (req, res) => {
+
+exports.generateUserWholeYearWeeklyReport = async (req, res) => {
   try {
-    // Get the current year and month
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
 
-    // Get the start and end dates of the current month
     const startDate = new Date(currentYear, currentMonth, 1);
     const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
 
-    // Calculate the number of days in the current month
     const daysInMonth = endDate.getDate();
 
-    // Create an array to store the weekly user counts
     const weeklyUserCounts = [];
 
-    // Iterate over the weeks in the month
     const startDateOfWeek = startDate;
-    const endDateOfWeek = new Date(startDate);
-    endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
 
     while (startDateOfWeek.getMonth() === currentMonth) {
-      // Count the number of new customers in the week
+      const endDateOfWeek = new Date(startDateOfWeek);
+      endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
       const customerCount = await CustomerModel.countDocuments({
         createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
       });
 
-      // Count the number of new vendors in the week
       const vendorCount = await VendorModel.countDocuments({
         createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
       });
 
-      // Count the number of new employees in the week
       const employeeCount = await employeeModel.countDocuments({
         createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
       });
 
-      // Calculate the total number of new users in the week
       const totalUsers = customerCount + vendorCount + employeeCount;
 
-      // Create an object with the start and end dates of the week and the user count
       const weeklyCount = {
-        week: `${startDateOfWeek.getDate()} - ${endDateOfWeek.getDate()}`,
+        week: `${startDateOfWeek.getDate()  } - ${  endDateOfWeek.getDate()}`,
         newUsers: totalUsers,
       };
 
-      // Add the weekly count to the array
       weeklyUserCounts.push(weeklyCount);
 
-      // Move to the next week
       startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
-      endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
     }
 
-    // Return the weekly user counts as a response
     res.json(weeklyUserCounts);
   } catch (error) {
-    console.error('Error generating user report:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error generating user report:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+exports.generateUserWeeklyReport = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
+    const startDate = new Date(currentYear, currentMonth, 1);
+    const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+
+    const daysInMonth = endDate.getDate();
+
+    const weeklyUserCounts = [];
+
+    const startDateOfWeek = startDate;
+    let endDateOfWeek = new Date(startDate);
+    endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
+    while (startDateOfWeek.getMonth() === currentMonth) {
+      const customerCount = await CustomerModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const vendorCount = await VendorModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const employeeCount = await employeeModel.countDocuments({
+        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+      });
+
+      const totalUsers = customerCount + vendorCount + employeeCount;
+
+      const weeklyCount = {
+        startDate: startDateOfWeek,
+        endDate: endDateOfWeek,
+        newUsers: totalUsers,
+      };
+
+      weeklyUserCounts.push(weeklyCount);
+
+      startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
+      endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
+      if (endDateOfWeek > endDate) {
+        endDateOfWeek = endDate;
+      }
+    }
+
+    res.json(weeklyUserCounts);
+  } catch (error) {
+    console.error("Error generating user report:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
