@@ -1,8 +1,8 @@
-const asyncHandler = require("express-async-handler");
-const Review = require("../models/Review");
-const Vendor = require("../models/Vendor");
-const ApiError = require("../utils/apiError");
-const { vendor } = require("sharp");
+const asyncHandler = require('express-async-handler');
+const Review = require('../models/Review');
+const Vendor = require('../models/Vendor');
+const ApiError = require('../utils/apiError');
+const { vendor } = require('sharp');
 
 // @desc      Create a review
 // @route     POST /reviews
@@ -12,6 +12,13 @@ exports.createReview = asyncHandler(async (req, res) => {
   const { placeId } = req.body;
   // Check if the user has already submitted a review for the place
   const existingReview = await Review.findOne({ userId, placeId });
+
+  if (existingReview) {
+    return res.status(400).json({
+      success: false,
+      error: 'You have already submitted a review for this place.',
+    });
+  }
   const place = await Vendor.findOne({ _id: placeId });
   const previousAvgRate = place.avgRate;
   const prevnumberOfReviews = place.numberOfReviews;
@@ -28,20 +35,12 @@ exports.createReview = asyncHandler(async (req, res) => {
       },
     }
   );
-
-  if (existingReview) {
-    return res.status(400).json({
-      success: false,
-      error: "You have already submitted a review for this place.",
-    });
-  }
-
   // If the user hasn't submitted a review, create a new one
   req.body.userId = userId;
   const review = await Review.create(req.body);
   if (!review) {
     throw new ApiError(
-      "Something went wrong while posting your review , try again later..."
+      'Something went wrong while posting your review , try again later...'
     );
   }
 
@@ -55,26 +54,17 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const { id } = req.params;
   console.log(id);
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
 
   const reviews = await Review.find({ placeId: id }).skip(skip).limit(limit);
 
   if (reviews.length === 0) {
-    throw new ApiError("No reviews found", 404);
+    throw new ApiError('No reviews found', 404);
   }
 
-  const totalReviews = reviews.length;
-  let totalRates = 0;
-
-  reviews.forEach((review) => {
-    totalRates += review.rating;
-  });
-
-  const avgRate = totalRates / totalReviews;
-
-  res.json({ success: true, reviews, totalReviews, avgRate });
+  res.json({ success: true, reviews });
 });
 
 // @desc      update review
@@ -91,7 +81,7 @@ exports.updateReview = asyncHandler(async (req, res) => {
   );
 
   if (!updatedReview) {
-    throw new ApiError("Review not found", 404);
+    throw new ApiError('Review not found', 404);
   }
 
   res.json({ success: true, review: updatedReview });
@@ -104,8 +94,8 @@ exports.deleteReview = asyncHandler(async (req, res) => {
   const deletedReview = await Review.findByIdAndDelete(req.params.id);
 
   if (!deletedReview) {
-    throw new ApiError("Review not found", 404);
+    throw new ApiError('Review not found', 404);
   }
 
-  res.json({ success: "Deleted Successfully", review: deletedReview });
+  res.json({ success: 'Deleted Successfully', review: deletedReview });
 });

@@ -58,6 +58,7 @@ if (process.env.NODE_ENV === "development") {
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/contact", contactUsRoute);
+app.use("/api/v1/categories", categoriesRouter);
 
 app.use(authenticationMiddleware);
 

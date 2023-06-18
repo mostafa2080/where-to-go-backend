@@ -20,6 +20,9 @@ const {
   vendorVerifyPassResetCode,
   vendorResetPassword,
   addVendor,
+  uploadVendorImages,
+  updatingDatabaseImageValues,
+  getAllVendors,
 } = require('../controllers/vendorsController');
 
 const {
@@ -78,6 +81,13 @@ router
 
 router
   .route('/vendor/register')
-  .post(addValidationArray, validatorMiddleware, addVendor);
+  .post(
+    uploadVendorImages,
+    updatingDatabaseImageValues,
+    addValidationArray,
+    validatorMiddleware,
+    addVendor
+  );
 
+router.route('/search').get(getAllVendors);
 module.exports = router;
