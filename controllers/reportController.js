@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
-
+const apiError = require('../utils/apiError');
 const CustomerModel = require('../models/Customer');
 const ApiError = require('../utils/apiError');
 require('../models/Vendor');
@@ -218,7 +218,6 @@ exports.generateYearlyUserReport = async (req, res) => {
   }
 };
 
-
 exports.generateUserWholeYearWeeklyReport = async (req, res) => {
   try {
     const currentDate = new Date();
@@ -253,7 +252,7 @@ exports.generateUserWholeYearWeeklyReport = async (req, res) => {
       const totalUsers = customerCount + vendorCount + employeeCount;
 
       const weeklyCount = {
-        week: `${startDateOfWeek.getDate()  } - ${  endDateOfWeek.getDate()}`,
+        week: `${startDateOfWeek.getDate()} - ${endDateOfWeek.getDate()}`,
         newUsers: totalUsers,
       };
 
@@ -264,11 +263,10 @@ exports.generateUserWholeYearWeeklyReport = async (req, res) => {
 
     res.json(weeklyUserCounts);
   } catch (error) {
-    console.error("Error generating user report:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error generating user report:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 
 exports.generateUserWeeklyReport = async (req, res) => {
   try {
@@ -320,7 +318,7 @@ exports.generateUserWeeklyReport = async (req, res) => {
 
     res.json(weeklyUserCounts);
   } catch (error) {
-    console.error("Error generating user report:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error generating user report:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
