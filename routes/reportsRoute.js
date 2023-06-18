@@ -15,6 +15,7 @@ const {
   getVendorReviewsStatistics,
   getLoggedVendor,
   getVendorMonthlyReviewsStatistics,
+  getLoggedVendorFavStatistics,
 } = require('../controllers/reportController');
 
 router.get(
@@ -40,10 +41,19 @@ router.get(
   generateCurrentMonthUserReport
 );
 router.get('/weeklyReport', EmployeeOrAbove, generateUserWeeklyReport);
-router.get('/vendorTotalReviewReport', getLoggedVendor, getVendorReviewsStatistics);
+router.get(
+  '/vendorTotalReviewReport',
+  getLoggedVendor,
+  getVendorReviewsStatistics
+);
 router.get(
   '/vendorMonthlyReview',
   getLoggedVendor,
   getVendorMonthlyReviewsStatistics
+);
+router.get(
+  '/vendorFavStatistics',
+  getLoggedVendor,
+  getLoggedVendorFavStatistics
 );
 module.exports = router;

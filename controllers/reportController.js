@@ -314,7 +314,8 @@ exports.getLoggedVendor = asyncHandler(async (req, res, next) => {
   next();
 });
 exports.getVendorReviewsStatistics = asyncHandler(async (req, res, next) => {
-  const {vendorId} = req;
+  const { vendorId } = req;
+  Customer;
 
   const vendor = await VendorModel.findById(vendorId);
   if (!vendor) {
@@ -331,34 +332,78 @@ exports.getVendorReviewsStatistics = asyncHandler(async (req, res, next) => {
 
   res.status(200).json(statistics);
 });
-exports.getVendorMonthlyReviewsStatistics = asyncHandler(async (req, res, next) => {
-  const { vendorId } = req; // Assuming the vendorId is available in the request's authenticated user object
+exports.getVendorMonthlyReviewsStatistics = asyncHandler(
+  async (req, res, next) => {
+    const { vendorId } = req; // Assuming the vendorId is available in the request's authenticated user object
 
-  const vendor = await VendorModel.findById(vendorId);
-  if (!vendor) {
-    throw new ApiError('Vendor not found', 404);
+    const vendor = await VendorModel.findById(vendorId);
+    if (!vendor) {
+      throw new ApiError('Vendor not found', 404);
+    }
+
+    const currentYear = new Date().getFullYear();
+    const reviews = await reviewModel.find({
+      placeId: vendorId,
+      timestamp: {
+        $gte: new Date(currentYear, 0, 1), // Start of the current year
+        $lt: new Date(currentYear + 1, 0, 1), // Start of the next year
+      },
+    });
+
+    const reviewsByMonth = Array(12).fill(0); // Initialize an array with 12 elements, each initialized with 0
+
+    // Count the number of reviews for each month
+    reviews.forEach((review) => {
+      const month = review.timestamp.getMonth();
+      reviewsByMonth[month]++;
+    });
+
+    const statistics = {
+      reviewsByMonth,
+    };
+
+    res.status(200).json(statistics);
   }
+);
 
-  const currentYear = new Date().getFullYear();
-  const reviews = await reviewModel.find({
-    placeId: vendorId,
-    timestamp: {
-      $gte: new Date(currentYear, 0, 1), // Start of the current year
-      $lt: new Date(currentYear + 1, 0, 1), // Start of the next year
+exports.getLoggedVendorFavStatistics = asyncHandler(async (req, res, next) => {
+  const year = new Date().getFullYear();
+  const startOfYear = new Date(year, 0, 1);
+  const endOfYear = new Date(year, 11, 31);
+
+  const favoritesByMonth = await customerModel.aggregate([
+    {
+      $match: {
+        favoritePlaces: { $in: [req.vendorId] },
+        createdAt: { $gte: startOfYear, $lte: endOfYear },
+      },
+    },
+    {
+      $group: {
+        _id: { $month: '$createdAt' },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        month: '$_id',
+        count: 1,
+      },
+    },
+    {
+      $sort: {
+        month: 1,
+      },
+    },
+  ]);
+
+  console.log('Favorites by month:', favoritesByMonth);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      favoritesByMonth,
     },
   });
-
-  const reviewsByMonth = Array(12).fill(0); // Initialize an array with 12 elements, each initialized with 0
-
-  // Count the number of reviews for each month
-  reviews.forEach((review) => {
-    const month = review.timestamp.getMonth();
-    reviewsByMonth[month]++;
-  });
-
-  const statistics = {
-    reviewsByMonth,
-  };
-
-  res.status(200).json(statistics);
 });
