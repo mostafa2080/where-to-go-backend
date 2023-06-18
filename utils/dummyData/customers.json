@@ -1,0 +1,14 @@
+[
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "dateOfBirth": "1990-05-15",
+    "gender": "male",
+    "verifiedAt": null,
+    "bannedAt": null,
+    "deletedAt": null,
+    "image": "",
+    "favoritePlaces": []
+  }
+]
