@@ -95,25 +95,23 @@ exports.getAllVendors = AsyncHandler(async (req, res, next) => {
 
   // Add rating filter based on the Review collection
   if (filters.rating) {
-    const ratingRange = filters.rating.split(',');
+    const ratingRange = filters.rating.split(",");
     const minRating = parseFloat(ratingRange[0]);
     const maxRating = parseFloat(ratingRange[1]);
 
     if (!isNaN(minRating) && !isNaN(maxRating)) {
-      const reviewFilter = { 
+      const reviewFilter = {
         avgRate: {
           $gte: minRating,
           $lte: maxRating,
-        }
+        },
       };
 
-<<<<<<< HEAD
       // Get the placeIds from the reviews with the specified rating
-      const reviewPlaceIds = await Review.distinct("placeId", reviewFilter);
-=======
+      // const reviewPlaceIds = await Review.distinct("placeId", reviewFilter);
+
       // Get the placeIds from the reviews with the specified minRating, maxRating
-      const reviewPlaceIds = await Vendors.distinct('_id', reviewFilter);
->>>>>>> 2d20d5321e4e1f2f0cf26fc08a67b77e54ebd1bc
+      const reviewPlaceIds = await Vendors.distinct("_id", reviewFilter);
 
       // Add the filtered placeIds to the filterQuery
       filterQuery._id = { $in: reviewPlaceIds };
@@ -278,7 +276,7 @@ exports.updatingDatabaseImageValues = AsyncHandler(async (req, res, next) => {
       })
     );
   }
- 
+
   next();
 });
 
@@ -556,21 +554,16 @@ exports.updateLoggedVendorData = AsyncHandler(async (req, res, next) => {
 });
 
 exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
-<<<<<<< HEAD
-  await Vendors.findOneAndUpdate(req.decodedToken.id, { active: false });
+  await Vendors.findOneAndUpdate(req.decodedToken.payload.id, {
+    active: false,
+  });
   res.status(200).json({ status: "Your Account Deleted Successfully" });
-=======
-  await Vendors.findOneAndUpdate(req.decodedToken.payload.id, { active: false });
-  res.status(200).json({ status: 'Your Account Deleted Successfully' });
->>>>>>> 2d20d5321e4e1f2f0cf26fc08a67b77e54ebd1bc
 });
 
 exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
   try {
     // Code Here...
-    const topRatedPlaces = await Vendors.find()
-    .sort({avgRate: -1})
-    .limit(5)
+    const topRatedPlaces = await Vendors.find().sort({ avgRate: -1 }).limit(5);
 
     if (topRatedPlaces.length > 0) {
       res.status(200).json({ data: topRatedPlaces });
