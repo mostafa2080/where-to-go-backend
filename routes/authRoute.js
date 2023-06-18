@@ -23,6 +23,7 @@ const {
   uploadVendorImages,
   updatingDatabaseImageValues,
   getAllVendors,
+  getTopRatedPlaces,
 } = require('../controllers/vendorsController');
 
 const {
@@ -90,4 +91,5 @@ router
   );
 
 router.route('/search').get(getAllVendors);
+router.route('/topRated').get(getTopRatedPlaces);
 module.exports = router;
