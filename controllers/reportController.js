@@ -178,147 +178,132 @@ exports.generateCurrentMonthUserReport = async (req, res) => {
     res.status(500).json({ error: 'Error generating user report' });
   }
 };
-exports.generateYearlyUserReport = async (req, res) => {
-  try {
-    const currentYear = new Date().getFullYear();
+exports.generateYearlyUserReport = asyncHandler(async (req, res) => {
+  const currentYear = new Date().getFullYear();
 
-    const monthlyUserCounts = [];
+  const monthlyUserCounts = [];
 
-    // eslint-disable-next-line no-plusplus
-    for (let month = 0; month < 12; month++) {
-      const startDate = new Date(currentYear, month, 1);
-      const endDate = new Date(currentYear, month + 1, 0, 23, 59, 59);
+  // eslint-disable-next-line no-plusplus
+  for (let month = 0; month < 12; month++) {
+    const startDate = new Date(currentYear, month, 1);
+    const endDate = new Date(currentYear, month + 1, 0, 23, 59, 59);
 
-      const customerCount = await CustomerModel.countDocuments({
-        createdAt: { $gte: startDate, $lte: endDate },
-      });
+    const customerCount = await CustomerModel.countDocuments({
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
 
-      const vendorCount = await VendorModel.countDocuments({
-        createdAt: { $gte: startDate, $lte: endDate },
-      });
+    const vendorCount = await VendorModel.countDocuments({
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
 
-      const employeeCount = await employeeModel.countDocuments({
-        createdAt: { $gte: startDate, $lte: endDate },
-      });
+    const employeeCount = await employeeModel.countDocuments({
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
 
-      const totalUsers = customerCount + vendorCount + employeeCount;
+    const totalUsers = customerCount + vendorCount + employeeCount;
 
-      const monthlyCount = {
-        month: month + 1,
-        newUsers: totalUsers,
-      };
+    const monthlyCount = {
+      month: month + 1,
+      newUsers: totalUsers,
+    };
 
-      monthlyUserCounts.push(monthlyCount);
-    }
-
-    res.json(monthlyUserCounts);
-  } catch (error) {
-    console.error('Error generating user report:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    monthlyUserCounts.push(monthlyCount);
   }
-};
 
-exports.generateUserWholeYearWeeklyReport = async (req, res) => {
-  try {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
+  res.json(monthlyUserCounts);
+});
 
-    const startDate = new Date(currentYear, currentMonth, 1);
-    const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+exports.generateUserWholeYearWeeklyReport = asyncHandler(async (req, res) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
 
-    const daysInMonth = endDate.getDate();
+  const startDate = new Date(currentYear, currentMonth, 1);
+  const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
 
-    const weeklyUserCounts = [];
+  const daysInMonth = endDate.getDate();
 
-    const startDateOfWeek = startDate;
+  const weeklyUserCounts = [];
 
-    while (startDateOfWeek.getMonth() === currentMonth) {
-      const endDateOfWeek = new Date(startDateOfWeek);
-      endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+  let startDateOfWeek = startDate;
 
-      const customerCount = await CustomerModel.countDocuments({
-        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
-      });
-
-      const vendorCount = await VendorModel.countDocuments({
-        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
-      });
-
-      const employeeCount = await employeeModel.countDocuments({
-        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
-      });
-
-      const totalUsers = customerCount + vendorCount + employeeCount;
-
-      const weeklyCount = {
-        week: `${startDateOfWeek.getDate()} - ${endDateOfWeek.getDate()}`,
-        newUsers: totalUsers,
-      };
-
-      weeklyUserCounts.push(weeklyCount);
-
-      startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
-    }
-
-    res.json(weeklyUserCounts);
-  } catch (error) {
-    console.error('Error generating user report:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-exports.generateUserWeeklyReport = async (req, res) => {
-  try {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
-
-    const startDate = new Date(currentYear, currentMonth, 1);
-    const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
-
-    const daysInMonth = endDate.getDate();
-
-    const weeklyUserCounts = [];
-
-    const startDateOfWeek = startDate;
-    let endDateOfWeek = new Date(startDate);
+  while (startDateOfWeek.getMonth() === currentMonth) {
+    const endDateOfWeek = new Date(startDateOfWeek);
     endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
 
-    while (startDateOfWeek.getMonth() === currentMonth) {
-      const customerCount = await CustomerModel.countDocuments({
-        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
-      });
+    const customerCount = await CustomerModel.countDocuments({
+      createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+    });
 
-      const vendorCount = await VendorModel.countDocuments({
-        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
-      });
+    const vendorCount = await VendorModel.countDocuments({
+      createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+    });
 
-      const employeeCount = await employeeModel.countDocuments({
-        createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
-      });
+    const employeeCount = await employeeModel.countDocuments({
+      createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+    });
 
-      const totalUsers = customerCount + vendorCount + employeeCount;
+    const totalUsers = customerCount + vendorCount + employeeCount;
 
-      const weeklyCount = {
-        startDate: startDateOfWeek,
-        endDate: endDateOfWeek,
-        newUsers: totalUsers,
-      };
+    const weeklyCount = {
+      week: `${startDateOfWeek.getDate()} - ${endDateOfWeek.getDate()}`,
+      newUsers: totalUsers,
+    };
 
-      weeklyUserCounts.push(weeklyCount);
+    weeklyUserCounts.push(weeklyCount);
 
-      startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
-      endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
-
-      if (endDateOfWeek > endDate) {
-        endDateOfWeek = endDate;
-      }
-    }
-
-    res.json(weeklyUserCounts);
-  } catch (error) {
-    console.error('Error generating user report:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
   }
-};
+
+  res.json(weeklyUserCounts);
+});
+
+exports.generateUserWeeklyReport = asyncHandler(async (req, res) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+
+  const startDate = new Date(currentYear, currentMonth, 1);
+  const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+
+  const daysInMonth = endDate.getDate();
+
+  const weeklyUserCounts = [];
+
+  const startDateOfWeek = startDate;
+  let endDateOfWeek = new Date(startDate);
+  endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
+  while (startDateOfWeek.getMonth() === currentMonth) {
+    const customerCount = await CustomerModel.countDocuments({
+      createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+    });
+
+    const vendorCount = await VendorModel.countDocuments({
+      createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+    });
+
+    const employeeCount = await employeeModel.countDocuments({
+      createdAt: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+    });
+
+    const totalUsers = customerCount + vendorCount + employeeCount;
+
+    const weeklyCount = {
+      startDate: startDateOfWeek,
+      endDate: endDateOfWeek,
+      newUsers: totalUsers,
+    };
+
+    weeklyUserCounts.push(weeklyCount);
+
+    startDateOfWeek.setDate(endDateOfWeek.getDate() + 1);
+    endDateOfWeek.setDate(startDateOfWeek.getDate() + 6);
+
+    if (endDateOfWeek > endDate) {
+      endDateOfWeek = endDate;
+    }
+  }
+
+  res.json(weeklyUserCounts);
+});
