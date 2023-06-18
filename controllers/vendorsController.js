@@ -344,7 +344,12 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
   }
 
   const message = `A new request for Adding New Place Named ${document.placeName} For Mr ${document.firstName} ${document.lastName} `;
-  socket.emit("message", message);
+  socket.emit("changeInVendorTable");
+  await new Notification({
+    content: message,
+    for: "admin/emp",
+    placeId: document._id,
+  }).save();
 
   greetingMessage(document);
   res.status(201).json({ data: document });
@@ -440,6 +445,17 @@ exports.approveVendor = AsyncHandler(async (req, res, next) => {
   }
   req.body.email = document.email;
   req.body.modelType = "vendor";
+
+  const notification = await Notification.updateOne(
+    { placeId: req.params.id },
+    {
+      isApproved: true,
+    }
+  );
+  if (!notification) {
+    return next(new ApiError("No Notification Found", 404));
+  }
+  socket.emit("changeInVendorTable");
   next();
 });
 
