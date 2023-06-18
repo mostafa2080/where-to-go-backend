@@ -4,8 +4,12 @@ const asyncHandler = require('express-async-handler');
 const CustomerModel = require('../models/Customer');
 const ApiError = require('../utils/apiError');
 require('../models/Vendor');
+require('../models/Customer');
+require('../models/Employee');
 
 const VendorModel = mongoose.model('vendor');
+const customerModel = mongoose.model('customers');
+const employeeModel = mongoose.model('employees');
 
 // @desc      Get User Activity Report
 // @route     GET /UserActivityReport
@@ -133,5 +137,37 @@ exports.vendorReports = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.generateYearlyUserReport = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const startOfMonth = new Date(currentDate.getFullYear(), 0, 1);
+    const endOfMonth = new Date(currentDate.getFullYear(), 11, 31);
+
+    const newVendorUsers = await VendorModel.countDocuments({
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    });
+
+    const newCustomerUsers = await customerModel.countDocuments({
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    });
+
+    const newEmployeeUsers = await employeeModel.countDocuments({
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    });
+
+    const report = {
+      month: currentDate.getMonth() + 1,
+      year: currentDate.getFullYear(),
+      newVendorUsers,
+      newCustomerUsers,
+      newEmployeeUsers,
+    };
+
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: 'Error generating user report' });
   }
 };
