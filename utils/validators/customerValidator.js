@@ -104,11 +104,7 @@ exports.validatePatchArray = [
 
   body("lastName").optional().isAlpha().withMessage("Last Must Be Alphabetic"),
 
-  body("email")
-    .optional()
-    .withMessage("Email Must Be Unique And Not Duplicated")
-    .isEmail()
-    .withMessage("Email Must Be Valid Email "),
+  body("email").optional().isEmail().withMessage("Email Must Be Valid Email "),
 
   body("password")
     .optional()
