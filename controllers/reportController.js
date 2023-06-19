@@ -309,13 +309,13 @@ exports.generateUserWeeklyReport = asyncHandler(async (req, res) => {
   res.json(weeklyUserCounts);
 });
 
+//vendor dashboard reports
 exports.getLoggedVendor = asyncHandler(async (req, res, next) => {
   req.vendorId = req.decodedToken.payload.id;
   next();
 });
-exports.getVendorReviewsStatistics = asyncHandler(async (req, res, next) => {
+exports.getVendorTotalReviewsStatistics = asyncHandler(async (req, res, next) => {
   const { vendorId } = req;
-  Customer;
 
   const vendor = await VendorModel.findById(vendorId);
   if (!vendor) {
@@ -366,7 +366,7 @@ exports.getVendorMonthlyReviewsStatistics = asyncHandler(
   }
 );
 
-exports.getLoggedVendorFavStatistics = asyncHandler(async (req, res, next) => {
+exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(async (req, res, next) => {
   const year = new Date().getFullYear();
   const startOfYear = new Date(year, 0, 1);
   const endOfYear = new Date(year, 11, 31);
@@ -407,3 +407,47 @@ exports.getLoggedVendorFavStatistics = asyncHandler(async (req, res, next) => {
     },
   });
 });
+
+
+exports.getLoggedVendorWeeklyFavStatistics = asyncHandler(
+  async (req, res, next) => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const startOfMonth = new Date(year, month, 1);
+    const endOfMonth = new Date(year, month + 1, 0);
+
+    const favoritesByWeek = await customerModel.aggregate([
+      {
+        $match: {
+          favoritePlaces: { $in: [req.vendorId] },
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+      },
+      {
+        $group: {
+          _id: { $week: '$createdAt' },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]);
+
+    const favoritesCountArray = favoritesByWeek.map(
+      (weekStats) => weekStats.count
+    );
+
+    console.log('Favorites count array:', favoritesCountArray);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        favoritesCountArray,
+      },
+    });
+  }
+);
