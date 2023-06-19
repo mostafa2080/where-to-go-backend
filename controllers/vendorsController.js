@@ -75,7 +75,7 @@ const greetingMessage = AsyncHandler(async (data) => {
 });
 
 const getAllVendors = async (req, res, next) => {
-  const page = parseInt(req.query.page, 10) || 0;
+  const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
   const sortField = req.query.sortField || null;
@@ -107,12 +107,6 @@ const getAllVendors = async (req, res, next) => {
         },
       };
 
-      // Get the placeIds from the reviews with the specified rating
-      // const reviewPlaceIds = await Review.distinct("placeId", reviewFilter);
-
-      // Get the placeIds from the reviews with the specified minRating, maxRating
-      // const reviewPlaceIds = await Vendors.distinct("_id", reviewFilter);
-      // Get the placeIds from the reviews with the specified minRating, maxRating
       const reviewPlaceIds = await Vendors.distinct('_id', reviewFilter);
 
       // Add the filtered placeIds to the filterQuery
@@ -203,8 +197,8 @@ const getAllVendors = async (req, res, next) => {
 
     const [vendors, total] = await Promise.all([
       Vendors.find(filterQuery)
-        // .skip(skip)
-        // .limit(limit)
+        .skip(skip)
+        .limit(limit)
         .sort(sortQuery)
         .populate('category'),
       Vendors.countDocuments(filterQuery),
@@ -321,7 +315,7 @@ exports.addVendor = AsyncHandler(async (req, res, next) => {
 
   if (req.files && req.files.thumbnail) {
     await sharp(req.files.thumbnail[0].buffer)
-      .resize(276, 320)
+      .resize(2000, 1333)
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
       .toFile(path.join(__dirname, '../images/vendors/', req.body.thumbnail));
@@ -595,7 +589,7 @@ exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
 exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
   try {
     // Code Here...
-    const topRatedPlaces = await Vendors.find().sort({ avgRate: -1 }).limit(4);
+    const topRatedPlaces = await Vendors.find().sort({ avgRate: -1 }).limit(5);
 
     if (topRatedPlaces.length > 0) {
       res.status(200).json({ data: topRatedPlaces });
