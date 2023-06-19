@@ -12,10 +12,10 @@ const {
   generateCurrentMonthUserReport,
   generateUserWeeklyReport,
   generateUserWeeklyDaysReport,
-  getVendorReviewsStatistics,
+  getVendorTotalReviewsStatistics,
   getLoggedVendor,
   getVendorMonthlyReviewsStatistics,
-  getLoggedVendorFavStatistics,
+  getLoggedVendorMonthlyFavStatistics,
   getLoggedVendorWeeklyFavStatistics,
 } = require('../controllers/reportController');
 
@@ -42,10 +42,12 @@ router.get(
   generateCurrentMonthUserReport
 );
 router.get('/weeklyReport', EmployeeOrAbove, generateUserWeeklyReport);
+
+//vendor dashboard
 router.get(
   '/vendorTotalReviewReport',
   getLoggedVendor,
-  getVendorReviewsStatistics
+  getVendorTotalReviewsStatistics
 );
 router.get(
   '/vendorMonthlyReview',
@@ -55,7 +57,7 @@ router.get(
 router.get(
   '/vendorFavStatistics',
   getLoggedVendor,
-  getLoggedVendorFavStatistics
+  getLoggedVendorMonthlyFavStatistics
 );
 router.get(
   '/vendorWeeklyFavStatistics',

@@ -309,11 +309,12 @@ exports.generateUserWeeklyReport = asyncHandler(async (req, res) => {
   res.json(weeklyUserCounts);
 });
 
+//vendor dashboard reports
 exports.getLoggedVendor = asyncHandler(async (req, res, next) => {
   req.vendorId = req.decodedToken.payload.id;
   next();
 });
-exports.getVendorReviewsStatistics = asyncHandler(async (req, res, next) => {
+exports.getVendorTotalReviewsStatistics = asyncHandler(async (req, res, next) => {
   const { vendorId } = req;
 
   const vendor = await VendorModel.findById(vendorId);
@@ -365,7 +366,7 @@ exports.getVendorMonthlyReviewsStatistics = asyncHandler(
   }
 );
 
-exports.getLoggedVendorFavStatistics = asyncHandler(async (req, res, next) => {
+exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(async (req, res, next) => {
   const year = new Date().getFullYear();
   const startOfYear = new Date(year, 0, 1);
   const endOfYear = new Date(year, 11, 31);
