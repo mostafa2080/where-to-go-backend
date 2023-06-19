@@ -201,6 +201,10 @@ exports.generateYearlyUserReport = asyncHandler(async (req, res) => {
       createdAt: { $gte: startDate, $lte: endDate },
     });
 
+    if (!customerCount || !vendorCount || !employeeCount) {
+      throw new ApiError("Can't generate yearly user's report...!", 400);
+    }
+
     const totalUsers = customerCount + vendorCount + employeeCount;
 
     const monthlyCount = {
