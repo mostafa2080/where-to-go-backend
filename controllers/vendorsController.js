@@ -456,6 +456,7 @@ exports.approveVendor = AsyncHandler(async (req, res, next) => {
     return next(new ApiError("No Notification Found", 404));
   }
   socket.emit("changeInVendorTable");
+  console.log(req.body);
   next();
 });
 

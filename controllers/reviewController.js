@@ -9,7 +9,7 @@ const { vendor } = require('sharp');
 // @access    Public
 exports.createReview = asyncHandler(async (req, res) => {
   const userId = req.decodedToken.payload.id;
-  const { placeId } = req.body;
+  const { placeId, content, rating } = req.body;
   // Check if the user has already submitted a review for the place
   const existingReview = await Review.findOne({ userId, placeId });
 
@@ -23,7 +23,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   const previousAvgRate = place.avgRate;
   const prevnumberOfReviews = place.numberOfReviews;
   const newAvgRate =
-    (previousAvgRate * prevnumberOfReviews + req.body.rating) /
+    (previousAvgRate * prevnumberOfReviews + rating) /
     (prevnumberOfReviews + 1);
 
   await Vendor.updateOne(
@@ -37,7 +37,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   );
   // If the user hasn't submitted a review, create a new one
   req.body.userId = userId;
-  const review = await Review.create(req.body);
+  const review = await Review.create({ placeId, userId, content, rating });
   if (!review) {
     throw new ApiError(
       'Something went wrong while posting your review , try again later...'

@@ -10,6 +10,15 @@ const {
   vendorReports,
   generateYearlyUserReport,
   generateCurrentMonthUserReport,
+  generateUserWeeklyReport,
+  generateUserWeeklyDaysReport,
+  getVendorTotalReviewsStatistics,
+  getLoggedVendor,
+  getVendorMonthlyReviewsStatistics,
+  getLoggedVendorMonthlyFavStatistics,
+  getLoggedVendorWeeklyFavStatistics,
+  getVendorWeeklyReviewsStatistics,
+  getLoggedVendorTotalFavStatistics,
 } = require('../controllers/reportController');
 
 router.get(
@@ -30,8 +39,43 @@ router.get(
 router.get('/vendorReport', EmployeeOrAbove, vendorReports);
 router.get('/yearlyReport', EmployeeOrAbove, generateYearlyUserReport);
 router.get(
-  'currentMonthlyReport',
+  '/currentMonthlyReport',
   EmployeeOrAbove,
   generateCurrentMonthUserReport
 );
+router.get('/weeklyReport', EmployeeOrAbove, generateUserWeeklyReport);
+
+//vendor dashboard
+router.get(
+  '/vendorTotalReview',
+  getLoggedVendor,
+  getVendorTotalReviewsStatistics
+);
+router.get(
+  '/vendorMonthlyReview',
+  getLoggedVendor,
+  getVendorMonthlyReviewsStatistics
+);
+router.get(
+  '/vendorWeeklyReview',
+  getLoggedVendor,
+  getVendorWeeklyReviewsStatistics
+);
+
+router.get(
+  '/vendorTotalFav',
+  getLoggedVendor,
+  getLoggedVendorTotalFavStatistics
+);
+router.get(
+  '/vendorMonthlyFav',
+  getLoggedVendor,
+  getLoggedVendorMonthlyFavStatistics
+);
+router.get(
+  '/vendorWeeklyFav',
+  getLoggedVendor,
+  getLoggedVendorWeeklyFavStatistics
+);
+
 module.exports = router;

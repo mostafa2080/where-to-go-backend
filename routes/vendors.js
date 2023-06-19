@@ -50,17 +50,18 @@ router
     vendorsController.restoreVendor
   );
 
-router
-  .route("/:id/activate")
-  .patch(
-    vendorValidator.paramIdValidationArray,
-    validatorMiddleware,
-    vendorsController.approveVendor,
-    vendorForgotPassword
-  );
+router.route("/:id/activate").patch(
+  vendorValidator.paramIdValidationArray,
+  validatorMiddleware,
+  vendorsController.approveVendor,
+  (req, res, next) => {
+    console.log("after approval");
+    next();
+  },
+  vendorForgotPassword
+);
 
-router.route('/topRated')
-  .get(vendorsController.getTopRatedPlaces)
+router.route("/topRated").get(vendorsController.getTopRatedPlaces);
 
 router
   .route("/:id")
