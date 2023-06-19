@@ -448,6 +448,49 @@ exports.getLoggedVendorTotalFavStatistics = asyncHandler(
   }
 );
 
+// exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
+//   async (req, res, next) => {
+//     const year = new Date().getFullYear();
+//     const startOfYear = new Date(year, 0, 1);
+//     const endOfYear = new Date(year, 11, 31);
+
+//     const favoritesByMonth = await customerModel.aggregate([
+//       {
+//         $match: {
+//           favoritePlaces: { $in: [req.vendorId] },
+//           createdAt: { $gte: startOfYear, $lte: endOfYear },
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: { $month: '$createdAt' },
+//           count: { $sum: 1 },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           month: '$_id',
+//           count: 1,
+//         },
+//       },
+//       {
+//         $sort: {
+//           month: 1,
+//         },
+//       },
+//     ]);
+
+//     console.log('Favorites by month:', favoritesByMonth);
+
+//     res.status(200).json({
+//       success: true,
+//       data: {
+//         favoritesByMonth,
+//       },
+//     });
+//   }
+// );
 exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
   async (req, res, next) => {
     const year = new Date().getFullYear();
@@ -481,12 +524,18 @@ exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
       },
     ]);
 
-    console.log('Favorites by month:', favoritesByMonth);
+    const favoritesByMonthWithZero = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      const existingData = favoritesByMonth.find(
+        (data) => data.month === month
+      );
+      return existingData || { month, count: 0 };
+    });
 
     res.status(200).json({
       success: true,
       data: {
-        favoritesByMonth,
+        favoritesByMonth: favoritesByMonthWithZero,
       },
     });
   }
