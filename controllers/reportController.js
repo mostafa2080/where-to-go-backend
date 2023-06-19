@@ -201,6 +201,10 @@ exports.generateYearlyUserReport = asyncHandler(async (req, res) => {
       createdAt: { $gte: startDate, $lte: endDate },
     });
 
+    if (!customerCount || !vendorCount || !employeeCount) {
+      throw new ApiError("Can't generate yearly user's report...!", 400);
+    }
+
     const totalUsers = customerCount + vendorCount + employeeCount;
 
     const monthlyCount = {
@@ -448,49 +452,7 @@ exports.getLoggedVendorTotalFavStatistics = asyncHandler(
   }
 );
 
-// exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
-//   async (req, res, next) => {
-//     const year = new Date().getFullYear();
-//     const startOfYear = new Date(year, 0, 1);
-//     const endOfYear = new Date(year, 11, 31);
 
-//     const favoritesByMonth = await customerModel.aggregate([
-//       {
-//         $match: {
-//           favoritePlaces: { $in: [req.vendorId] },
-//           createdAt: { $gte: startOfYear, $lte: endOfYear },
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: { $month: '$createdAt' },
-//           count: { $sum: 1 },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           month: '$_id',
-//           count: 1,
-//         },
-//       },
-//       {
-//         $sort: {
-//           month: 1,
-//         },
-//       },
-//     ]);
-
-//     console.log('Favorites by month:', favoritesByMonth);
-
-//     res.status(200).json({
-//       success: true,
-//       data: {
-//         favoritesByMonth,
-//       },
-//     });
-//   }
-// );
 exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
   async (req, res, next) => {
     const year = new Date().getFullYear();

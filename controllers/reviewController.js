@@ -58,7 +58,14 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
 
-  const reviews = await Review.find({ placeId: id }).skip(skip).limit(limit);
+  // const reviews = await Review.find({ placeId: id }).skip(skip).limit(limit)
+  const reviews = await Review.find({ placeId: id })
+    .skip(skip)
+    .limit(limit)
+    .populate({
+      path: 'userId',
+      select: 'firstName lastName image'
+    })
 
   if (reviews.length === 0) {
     throw new ApiError('No reviews found', 404);
