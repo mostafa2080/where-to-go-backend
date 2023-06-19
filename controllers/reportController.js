@@ -314,24 +314,26 @@ exports.getLoggedVendor = asyncHandler(async (req, res, next) => {
   req.vendorId = req.decodedToken.payload.id;
   next();
 });
-exports.getVendorTotalReviewsStatistics = asyncHandler(async (req, res, next) => {
-  const { vendorId } = req;
+exports.getVendorTotalReviewsStatistics = asyncHandler(
+  async (req, res, next) => {
+    const { vendorId } = req;
 
-  const vendor = await VendorModel.findById(vendorId);
-  if (!vendor) {
-    throw new ApiError('Vendor not found', 404);
+    const vendor = await VendorModel.findById(vendorId);
+    if (!vendor) {
+      throw new ApiError('Vendor not found', 404);
+    }
+
+    const numberOfReviews = await reviewModel.countDocuments({
+      placeId: vendorId,
+    });
+
+    const statistics = {
+      numberOfReviews,
+    };
+
+    res.status(200).json(statistics);
   }
-
-  const numberOfReviews = await reviewModel.countDocuments({
-    placeId: vendorId,
-  });
-
-  const statistics = {
-    numberOfReviews,
-  };
-
-  res.status(200).json(statistics);
-});
+);
 exports.getVendorMonthlyReviewsStatistics = asyncHandler(
   async (req, res, next) => {
     const { vendorId } = req; // Assuming the vendorId is available in the request's authenticated user object
@@ -365,49 +367,95 @@ exports.getVendorMonthlyReviewsStatistics = asyncHandler(
     res.status(200).json(statistics);
   }
 );
+exports.getVendorWeeklyReviewsStatistics = asyncHandler(
+  async (req, res, next) => {
+    const { vendorId } = req; // Assuming the vendorId is available in the request's authenticated user object
 
-exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(async (req, res, next) => {
-  const year = new Date().getFullYear();
-  const startOfYear = new Date(year, 0, 1);
-  const endOfYear = new Date(year, 11, 31);
+    const vendor = await VendorModel.findById(vendorId);
+    if (!vendor) {
+      throw new ApiError('Vendor not found', 404);
+    }
 
-  const favoritesByMonth = await customerModel.aggregate([
-    {
-      $match: {
-        favoritePlaces: { $in: [req.vendorId] },
-        createdAt: { $gte: startOfYear, $lte: endOfYear },
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
+    // Get the first day of the current month
+    const startOfMonth = new Date(currentYear, currentMonth, 1);
+
+    // Get the number of days in the current month
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    const reviews = await reviewModel.find({
+      placeId: vendorId,
+      timestamp: {
+        $gte: startOfMonth, // Start of the current month
+        $lt: new Date(currentYear, currentMonth, daysInMonth + 1), // End of the current month
       },
-    },
-    {
-      $group: {
-        _id: { $month: '$createdAt' },
-        count: { $sum: 1 },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        month: '$_id',
-        count: 1,
-      },
-    },
-    {
-      $sort: {
-        month: 1,
-      },
-    },
-  ]);
+    });
 
-  console.log('Favorites by month:', favoritesByMonth);
+    const weeksInMonth = Math.ceil(daysInMonth / 7); // Calculate the number of weeks in the current month
 
-  res.status(200).json({
-    success: true,
-    data: {
-      favoritesByMonth,
-    },
-  });
-});
+    const reviewsByWeek = Array(weeksInMonth).fill(0); // Initialize an array with the number of weeks, each initialized with 0
 
+    // Count the number of reviews for each week
+    reviews.forEach((review) => {
+      const dayOfMonth = review.timestamp.getDate();
+      const weekIndex = Math.floor((dayOfMonth - 1) / 7); // Calculate the week index for the review's day
+      reviewsByWeek[weekIndex]++;
+    });
+
+    const statistics = {
+      reviewsByWeek,
+    };
+
+    res.status(200).json(statistics);
+  }
+);
+
+exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
+  async (req, res, next) => {
+    const year = new Date().getFullYear();
+    const startOfYear = new Date(year, 0, 1);
+    const endOfYear = new Date(year, 11, 31);
+
+    const favoritesByMonth = await customerModel.aggregate([
+      {
+        $match: {
+          favoritePlaces: { $in: [req.vendorId] },
+          createdAt: { $gte: startOfYear, $lte: endOfYear },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$createdAt' },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: '$_id',
+          count: 1,
+        },
+      },
+      {
+        $sort: {
+          month: 1,
+        },
+      },
+    ]);
+
+    console.log('Favorites by month:', favoritesByMonth);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        favoritesByMonth,
+      },
+    });
+  }
+);
 
 exports.getLoggedVendorWeeklyFavStatistics = asyncHandler(
   async (req, res, next) => {
