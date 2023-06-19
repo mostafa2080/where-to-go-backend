@@ -195,7 +195,7 @@ exports.resetPassword = (model) =>
       return next(new ApiError("Password reset token not verified", 400));
     }
 
-    user.password = bcrypt.hashSync(req.body.newPassword, salt);
+    user.password = bcrypt.hashSync(req.body.password, salt);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     user.passwordResetVerified = undefined;
