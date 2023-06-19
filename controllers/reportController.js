@@ -413,6 +413,41 @@ exports.getVendorWeeklyReviewsStatistics = asyncHandler(
   }
 );
 
+exports.getLoggedVendorTotalFavStatistics = asyncHandler(
+  async (req, res, next) => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const startOfMonth = new Date(year, month, 1);
+    const endOfMonth = new Date(year, month + 1, 0);
+
+    const favoritesTotal = await customerModel.aggregate([
+      {
+        $match: {
+          favoritePlaces: { $in: [req.vendorId] },
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const totalFavorites =
+      favoritesTotal.length > 0 ? favoritesTotal[0].total : 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalFavorites,
+      },
+    });
+  }
+);
+
 exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
   async (req, res, next) => {
     const year = new Date().getFullYear();
