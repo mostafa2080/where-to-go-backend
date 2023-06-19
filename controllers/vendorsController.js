@@ -273,12 +273,14 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
     .exec();
 
   const tags = await Tags.find({ category: vendor.category[0]._id });
-  vendor.tags = tags;
+  const tagNames = tags.map((tag) => tag.name); // Extracting tag names
+
+  vendor.tags = tagNames; // Assigning tag names to the vendor
 
   res.status(200).json({
     status: 'success',
     data: vendor,
-    tags: tags,
+    tags: tagNames, // Sending the tag names in the response
   });
 });
 
