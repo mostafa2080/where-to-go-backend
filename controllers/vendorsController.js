@@ -271,8 +271,9 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
   const vendor = await Vendors.findById(req.params.id)
     .populate("category")
     .exec();
+    console.log(vendor)
 
-  const tags = await Tags.find({ category: vendor.category[0]._id });
+  const tags = await Tags.find({ category: vendor.category[0]._id || '' });
   const tagNames = tags.map((tag) => tag.name); // Extracting tag names
 
   vendor.tags = tagNames; // Assigning tag names to the vendor

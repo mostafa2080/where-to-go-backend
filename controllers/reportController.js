@@ -448,6 +448,7 @@ exports.getLoggedVendorTotalFavStatistics = asyncHandler(
   }
 );
 
+
 exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
   async (req, res, next) => {
     const year = new Date().getFullYear();
@@ -481,12 +482,18 @@ exports.getLoggedVendorMonthlyFavStatistics = asyncHandler(
       },
     ]);
 
-    console.log('Favorites by month:', favoritesByMonth);
+    const favoritesByMonthWithZero = Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      const existingData = favoritesByMonth.find(
+        (data) => data.month === month
+      );
+      return existingData || { month, count: 0 };
+    });
 
     res.status(200).json({
       success: true,
       data: {
-        favoritesByMonth,
+        favoritesByMonth: favoritesByMonthWithZero,
       },
     });
   }
