@@ -24,6 +24,7 @@ const {
   updatingDatabaseImageValues,
   getAllVendors,
   getTopRatedPlaces,
+  getVendor,
 } = require('../controllers/vendorsController');
 
 const {
@@ -89,6 +90,8 @@ router
     validatorMiddleware,
     addVendor
   );
+
+router.route('/vendor/:id').get(getVendor);
 
 router.route('/search').get(getAllVendors);
 router.route('/topRated').get(getTopRatedPlaces);
