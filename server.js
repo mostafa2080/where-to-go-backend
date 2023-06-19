@@ -26,6 +26,7 @@ const notificationsRoute = require("./routes/notificationsRoute");
 // Middlewares...
 const authenticationMiddleware = require("./middlewares/authenticationMiddleware");
 const raisedEventListener = require("./utils/webSockets");
+const topRatedPlaces = require("./routes/topRatedPlaces");
 
 dotenv.config({ path: ".env" });
 
@@ -59,6 +60,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/images", imagesRouter);
 app.use("/api/v1/contact", contactUsRoute);
 app.use("/api/v1/categories", categoriesRouter);
+app.use("/api/v1/topRated", topRatedPlaces);
 
 app.use(authenticationMiddleware);
 

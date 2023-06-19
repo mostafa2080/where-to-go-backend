@@ -594,7 +594,7 @@ exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
 exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
   try {
     // Code Here...
-    const topRatedPlaces = await Vendors.find().sort({ avgRate: -1 }).limit(5);
+    const topRatedPlaces = await Vendors.find().sort({ avgRate: -1 }).limit(4);
 
     if (topRatedPlaces.length > 0) {
       res.status(200).json({ data: topRatedPlaces });
