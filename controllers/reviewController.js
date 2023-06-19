@@ -52,10 +52,9 @@ exports.createReview = asyncHandler(async (req, res) => {
 // @access    Public
 exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  console.log(id);
 
   const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 10;
+  const limit = parseInt(req.query.limit, 10) || 5;
   const skip = (page - 1) * limit;
 
   // const reviews = await Review.find({ placeId: id }).skip(skip).limit(limit)
@@ -71,7 +70,7 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
     throw new ApiError('No reviews found', 404);
   }
 
-  res.json({ success: true, reviews });
+  res.json({ success: true,pagination: { total: 0, totalPages: 0, currentPage: page, perPage: limit }, reviews });
 });
 
 // @desc      update review
