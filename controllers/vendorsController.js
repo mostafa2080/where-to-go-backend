@@ -623,3 +623,27 @@ exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
     throw new ApiError('Error to get top rated places...!', 500);
   }
 });
+
+exports.getAllCities = AsyncHandler(async (req, res) => {
+  const cities = await Vendors.distinct('address.city');
+  if (!cities || cities.length === 0) {
+    throw new ApiError('No Cities Found');
+  }
+  return res.json({ cities });
+});
+
+exports.getAllStates = AsyncHandler(async (req, res) => {
+  const states = await Vendors.distinct('address.state');
+  if (!states || states.length === 0) {
+    throw new ApiError('No States Found');
+  }
+  return res.json({ states });
+});
+
+exports.getAllCountries = AsyncHandler(async (req, res) => {
+  const countries = await Vendors.distinct('address.country');
+  if (!countries || countries.length === 0) {
+    return res.status(404).json({ error: 'No Countries Found' });
+  }
+  return res.json({ countries });
+});
