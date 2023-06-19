@@ -315,7 +315,6 @@ exports.getLoggedVendor = asyncHandler(async (req, res, next) => {
 });
 exports.getVendorReviewsStatistics = asyncHandler(async (req, res, next) => {
   const { vendorId } = req;
-  Customer;
 
   const vendor = await VendorModel.findById(vendorId);
   if (!vendor) {
@@ -407,3 +406,93 @@ exports.getLoggedVendorFavStatistics = asyncHandler(async (req, res, next) => {
     },
   });
 });
+
+// exports.getLoggedVendorWeeklyFavStatistics = asyncHandler(
+//   async (req, res, next) => {
+//     console.log(req.decodedToken.payload.id);
+//     const currentDate = new Date();
+//     const year = currentDate.getFullYear();
+//     const month = currentDate.getMonth();
+//     const startOfMonth = new Date(year, month, 1);
+//     const endOfMonth = new Date(year, month + 1, 0);
+
+//     const favoritesByWeek = await customerModel.aggregate([
+//       {
+//         $match: {
+//           favoritePlaces: { $in: [req.vendorId] },
+//           createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: { $week: '$createdAt' },
+//           count: { $sum: 1 },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           week: '$_id',
+//           count: 1,
+//         },
+//       },
+//       {
+//         $sort: {
+//           week: 1,
+//         },
+//       },
+//     ]);
+
+//     console.log('Favorites by week:', favoritesByWeek);
+
+//     res.status(200).json({
+//       success: true,
+//       data: {
+//         favoritesByWeek,
+//       },
+//     });
+//   }
+// );
+
+exports.getLoggedVendorWeeklyFavStatistics = asyncHandler(
+  async (req, res, next) => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const startOfMonth = new Date(year, month, 1);
+    const endOfMonth = new Date(year, month + 1, 0);
+
+    const favoritesByWeek = await customerModel.aggregate([
+      {
+        $match: {
+          favoritePlaces: { $in: [req.vendorId] },
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+      },
+      {
+        $group: {
+          _id: { $week: '$createdAt' },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]);
+
+    const favoritesCountArray = favoritesByWeek.map(
+      (weekStats) => weekStats.count
+    );
+
+    console.log('Favorites count array:', favoritesCountArray);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        favoritesCountArray,
+      },
+    });
+  }
+);
