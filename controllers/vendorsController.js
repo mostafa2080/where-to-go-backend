@@ -84,6 +84,9 @@ const getAllVendors = async (req, res, next) => {
   const searchQuery = req.query.search || '';
   const categoryName = req.query.category || '';
   const tagSearchQuery = req.query.tags || '';
+  const country = req.query.country || '';
+  const city = req.query.city || '';
+  const state = req.query.state || '';
 
   const tagIds = filters.tags ? filters.tags.split(',') : [];
 
@@ -128,6 +131,21 @@ const getAllVendors = async (req, res, next) => {
     ];
   }
 
+  // Apply country filter
+  if (country) {
+    filterQuery['address.country'] = { $regex: country, $options: 'i' };
+  }
+
+  // Apply city filter
+  if (city) {
+    filterQuery['address.city'] = { $regex: city, $options: 'i' };
+  }
+
+  // Apply state filter
+  if (state) {
+    filterQuery['address.state'] = { $regex: state, $options: 'i' };
+  }
+
   const sortQuery = {};
   if (sortField) {
     sortQuery[sortField] = sortOrder === 'desc' ? -1 : 1;
@@ -140,8 +158,8 @@ const getAllVendors = async (req, res, next) => {
     // Extract the category IDs from the found tags
     const categoryIds = tags.map((tag) => tag.category);
 
-    // Add the category IDs to the filter query
-    if (categoryIds.length > 0) {
+    // Add the category IDs to the filter query only if no category filter is applied
+    if (!filters.category && categoryIds.length > 0) {
       filterQuery.category = { $in: categoryIds };
     }
 
@@ -150,8 +168,8 @@ const getAllVendors = async (req, res, next) => {
       filterQuery.category = filters.category;
     }
 
-    // Find the category by name
-    if (categoryName) {
+    // Find the category by name if no category filter is applied
+    if (!filters.category && categoryName) {
       const category = await Category.findOne({ name: categoryName });
 
       if (category) {
@@ -171,8 +189,8 @@ const getAllVendors = async (req, res, next) => {
       }
     }
 
-    // Find the vendors based on tag search query
-    if (tagSearchQuery) {
+    // Function to update filterQuery based on tag search query
+    const updateFilterQueryByTags = async (tagSearchQuery, filterQuery) => {
       const matchingTags = await Tags.find({ name: tagSearchQuery });
 
       // Extract the category IDs from the found tags
@@ -182,7 +200,7 @@ const getAllVendors = async (req, res, next) => {
         filterQuery.category = { $in: matchingCategoryIds };
       } else {
         // Return an empty response if no matching tags found
-        return res.status(200).json({
+        return {
           status: 'success',
           pagination: {
             total: 0,
@@ -191,8 +209,13 @@ const getAllVendors = async (req, res, next) => {
             perPage: limit,
           },
           data: [],
-        });
+        };
       }
+    };
+
+    // Find the vendors based on tag search query
+    if (tagSearchQuery) {
+      await updateFilterQueryByTags(tagSearchQuery, filterQuery);
     }
 
     const [vendors, total] = await Promise.all([
