@@ -79,17 +79,7 @@ exports.updateEmployeeValidator = [
   //   .isAlpha()
   //   .withMessage("Name Must Be Alphabetic"),
 
-  body("email")
-    .optional()
-    .custom(async (val, { req }) => {
-      const vendor = await Employees.findOne({ email: val });
-      if (vendor) {
-        throw new ApiError("Email Already Exists", 404);
-      }
-    })
-    .withMessage("Email Must Be Unique And Not Duplicated")
-    .isEmail()
-    .withMessage("Email Must Be Valid Email "),
+  body("email").optional().isEmail().withMessage("Email Must Be Valid Email "),
 
   // body("password").notEmpty().withMessage("Password Can't Be Empty"),
 
