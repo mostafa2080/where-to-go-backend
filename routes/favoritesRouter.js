@@ -1,8 +1,8 @@
 const express = require('express');
 const validateCustomer = require('../utils/validators/customerValidator');
+const favoritePlacesController = require('../controllers/favoritePlacesController');
+// const { CustomerOrAbove } = require('../middlewares/authorizationMiddleware');
 
-const { CustomerOrAbove } = require('../middlewares/authorizationMiddleware');
-const favoritePlacesController = require('./../controllers/favoritePlacesController');
 const router = express.Router();
 
 router
