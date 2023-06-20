@@ -437,13 +437,20 @@ exports.getFavoritePlaces = AsyncHandler(async (req, res, next) => {
   const { page } = req.query;
   const customer = await CustomerSchema.findById(req.decodedToken.payload.id);
   if (!customer) return new ApiError('Customer not found!', 404);
-  console.log(customer.favoritePlaces);
-  const places = await VendorSchema.find({
-    _id: { $in: customer.favoritePlaces },
-  })
-    .populate('category')
-    .limit(3)
-    .skip((page - 1) * 3);
+  let places;
+  if (req.query.page) {
+    places = await VendorSchema.find({
+      _id: { $in: customer.favoritePlaces },
+    })
+      .populate('category')
+      .limit(3)
+      .skip((page - 1) * 3);
+  } else {
+    places = await VendorSchema.find({
+      _id: { $in: customer.favoritePlaces },
+    })
+      .populate('category')
+  }
 
   res.status(200).json({ data: places });
 });
