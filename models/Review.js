@@ -1,8 +1,16 @@
 const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
-  placeId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'customers', required: true },
+  placeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'vendor',
+    required: true,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'customers',
+    required: true,
+  },
   content: { type: String, required: true },
   rating: { type: Number, required: true },
   timestamp: { type: Date, default: Date.now },
