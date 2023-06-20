@@ -57,20 +57,32 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 5;
   const skip = (page - 1) * limit;
 
-  // const reviews = await Review.find({ placeId: id }).skip(skip).limit(limit)
+  const totalReviewsCount = await Review.countDocuments({ placeId: id });
+
   const reviews = await Review.find({ placeId: id })
     .skip(skip)
     .limit(limit)
     .populate({
       path: 'userId',
-      select: 'firstName lastName image'
-    })
+      select: 'firstName lastName image',
+    });
 
   if (reviews.length === 0) {
     throw new ApiError('No reviews found', 404);
   }
 
-  res.json({ success: true,pagination: { total: 0, totalPages: 0, currentPage: page, perPage: limit }, reviews });
+  const totalPages = Math.ceil(totalReviewsCount / limit);
+
+  res.json({
+    success: true,
+    pagination: {
+      total: totalReviewsCount,
+      totalPages: totalPages,
+      currentPage: page,
+      perPage: limit,
+    },
+    reviews,
+  });
 });
 
 // @desc      update review
