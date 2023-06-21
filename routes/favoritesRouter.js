@@ -1,12 +1,12 @@
-const express = require('express');
-const validateCustomer = require('../utils/validators/customerValidator');
-const favoritePlacesController = require('../controllers/favoritePlacesController');
+const express = require("express");
+const validateCustomer = require("../utils/validators/customerValidator");
+const favoritePlacesController = require("../controllers/favoritePlacesController");
 // const { CustomerOrAbove } = require('../middlewares/authorizationMiddleware');
 
 const router = express.Router();
 
 router
-  .route('/')
+  .route("/")
   .patch(
     validateCustomer.validateFavoriteIDs,
     favoritePlacesController.addPlaceToFavorite
@@ -14,6 +14,6 @@ router
   .delete(
     validateCustomer.validateFavoriteIDs,
     favoritePlacesController.removePlace
-  )
+  );
 
 module.exports = router;
