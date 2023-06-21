@@ -60,6 +60,7 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const totalReviewsCount = await Review.countDocuments({ placeId: id });
 
   const reviews = await Review.find({ placeId: id })
+    .sort({ timestamp: -1 })
     .skip(skip)
     .limit(limit)
     .populate({

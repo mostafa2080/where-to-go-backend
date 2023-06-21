@@ -655,5 +655,6 @@ exports.getVendorsNames = AsyncHandler(async (req, res) => {
     throw new ApiError('Error to get vendors names...!', 400);
   }
 
-  res.status(200).json({ vendorNames });
+  const names = vendorNames.map( nameObject => nameObject.placeName)
+  res.status(200).json({ vendorNames: names });
 })
