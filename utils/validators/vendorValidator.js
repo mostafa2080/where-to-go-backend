@@ -154,17 +154,7 @@ exports.updateValidationArray = [
     .isString()
     .withMessage("Phone Number Must Be Valid Phone Number"),
 
-  body("email")
-    .optional()
-    .custom(async (val, { req }) => {
-      const vendor = await Vendor.findOne({ email: val });
-      if (vendor) {
-        throw new ApiError("Email Already Exists", 404);
-      }
-    })
-    .withMessage("Email Must Be Unique And Not Duplicated")
-    .isEmail()
-    .withMessage("Email Must Be Valid Email "),
+  body("email").optional().isEmail().withMessage("Email Must Be Valid Email "),
 
   body("description")
     .optional()
@@ -274,17 +264,7 @@ exports.updateLoggedUserValidator = [
     .isString()
     .withMessage("Phone Number Must Be Valid Phone Number"),
 
-  body("email")
-    .optional()
-    .custom(async (val, { req }) => {
-      const vendor = await Vendor.findOne({ email: val });
-      if (vendor) {
-        throw new ApiError("Email Already Exists", 404);
-      }
-    })
-    .withMessage("Email Must Be Unique And Not Duplicated")
-    .isEmail()
-    .withMessage("Email Must Be Valid Email "),
+  body("email").optional().isEmail().withMessage("Email Must Be Valid Email "),
 
   body("description")
     .optional()
