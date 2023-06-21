@@ -46,6 +46,8 @@ app.use('/refresh', refresh);
 // cors middleware
 app.use(cors());
 
+//ssl configuration
+app.use(express.static('public'));
 //Middleware
 app.use(express.json());
 app.use(
