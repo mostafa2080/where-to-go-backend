@@ -10,6 +10,7 @@ const globalError = require('./middlewares/errorMiddleware');
 const rolesRoute = require('./routes/rolesRouter');
 const permissionsRoute = require('./routes/permissionsRoute');
 const refresh = require('./utils/refresh');
+require("./cron").truncateNotificationTable()
 
 // Routes
 const authRouter = require('./routes/authRoute');
