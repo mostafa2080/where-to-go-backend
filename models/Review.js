@@ -1,14 +1,14 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema({
   placeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'vendor',
+    ref: "vendor",
     required: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customers',
+    ref: "customers",
     required: true,
   },
   content: { type: String, required: true },
@@ -16,6 +16,6 @@ const reviewSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-const Review = mongoose.model('Review', reviewSchema);
+const Review = mongoose.model("Review", reviewSchema);
 
 module.exports = Review;

@@ -1,8 +1,8 @@
-const asyncHandler = require('express-async-handler');
-const Review = require('../models/Review');
-const Vendor = require('../models/Vendor');
-const ApiError = require('../utils/apiError');
-const { vendor } = require('sharp');
+const asyncHandler = require("express-async-handler");
+const { vendor } = require("sharp");
+const Review = require("../models/Review");
+const Vendor = require("../models/Vendor");
+const ApiError = require("../utils/apiError");
 
 // @desc      Create a review
 // @route     POST /reviews
@@ -16,7 +16,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   if (existingReview) {
     return res.status(400).json({
       success: false,
-      error: 'You have already submitted a review for this place.',
+      error: "You have already submitted a review for this place.",
     });
   }
   const place = await Vendor.findOne({ _id: placeId });
@@ -40,7 +40,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   const review = await Review.create({ placeId, userId, content, rating });
   if (!review) {
     throw new ApiError(
-      'Something went wrong while posting your review , try again later...'
+      "Something went wrong while posting your review , try again later..."
     );
   }
 
@@ -60,15 +60,16 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
   const totalReviewsCount = await Review.countDocuments({ placeId: id });
 
   const reviews = await Review.find({ placeId: id })
+    .sort({ timestamp: -1 })
     .skip(skip)
     .limit(limit)
     .populate({
-      path: 'userId',
-      select: 'firstName lastName image',
+      path: "userId",
+      select: "firstName lastName image",
     });
 
   if (reviews.length === 0) {
-    throw new ApiError('No reviews found', 404);
+    throw new ApiError("No reviews found", 404);
   }
 
   const totalPages = Math.ceil(totalReviewsCount / limit);
@@ -99,7 +100,7 @@ exports.updateReview = asyncHandler(async (req, res) => {
   );
 
   if (!updatedReview) {
-    throw new ApiError('Review not found', 404);
+    throw new ApiError("Review not found", 404);
   }
 
   res.json({ success: true, review: updatedReview });
@@ -112,8 +113,8 @@ exports.deleteReview = asyncHandler(async (req, res) => {
   const deletedReview = await Review.findByIdAndDelete(req.params.id);
 
   if (!deletedReview) {
-    throw new ApiError('Review not found', 404);
+    throw new ApiError("Review not found", 404);
   }
 
-  res.json({ success: 'Deleted Successfully', review: deletedReview });
+  res.json({ success: "Deleted Successfully", review: deletedReview });
 });

@@ -13,7 +13,11 @@ exports.validateCreateTag = [
     .isLength({ max: 50 })
     .withMessage("Name Can't Exceed 50 Characters"),
 
-  body("categoryId").notEmpty().withMessage("Category Must Be Valid MongoId"),
+  body("categoryId")
+    .notEmpty()
+    .withMessage("Category Id Can't Be Empty")
+    .isMongoId()
+    .withMessage("Category Must Be Valid MongoId"),
 
   validatorMiddleware,
 ];
@@ -36,7 +40,10 @@ exports.validateUpdateTag = [
     .isLength({ max: 50 })
     .withMessage("Name Can't Exceed 50 Characters"),
 
-  body("categoryId").notEmpty().withMessage("Category Must Be Valid MongoId"),
+  body("categoryId")
+    .optional()
+    .isMongoId()
+    .withMessage("Category Must Be Valid MongoId"),
 
   validatorMiddleware,
 ];
