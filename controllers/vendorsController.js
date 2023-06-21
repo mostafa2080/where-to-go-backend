@@ -649,7 +649,7 @@ exports.getAllCountries = AsyncHandler(async (req, res) => {
 });
 
 exports.getVendorsNames = AsyncHandler(async (req, res) => {
-  const vendorNames = await Vendors.find({},{ placeName: 1 })
+  const vendorNames = await Vendors.find({},{ placeName: 1, _id: 0 })
 
   if (!vendorNames) {
     throw new ApiError('Error to get vendors names...!', 400);
