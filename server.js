@@ -41,7 +41,7 @@ const io = new Server(server, {
 dbconnection();
 
 //github refresher
-server.use('/refresh', refresh);
+app.use('/refresh', refresh);
 
 // cors middleware
 app.use(cors());
