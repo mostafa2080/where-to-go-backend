@@ -1,19 +1,19 @@
-const express = require('express');
-const validatorMiddleware = require('../middlewares/validatorMiddleware');
+const express = require("express");
+const validatorMiddleware = require("../middlewares/validatorMiddleware");
 
 const router = express.Router();
 const {
   vendorLogin,
   customerLogin,
   adminLogin,
-} = require('../controllers/authController');
+} = require("../controllers/authController");
 
 const {
   customerForgotPassword,
   customerVerifyPassResetCode,
   customerResetPassword,
   registerCustomer,
-} = require('../controllers/customerController');
+} = require("../controllers/customerController");
 
 const {
   vendorForgotPassword,
@@ -28,64 +28,65 @@ const {
   getAllCities,
   getAllStates,
   getAllCountries,
-} = require('../controllers/vendorsController');
+  getVendorsNames,
+} = require("../controllers/vendorsController");
 
 const {
   employeeForgotPassword,
   employeeVerifyPassResetCode,
   employeeResetPassword,
-} = require('../controllers/employeeController');
+} = require("../controllers/employeeController");
 
 const {
   forgotPasswordValidator,
   loginValidator,
   resetPasswordValidator,
-} = require('../utils/validators/authValidator');
+} = require("../utils/validators/authValidator");
 const {
   validateRegisterArray,
-} = require('../utils/validators/customerValidator');
-const { addValidationArray } = require('../utils/validators/vendorValidator');
+} = require("../utils/validators/customerValidator");
+const { addValidationArray } = require("../utils/validators/vendorValidator");
 
 router
-  .route('/employee/login')
+  .route("/employee/login")
   .post(loginValidator, validatorMiddleware, adminLogin);
 router
-  .route('/vendor/login')
+  .route("/vendor/login")
   .post(loginValidator, validatorMiddleware, vendorLogin);
 router
-  .route('/customer/login')
+  .route("/customer/login")
   .post(loginValidator, validatorMiddleware, customerLogin);
 
 router
-  .route('/customer/forgotPassword')
+  .route("/customer/forgotPassword")
   .post(forgotPasswordValidator, customerForgotPassword);
-router.route('/customer/verifyResetCode').post(customerVerifyPassResetCode);
+router.route("/customer/verifyResetCode").post(customerVerifyPassResetCode);
 router
-  .route('/customer/resetPassword')
+  .route("/customer/resetPassword")
   .put(resetPasswordValidator, customerResetPassword);
 
 router
-  .route('/vendor/forgotPassword')
+  .route("/vendor/forgotPassword")
   .post(forgotPasswordValidator, vendorForgotPassword);
-router.route('/vendor/verifyResetCode').post(vendorVerifyPassResetCode);
+router.route("/vendor/verifyResetCode").post(vendorVerifyPassResetCode);
 router
-  .route('/vendor/resetPassword')
+  .route("/vendor/resetPassword")
   .put(resetPasswordValidator, vendorResetPassword);
 
 router
-  .route('/employee/forgotPassword')
+  .route("/employee/forgotPassword")
   .post(forgotPasswordValidator, employeeForgotPassword);
-router.route('/employee/verifyResetCode').post(employeeVerifyPassResetCode);
+router.route("/employee/verifyResetCode").post(employeeVerifyPassResetCode);
 router
-  .route('/employee/resetPassword')
+  .route("/employee/resetPassword")
   .put(resetPasswordValidator, employeeResetPassword);
 
 router
-  .route('/customer/register')
+  .route("/customer/register")
   .post(validateRegisterArray, validatorMiddleware, registerCustomer);
 
 router
-  .route('/vendor/register')
+  .route("/vendor/register")
   .post(
     uploadVendorImages,
     updatingDatabaseImageValues,
@@ -94,11 +95,13 @@ router
     addVendor
   );
 
-router.route('/vendor/:id').get(getVendor);
+router.route("/vendor/:id").get(getVendor);
 
-router.route('/search').get(getAllVendors);
-router.route('/topRated').get(getTopRatedPlaces);
-router.route('/countries').get(getAllCountries);
-router.route('/cities').get(getAllCities);
-router.route('/states').get(getAllStates);
+router.route("/search").get(getAllVendors);
+router.route("/topRated").get(getTopRatedPlaces);
+router.route("/countries").get(getAllCountries);
+router.route("/cities").get(getAllCities);
+router.route("/states").get(getAllStates);
+router.route("/vendorsNames").get(getVendorsNames);
+
 module.exports = router;
