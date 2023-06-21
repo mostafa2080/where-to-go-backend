@@ -28,6 +28,7 @@ const {
   getAllCities,
   getAllStates,
   getAllCountries,
+  getVendorsNames,
 } = require('../controllers/vendorsController');
 
 const {
@@ -101,4 +102,6 @@ router.route('/topRated').get(getTopRatedPlaces);
 router.route('/countries').get(getAllCountries);
 router.route('/cities').get(getAllCities);
 router.route('/states').get(getAllStates);
+router.route('/vendorsNames').get(getVendorsNames)
+
 module.exports = router;
