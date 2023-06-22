@@ -174,7 +174,8 @@ exports.changeUserPasswordValidator = [
     .withMessage("Enter Your New Password")
     .custom(async (val, { req }) => {
       //verify current password
-      const user = await Customer.findById(req.decodedToken.id);
+      const user = await Customer.findById(req.decodedToken.payload.id);
+      // console.log(req.decodedTokenp\);
       if (!user) {
         throw new ApiError("No User Found For This ID", 404);
       }
