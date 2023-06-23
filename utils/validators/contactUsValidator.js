@@ -8,7 +8,7 @@ exports.contactUsValidator = [
     .isString()
     .withMessage('Name Must Be Alphabetic'),
   body('email').isEmail().withMessage('Email Must Be Valid Email'),
-  body('subject').notEmpty().withMessage('Subject is required.'),
+  // body('subject').notEmpty().withMessage('Subject is required.'),
   body('message').notEmpty().withMessage("Message Can't Be Empty."),
   validatorMiddleware,
 ];
