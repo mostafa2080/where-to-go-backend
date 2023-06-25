@@ -72,8 +72,8 @@ exports.validatePostArray = [
 
   body("phoneNumber")
     .notEmpty()
-    .isMobilePhone(["ar-EG", "ar-SA"])
-    .withMessage("Inavalid Phone Number Only EGY And SA Numbers Accepted "),
+    .isString()
+    .withMessage("Invalid Phone Number"),
 
   body("dateOfBirth")
     .custom((value, { req }) => {
@@ -108,7 +108,7 @@ exports.validatePatchArray = [
 
   body("password")
     .optional()
-    .isStrongPassword()
+    .matches(/^(?:|[0-9A-Za-z!@#$%^&*()_+=\\[\]{};':",.<>?-]){8,}$/)
     .withMessage(
       "Password Must Be At Least 8 Characters Long Contains 1-9 & A-Z & a-z & special character"
     ),
@@ -135,8 +135,8 @@ exports.validatePatchArray = [
 
   body("phoneNumber")
     .optional()
-    .isMobilePhone(["ar-EG", "ar-SA"])
-    .withMessage("Inavalid Phone Number Only EGY And SA Numbers Accepted "),
+    .isString()
+    .withMessage("Invalid Phone Number"),
 
   body("dateOfBirth")
     .optional()
@@ -234,8 +234,8 @@ exports.updateLoggedUserValidator = [
 
   body("phoneNumber")
     .optional()
-    .isMobilePhone(["ar-EG", "ar-SA"])
-    .withMessage("Inavalid Phone Number Only EGY And SA Numbers Accepted "),
+    .isString()
+    .withMessage("Invalid Phone Number"),
 
   body("dateOfBirth")
     .optional()
