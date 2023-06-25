@@ -61,8 +61,8 @@ exports.getPlaceReviews = asyncHandler(async (req, res) => {
 
   const reviews = await Review.find({ placeId: id })
     .sort({ timestamp: -1 })
-    .skip(skip)
-    .limit(limit)
+    // .skip(skip)
+    // .limit(limit)
     .populate({
       path: "userId",
       select: "firstName lastName image",
