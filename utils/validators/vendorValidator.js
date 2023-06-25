@@ -85,7 +85,7 @@ exports.addValidationArray = [
     .isString()
     .withMessage("Description Can't Be Empty"),
 
-  body("thumbnail").notEmpty().isString().withMessage("Image Can't Be Empty"),
+  body("thumbnail").isString().withMessage("Image Can't Be Empty"),
 
   body("gallery")
     .isArray()
