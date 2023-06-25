@@ -253,7 +253,7 @@ exports.updateLoggedUserValidator = [
 
   body("gender")
     .optional()
-    .isIn(["male", "female"])
+    .isIn(["Male", "Female"])
     .withMessage("Gender Must Be Valid Value -> Male | Female"),
 
   validatorMiddleware,
