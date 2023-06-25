@@ -399,26 +399,33 @@ exports.updateVendor = AsyncHandler(async (req, res, next) => {
   if (!document) {
     return next(new ApiError("Document not found", 404));
   }
-  console.log(document);
 
-  if (document.thumbnail) {
-    await fs.unlink(
-      path.join(__dirname, "..", "images", "vendors", document.thumbnail),
-      (error) => {
-        if (error) throw new ApiError(error, 404);
-      }
-    );
-  }
-  if (document.gallery) {
-    document.gallery.forEach(async (image) => {
-      await fs.unlink(
-        path.join(__dirname, "..", "images", "vendors", image),
-        (error) => {
-          if (error) throw new ApiError(error, 404);
-        }
-      );
-    });
-  }
+  // if (document.thumbnail && req.files && req.files.thumbnail) {
+  //   try{
+  //     await fs.unlink(
+  //       path.join(__dirname, "..", "images", "vendors", document.thumbnail),
+  //       (error) => {
+  //         if (error) throw new ApiError(error, 404);
+  //       }
+  //     );
+  //   }catch (error){
+  //     throw new ApiError("Can't update thumbnail...! ", 400);
+  //   }
+  // }
+  // if (document.gallery && req.files && req.files.gallery) {
+  //   document.gallery.forEach(async (image) => {
+  //     try{
+  //       await fs.unlink(
+  //         path.join(__dirname, "..", "images", "vendors", image),
+  //         (error) => {
+  //           if (error) throw new ApiError(error, 404);
+  //         }
+  //       );
+  //     }catch (error){
+  //       throw new ApiError("Can't update gallery...! ", 400);
+  //     }
+  //   });
+  // }
 
   if (req.files && req.files.thumbnail) {
     await sharp(req.files.thumbnail[0].buffer)
