@@ -12,7 +12,7 @@ router.get(
   vendorsController.getVendor
 );
 router.put(
-  "/changeMyPassaowrd",
+  "/changeMyPassword",
   vendorValidator.changeUserPasswordValidator,
   vendorsController.updateLoggedVendorPassword
 );
