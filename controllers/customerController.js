@@ -320,7 +320,7 @@ exports.restoreCustomer = AsyncHandler(async (req, res, next) => {
 exports.deleteCustomer = AsyncHandler(async (req, res, next) => {
   const customer = await CustomerSchema.findOne({ _id: req.params.id });
   if (!customer) return new ApiError("Customer not found!", 404);
-  if (customer.image !== "default.jpg") {
+  if (customer.image && customer.image !== "default.jpg") {
     await fs.unlink(
       path.join(__dirname, "..", "images", "customers", customer.image),
       (error) => {
