@@ -521,6 +521,7 @@ exports.uploadVendorImages = uploadMixOfImages([
   { name: "thumbnail", maxCount: 1 },
   {
     name: "gallery",
+    minCount: 3,
     maxCount: 5,
   },
 ]);
@@ -655,6 +656,6 @@ exports.getVendorsNames = AsyncHandler(async (req, res) => {
     throw new ApiError("Error to get vendors names...!", 400);
   }
 
-  const names = vendorNames.map( nameObject => nameObject.placeName)
+  const names = vendorNames.map((nameObject) => nameObject.placeName);
   res.status(200).json({ vendorNames: names });
-})
+});
