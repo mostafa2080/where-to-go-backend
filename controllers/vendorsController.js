@@ -305,6 +305,7 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
 exports.updatingDatabaseImageValues = AsyncHandler(async (req, res, next) => {
   if (req.files && req.files.thumbnail) {
     req.body.thumbnail = `vendor-${uuidv4()}-${Date.now()}-cover.jpeg`;
+    console.log("heeeeeeeeeeeeeeeeeeeeeeeeere");
   }
 
   if (req.files && req.files.gallery) {
@@ -317,7 +318,6 @@ exports.updatingDatabaseImageValues = AsyncHandler(async (req, res, next) => {
       })
     );
   }
-
   next();
 });
 
