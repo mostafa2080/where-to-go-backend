@@ -10,7 +10,7 @@ const globalError = require('./middlewares/errorMiddleware');
 const rolesRoute = require('./routes/rolesRouter');
 const permissionsRoute = require('./routes/permissionsRoute');
 const refresh = require('./utils/refresh');
-require("./cron").truncateNotificationTable()
+require('./cron').truncateNotificationTable();
 
 // Routes
 const authRouter = require('./routes/authRoute');
@@ -99,11 +99,13 @@ server.listen(PORT, () => {
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error(`UnhandledRejection Error ${err}`);
-  server.close(() => {
-    console.log(`shutting down....`);
-    process.exit(1);
-  });
+  // console.error(`UnhandledRejection Error ${err}`);
+  // server.close(() => {
+  //   console.log(`shutting down....`);
+  //   process.exit(1);
+  // });
+  console.log(err);
+  throw ApiError('Unhandled Rejection Error', 500);
 });
 
 module.exports = {
