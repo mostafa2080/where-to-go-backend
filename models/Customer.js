@@ -16,7 +16,7 @@ const CustomerSchema = ExtendSchema(UserSchema, {
   dateOfBirth: Date,
   gender: {
     type: String,
-    enum: ['male', 'female'],
+    enum: ['Male', 'Female'],
   },
   verifiedAt: {
     type: Date,
