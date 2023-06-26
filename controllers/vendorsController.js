@@ -305,6 +305,7 @@ exports.getVendor = AsyncHandler(async (req, res, next) => {
 exports.updatingDatabaseImageValues = AsyncHandler(async (req, res, next) => {
   if (req.files && req.files.thumbnail) {
     req.body.thumbnail = `vendor-${uuidv4()}-${Date.now()}-cover.jpeg`;
+    console.log("heeeeeeeeeeeeeeeeeeeeeeeeere");
   }
 
   if (req.files && req.files.gallery) {
@@ -317,7 +318,6 @@ exports.updatingDatabaseImageValues = AsyncHandler(async (req, res, next) => {
       })
     );
   }
-
   next();
 });
 
@@ -528,6 +528,7 @@ exports.uploadVendorImages = uploadMixOfImages([
   { name: "thumbnail", maxCount: 1 },
   {
     name: "gallery",
+    minCount: 3,
     maxCount: 5,
   },
 ]);
@@ -619,7 +620,7 @@ exports.deleteLoggedVendorData = AsyncHandler(async (req, res, next) => {
 exports.getTopRatedPlaces = AsyncHandler(async (req, res, next) => {
   try {
     // Code Here...
-    const topRatedPlaces = await Vendors.find().sort({ avgRate: -1 }).limit(5);
+    const topRatedPlaces = await Vendors.find().populate("category").sort({ avgRate: -1 }).limit(4);
 
     if (topRatedPlaces.length > 0) {
       res.status(200).json({ data: topRatedPlaces });
@@ -662,6 +663,6 @@ exports.getVendorsNames = AsyncHandler(async (req, res) => {
     throw new ApiError("Error to get vendors names...!", 400);
   }
 
-  const names = vendorNames.map( nameObject => nameObject.placeName)
+  const names = vendorNames.map((nameObject) => nameObject.placeName);
   res.status(200).json({ vendorNames: names });
-})
+});

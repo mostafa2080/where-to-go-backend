@@ -10,7 +10,7 @@ const globalError = require('./middlewares/errorMiddleware');
 const rolesRoute = require('./routes/rolesRouter');
 const permissionsRoute = require('./routes/permissionsRoute');
 const refresh = require('./utils/refresh');
-require("./cron").truncateNotificationTable()
+require('./cron').truncateNotificationTable();
 
 // Routes
 const authRouter = require('./routes/authRoute');
@@ -104,6 +104,7 @@ process.on('unhandledRejection', (err) => {
     console.log(`shutting down....`);
     process.exit(1);
   });
+
 });
 
 module.exports = {
