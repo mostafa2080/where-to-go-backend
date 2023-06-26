@@ -5,8 +5,10 @@ const ApiError = require('../utils/apiError');
 
 const getImage = (req, res, folder) => {
   const { filename } = req.params;
-  const extension = filename.split('.')[1];
-  const imagePath = path.join(__dirname, '..', 'images', folder, filename);
+  const extension = filename ? filename.split('.')[1] : 'jpg';
+  const imagePath = filename
+    ? path.join(__dirname, '..', 'images', folder, filename)
+    : path.join(__dirname, '..', 'images', folder, 'default.jpg');
 
   res.setHeader('Content-Type', `image/${extension}`);
 
