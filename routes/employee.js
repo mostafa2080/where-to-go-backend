@@ -3,7 +3,7 @@ const Controller = require('../controllers/employeeController');
 const Validator = require('../utils/validators/employeeValidator');
 const validatorMiddleware = require('../middlewares/validatorMiddleware');
 const { uploadImg } = require('../utils/imageUtility');
-const { Admin } = require('../middlewares/authorizationMiddleware');
+const { Admin, authorize } = require('../middlewares/authorizationMiddleware');
 
 const router = express.Router();
 
@@ -25,42 +25,42 @@ router.delete(
 
 router
   .route('')
-  .get(Admin, Controller.getAllEmployees)
+  .get(authorize(['get_employees']), Controller.getAllEmployees)
   .post(
-    Admin,
+    authorize(['get_employees']),
     uploadImg().single('image'),
     Validator.createEmployeeValidator,
     validatorMiddleware,
     Controller.createEmployee
   );
-router.route('/filter').get(Admin, Controller.filterEmployee);
+router.route('/filter').get(authorize(['filter_employee']), Controller.filterEmployee);
 
 router
   .route('/:id')
   .get(
-    Admin,
+    authorize(['get_employee']),
     Validator.getEmployeeValidator,
     validatorMiddleware,
     Controller.getEmployeeById
   )
   .put(
-    Admin,
+    authorize(['edit_employee']),
     uploadImg().single('image'),
     Validator.updateEmployeeValidator,
     validatorMiddleware,
     Controller.updateEmployee
   )
   .delete(
-    Admin,
+    authorize(['delete_employee']),
     Validator.deleteEmployeeValidator,
     validatorMiddleware,
     Controller.deleteEmployee
   );
 
 router
-  .route('/resetPassword/:id')
+  .route('/resetPassword/:id') //this route can be accessed by Admin , Employee
   .put(
-    Admin,
+    authorize(['resetPassword_employee']),
     Validator.resetPasswordValidator,
     validatorMiddleware,
     Controller.resetPassword
@@ -69,7 +69,7 @@ router
 router
   .route('/ban/:id')
   .put(
-    Admin,
+    authorize(['ban_employee']),
     Validator.bannEmployeeValidator,
     validatorMiddleware,
     Controller.banEmployee
@@ -78,7 +78,7 @@ router
 router
   .route('/unban/:id')
   .put(
-    Admin,
+    authorize(['unban_employee']),
     Validator.bannEmployeeValidator,
     validatorMiddleware,
     Controller.unbanEmployee
@@ -87,7 +87,7 @@ router
 router
   .route('/deactivate/:id')
   .put(
-    Admin,
+    authorize(['deactivate_employee']),
     Validator.bannEmployeeValidator,
     validatorMiddleware,
     Controller.deactivateEmployee
@@ -96,7 +96,7 @@ router
 router
   .route('/activate/:id')
   .put(
-    Admin,
+    authorize(['activate_employee']),
     Validator.bannEmployeeValidator,
     validatorMiddleware,
     Controller.activateEmployee

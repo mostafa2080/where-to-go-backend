@@ -36,3 +36,31 @@ exports.CustomerOrAbove = (req, res, next) => {
         next(new ApiError('UnAuthorized..!', 403));
     }
 }
+
+const Role = require("../models/Role");
+
+exports.authorize = (requiredPermissions) => async (req, res, next) => {
+    try {
+      const userRole = req.decodedToken.payload.role;
+      const role = await Role.findOne({ name: userRole });
+
+      if (!role) {
+        throw new ApiError('Role not found..!', 403);
+      }
+
+      const userPermissions = role.permissions.map(permission => permission.name.toString());
+      console.log(userPermissions);
+
+      const hasPermission = requiredPermissions.every(permission =>
+        userPermissions.includes(permission)
+      );
+
+      if (hasPermission) {
+        next();
+      } else {
+        throw new ApiError('Unauthorized..!', 403);
+      }
+    } catch (error) {
+      next(error);
+    }
+  };

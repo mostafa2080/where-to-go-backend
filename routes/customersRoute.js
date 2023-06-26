@@ -6,31 +6,35 @@ const { uploadImg } = require("../utils/imageUtility");
 const {
   EmployeeOrAbove,
   CustomerOrAbove,
+  authorize,
 } = require("../middlewares/authorizationMiddleware");
 
 const router = express.Router();
 
 router.get(
   "/getMe",
+  authorize(['getMe_customer']),
   controller.getLoggedCustomerData,
   controller.getCustomerById
 );
-router.get("/myFavorites", controller.getFavoritePlaces);
+router.get("/myFavorites", authorize(['get_myFavorites']), controller.getFavoritePlaces);
 router.put(
   "/changeMyPassword",
+  authorize(['edit_changeMyPassword_customer']),
   validateCustomer.changeUserPasswordValidator,
   controller.updateLoggedCustomerPassword
 );
 router.put(
   "/updateMe",
+  authorize(['editMe_customer']),
   uploadImg().single("image"),
   controller.updateLoggedCustomerData
 );
-router.delete("/deleteMe", controller.deleteLoggedCustomerData);
+router.delete("/deleteMe", authorize(['deleteMe_customer']), controller.deleteLoggedCustomerData);
 
 router
   .route("/")
-  .get(EmployeeOrAbove, controller.getAllCustomers)
+  .get(authorize(['get_customers']), controller.getAllCustomers)
   .post(
     uploadImg().single("image"),
     validateCustomer.validatePostArray,
@@ -39,7 +43,7 @@ router
 
 router
   .route("/:id")
-  .all(CustomerOrAbove, validateCustomer.validateIdParam)
+  .all(authorize(['get_customer']), validateCustomer.validateIdParam)  // all system users can do this route
   .get(controller.getCustomerById)
   .patch(
     uploadImg().single("image"),
@@ -51,7 +55,7 @@ router
 router
   .route("/softDelete/:id")
   .patch(
-    EmployeeOrAbove,
+    authorize(['delete_customer']),
     validateCustomer.validateIdParam,
     controller.softDeleteCustomer
   );
@@ -59,7 +63,7 @@ router
 router
   .route("/restore/:id")
   .patch(
-    EmployeeOrAbove,
+    authorize(['restore_customer']),
     validateCustomer.validateIdParam,
     controller.restoreCustomer
   );
@@ -67,7 +71,7 @@ router
 router
   .route("/deactivate/:id")
   .patch(
-    EmployeeOrAbove,
+    authorize(['deactivate_customer']),
     validateCustomer.validateIdParam,
     controller.deactivateCustomer
   );
@@ -75,7 +79,7 @@ router
 router
   .route("/activate/:id")
   .patch(
-    EmployeeOrAbove,
+    authorize(['activate_customer']),
     validateCustomer.validateIdParam,
     controller.activateCustomer
   );
@@ -83,7 +87,7 @@ router
 router
   .route("/ban/:id")
   .patch(
-    EmployeeOrAbove,
+    authorize(['ban_customer']),
     validateCustomer.validateIdParam,
     controller.banCustomer
   );
@@ -91,7 +95,7 @@ router
 router
   .route("/unban/:id")
   .patch(
-    EmployeeOrAbove,
+    authorize(['unban_customer']),
     validateCustomer.validateIdParam,
     controller.unbanCustomer
   );

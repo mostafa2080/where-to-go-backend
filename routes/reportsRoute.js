@@ -1,5 +1,5 @@
 const express = require('express');
-const { EmployeeOrAbove } = require('../middlewares/authorizationMiddleware');
+const { EmployeeOrAbove, authorize } = require('../middlewares/authorizationMiddleware');
 
 const router = express.Router();
 
@@ -23,27 +23,27 @@ const {
 
 router.get(
   '/generatePlacePopularityReport',
-  EmployeeOrAbove,
+  authorize(['get_generatePlacePopularityReport']),
   generatePlacePopularityReport
 );
 router.get(
   '/generateVendorPerformanceReport',
-  EmployeeOrAbove,
+  authorize(['get_generateVendorPerformanceReport']),
   generateVendorPerformanceReport
 );
 router.get(
   '/generateUserActivityReport',
-  EmployeeOrAbove,
+  authorize(['get_generateUserActivityReport']),
   generateUserActivityReport
 );
-router.get('/vendorReport', EmployeeOrAbove, vendorReports);
-router.get('/yearlyReport', EmployeeOrAbove, generateYearlyUserReport);
+router.get('/vendorReport', authorize(['get_vendorReport']), vendorReports);
+router.get('/yearlyReport', authorize(['get_yearlyReport']), generateYearlyUserReport);
 router.get(
   '/currentMonthlyReport',
-  EmployeeOrAbove,
+  authorize(['get_currentMonthlyReport']),
   generateCurrentMonthUserReport
 );
-router.get('/weeklyReport', EmployeeOrAbove, generateUserWeeklyReport);
+router.get('/weeklyReport', authorize(['get_weeklyReport']), generateUserWeeklyReport);
 
 //vendor dashboard
 router.get(

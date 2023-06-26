@@ -3,26 +3,29 @@ const vendorsController = require("../controllers/vendorsController");
 const vendorValidator = require("../utils/validators/vendorValidator");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
 const { vendorForgotPassword } = require("../controllers/vendorsController");
+const { authorize } = require("../middlewares/authorizationMiddleware");
 
 const router = express.Router();
 
 router.get(
-  "/getMe",
+  "/getMe",  // vendor
   vendorsController.getLoggedVendorData,
   vendorsController.getVendor
 );
 router.put(
-  "/changeMyPassaowrd",
+  "/changeMyPassaowrd",   // vendor
+  authorize(['changeMyPassaowrd_vendor']), 
   vendorValidator.changeUserPasswordValidator,
   vendorsController.updateLoggedVendorPassword
 );
-router.put("/updateMe", vendorsController.updateLoggedVendorData);
-router.delete("/deleteMe", vendorsController.deleteLoggedVendorData);
+router.put("/updateMe", authorize(['updateMe_vendor']), vendorsController.updateLoggedVendorData);
+router.delete("/deleteMe", authorize(['deleteMe_vendor']), vendorsController.deleteLoggedVendorData);
 
 router
   .route("/")
   .get(vendorsController.getAllVendors)
   .post(
+    authorize(['create_vendor']),
     vendorsController.uploadVendorImages,
     vendorsController.updatingDatabaseImageValues,
     vendorValidator.addValidationArray,
@@ -30,27 +33,30 @@ router
     vendorsController.addVendor
   );
 
-router.route("/approved").get(vendorsController.getApprovedVendors);
+router.route("/approved").get(authorize(['get_approvedVendor']),vendorsController.getApprovedVendors); //emp, admin
 
-router.route("/rejected").get(vendorsController.getRejectedVendors);
+router.route("/rejected").get(authorize(['get_rejectedVendor']),vendorsController.getRejectedVendors); //emp, admin
 
 router
-  .route("/:id/deactivate")
+  .route("/:id/deactivate") //emp, admin
   .patch(
+    authorize(['deactivate_vendor']),
     vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.deactivateVendor
   );
 
 router
-  .route("/:id/restore")
+  .route("/:id/restore") //emp, admin
   .patch(
+    authorize(['restore_vendor']),
     vendorValidator.paramIdValidationArray,
     validatorMiddleware,
     vendorsController.restoreVendor
   );
 
-router.route("/:id/activate").patch(
+router.route("/:id/activate").patch( //emp, admin
+  authorize(['activate_vendor']),
   vendorValidator.paramIdValidationArray,
   validatorMiddleware,
   vendorsController.approveVendor,
@@ -71,6 +77,7 @@ router
     vendorsController.getVendor
   )
   .patch(
+    authorize(['edit_vendor']),                                     //emp, admin, vendor
     vendorsController.uploadVendorImages,
     vendorsController.updatingDatabaseImageValues,
     vendorValidator.updateValidationArray,

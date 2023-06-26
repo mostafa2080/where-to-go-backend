@@ -15,13 +15,14 @@ const {
   validateUpdateReview,
   validateGetReviewById,
 } = require('../utils/validators/reviewValidator');
+const { authorize } = require('../middlewares/authorizationMiddleware');
 
-router.route('/').post(validateCreateReview, createReview);
+router.route('/').post(authorize(['create_review']), validateCreateReview, createReview);
 
 router
   .route('/:id')
   .get(getPlaceReviews)
-  .put(validateUpdateReview, updateReview)
-  .delete(validateDeleteReview, deleteReview);
+  .put(authorize(['edit_review']), validateUpdateReview, updateReview)
+  .delete(authorize(['delete_review']), validateDeleteReview, deleteReview);
 
 module.exports = router;
