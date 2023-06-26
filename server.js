@@ -99,13 +99,12 @@ server.listen(PORT, () => {
 });
 
 process.on('unhandledRejection', (err) => {
-  // console.error(`UnhandledRejection Error ${err}`);
-  // server.close(() => {
-  //   console.log(`shutting down....`);
-  //   process.exit(1);
-  // });
-  console.log(err);
-  throw new ApiError('Unhandled Rejection Error', 500);
+  console.error(`UnhandledRejection Error ${err}`);
+  server.close(() => {
+    console.log(`shutting down....`);
+    process.exit(1);
+  });
+
 });
 
 module.exports = {

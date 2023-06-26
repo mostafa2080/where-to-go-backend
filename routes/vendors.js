@@ -19,16 +19,16 @@ router.put(
 router.put("/updateMe", vendorsController.updateLoggedVendorData);
 router.delete("/deleteMe", vendorsController.deleteLoggedVendorData);
 
-router.route("/").get(vendorsController.getAllVendors).post(
-  // (req) => {
-  //   console.log(req.files);
-  // },
-  vendorsController.uploadVendorImages,
-  vendorsController.updatingDatabaseImageValues,
-  vendorValidator.addValidationArray,
-  validatorMiddleware,
-  vendorsController.addVendor
-);
+router
+  .route("/")
+  .get(vendorsController.getAllVendors)
+  .post(
+    vendorsController.uploadVendorImages,
+    vendorsController.updatingDatabaseImageValues,
+    vendorValidator.addValidationArray,
+    validatorMiddleware,
+    vendorsController.addVendor
+  );
 
 router.route("/approved").get(vendorsController.getApprovedVendors);
 
