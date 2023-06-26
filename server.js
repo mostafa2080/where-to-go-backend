@@ -105,7 +105,7 @@ process.on('unhandledRejection', (err) => {
   //   process.exit(1);
   // });
   console.log(err);
-  throw ApiError('Unhandled Rejection Error', 500);
+  throw new ApiError('Unhandled Rejection Error', 500);
 });
 
 module.exports = {
