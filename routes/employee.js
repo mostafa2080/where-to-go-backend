@@ -13,7 +13,7 @@ router.get(
   Controller.getEmployeeById
 );
 router.put(
-  '/changeMyPassaowrd',
+  '/changeMyPassword',
   Validator.changeUserPasswordValidator,
   Controller.updateLoggedEmployeePassword
 );
