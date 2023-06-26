@@ -41,6 +41,10 @@ exports.adminLogin = asyncHandler(async (req, res, next) => {
       roleName = role.name;
     }
 
+    if (employee.bannedAtt !== null) {
+      throw new ApiError("Sorry, you are banned, try again later...!", 451);
+    }
+
     const token = createToken({ id: employee._id, role: roleName });
 
     res.status(200).json({
@@ -71,6 +75,10 @@ exports.vendorLogin = asyncHandler(async (req, res, next) => {
     const role = await RoleModel.findOne({ _id: vendor.role });
     if (role) {
       roleName = role.name;
+    }
+
+    if (vendor.deactivatedAt !== null) {
+      throw new ApiError("Sorry, you are deactivated, try again later...!", 451);
     }
 
     const token = createToken({ id: vendor._id, role: roleName });
@@ -104,6 +112,10 @@ exports.customerLogin = asyncHandler(async (req, res, next) => {
     const role = await RoleModel.findOne({ _id: customer.role });
     if (role) {
       roleName = role.name;
+    }
+
+    if (customer.bannedAt !== null) {
+      throw new ApiError("Sorry, you are banned, try again later...!", 451);
     }
 
     const token = createToken({ id: customer._id, role: roleName });
