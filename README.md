@@ -1,4 +1,4 @@
-# UNDER CONSTRUCTION | Project Documentation: Where To Go Website
+# Project Documentation: Where To Go Website
 - [Dashboard Frontend (React)](https://github.com/mostafa2080/Where-To-Go-FrontEnd/)
 ## Contributors
 - [@0xosamaa](https://github.com/0xosamaa)
